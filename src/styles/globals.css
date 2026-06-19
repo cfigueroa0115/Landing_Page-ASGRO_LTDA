@@ -1,0 +1,127 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Brand color tokens */
+    --color-brand-blue: #024EA3;
+    --color-brand-dark-blue: #011930;
+    --color-brand-navy: #001B33;
+    --color-brand-green: #7AC146;
+    --color-brand-green-alt: #6FB639;
+    --color-brand-neon-green: #9BE564;
+    --color-brand-light-gray: #F4F6F9;
+
+    /* Premium border radius tokens */
+    --radius-card: 22px;
+    --radius-btn: 16px;
+    --radius-input: 14px;
+    --radius-modal: 24px;
+
+    /* shadcn/ui compatible radius token */
+    --radius: 14px;
+
+    /* Spacing base unit */
+    --spacing-unit: 8px;
+
+    /* Shadow tokens */
+    --shadow-card: 0 3px 12px rgba(0, 0, 0, 0.12);
+    --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.15);
+    --shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.1);
+    --shadow-btn: 0 2px 8px rgba(2, 78, 163, 0.2);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
+  body {
+    @apply font-sans text-body text-brand-dark-blue bg-white antialiased;
+    overflow-x: hidden;
+  }
+
+  /* Fluid images — prevent horizontal overflow */
+  img,
+  video,
+  svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  h1 {
+    @apply text-h1 md:text-[2.5rem] lg:text-[3.5rem];
+  }
+
+  h2 {
+    @apply text-h2 md:text-[2rem] lg:text-[2.5rem];
+  }
+
+  h3 {
+    @apply text-h3 md:text-[1.5rem] lg:text-[1.75rem];
+  }
+
+  h4 {
+    @apply text-h4;
+  }
+}
+
+@layer components {
+  .section-container {
+    @apply mx-auto w-full max-w-[1280px] px-2 md:px-3 lg:px-4;
+  }
+
+  .card-premium {
+    @apply rounded-card shadow-card bg-white transition-shadow duration-300 hover:shadow-card-hover;
+  }
+
+  .btn-primary {
+    @apply rounded-btn bg-brand-green px-3 py-1 font-semibold text-white shadow-btn transition-all duration-200 hover:bg-brand-green-alt hover:shadow-elevated;
+  }
+
+  .btn-secondary {
+    @apply rounded-btn border-2 border-brand-blue px-3 py-1 font-semibold text-brand-blue transition-all duration-200 hover:bg-brand-blue hover:text-white;
+  }
+
+  .input-field {
+    @apply rounded-input border border-gray-300 px-2 py-1 text-body transition-colors duration-200 focus:border-brand-blue focus:outline-none focus:ring-2 focus:ring-brand-blue/20;
+  }
+}
+
+@layer utilities {
+  .glassmorphism {
+    @apply bg-white/80 backdrop-blur-md;
+  }
+
+  /* Visible focus indicator utility — 2px+ solid outline with 3:1 contrast ratio */
+  .focus-brand {
+    @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue;
+  }
+}
+
+/* ─── Global Focus Indicators ──────────────────────────────────────────────────
+ * Ensures ALL focusable elements have a visible 2px+ outline with 3:1+ contrast
+ * ratio against adjacent colors when focused via keyboard (focus-visible).
+ * Brand blue (#024EA3) on white provides ~5.5:1 contrast ratio, well above 3:1.
+ * On dark backgrounds, the outline remains visible due to offset spacing.
+ * ─────────────────────────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-brand-blue);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Remove default browser outline in favor of our custom one */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Ensure focus on dark backgrounds uses a lighter color for 3:1 contrast */
+.bg-hero-gradient :focus-visible,
+.bg-footer-gradient :focus-visible,
+[class*="bg-brand-dark"] :focus-visible,
+[class*="bg-brand-navy"] :focus-visible,
+[class*="from-\\[#011930\\]"] :focus-visible {
+  outline-color: var(--color-brand-neon-green);
+}
