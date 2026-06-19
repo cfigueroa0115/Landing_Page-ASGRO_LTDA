@@ -1,23 +1,22 @@
 'use client';
 
 /**
- * Header Component — Sticky glassmorphism navigation bar
+ * Header Component — Sticky glassmorphism navigation bar with route-based navigation.
  *
  * Features:
  * - Fixed top position with glassmorphism effect (backdrop blur, 70-90% bg opacity)
  * - Scroll detection for z-index layering and enhanced visual state
- * - Active section highlighting via Intersection Observer
+ * - Active route highlighting via usePathname()
  * - ASGRO logo from /public/brand/asgro-logo.png with SVG fallback
- * - Full navigation links in Spanish with smooth scroll (~800ms)
- * - "Cotizar ahora" CTA button → links to #cotizar
+ * - Full navigation links in Spanish using next/link
+ * - "Cotizar ahora" CTA button → links to /cotizar
  * - "WhatsApp" button → functional, opens WhatsApp (hidden if env var not set)
  * - Navigation links hidden on mobile (lg:flex); hamburger handled by MobileNav
- * - All nav items and buttons are fully functional — no empty links or placeholder hrefs
- *
- * @see Requirements 3.1, 3.2, 3.3, 3.4, 3.6, 3.7
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Menu } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { BrandLogo } from '@/lib/utils/brand-assets-components';
@@ -29,37 +28,9 @@ interface HeaderProps {
   onMobileMenuOpen?: () => void;
 }
 
-/**
- * Custom smooth scroll with ~800ms duration using requestAnimationFrame.
- * Uses easeInOutCubic easing for natural deceleration.
- */
-function smoothScrollTo(targetY: number, duration = 800): void {
-  const startY = window.scrollY;
-  const difference = targetY - startY;
-  const startTime = performance.now();
-
-  function easeInOutCubic(t: number): number {
-    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-  }
-
-  function step(currentTime: number) {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    const easedProgress = easeInOutCubic(progress);
-
-    window.scrollTo(0, startY + difference * easedProgress);
-
-    if (progress < 1) {
-      requestAnimationFrame(step);
-    }
-  }
-
-  requestAnimationFrame(step);
-}
-
 export default function Header({ onMobileMenuOpen }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [activeSection, setActiveSection] = useState('inicio');
+  const pathname = usePathname();
 
   // WhatsApp configuration
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '';
@@ -72,63 +43,19 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
       setIsScrolled(window.scrollY > 20);
     };
 
-    // Check initial scroll position
     handleScroll();
-
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // ─── Active Section Detection via Intersection Observer ─────────────────────
-  useEffect(() => {
-    const sectionIds = NAV_LINKS.map((link) => link.href.replace('#', ''));
-    const observers: IntersectionObserver[] = [];
-
-    sectionIds.forEach((id) => {
-      const element = document.getElementById(id);
-      if (!element) return;
-
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              setActiveSection(id);
-            }
-          });
-        },
-        {
-          rootMargin: '-20% 0px -60% 0px',
-          threshold: 0,
-        }
-      );
-
-      observer.observe(element);
-      observers.push(observer);
-    });
-
-    return () => {
-      observers.forEach((obs) => obs.disconnect());
-    };
-  }, []);
-
-  // ─── Smooth Scroll Handler (~800ms) ─────────────────────────────────────────
-  const handleNavClick = useCallback(
-    (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-      e.preventDefault();
-
-      const targetId = href.replace('#', '');
-      const targetElement = document.getElementById(targetId);
-
-      if (targetElement) {
-        const headerOffset = 80; // Account for fixed header height
-        const elementPosition = targetElement.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.scrollY - headerOffset;
-
-        smoothScrollTo(offsetPosition, 800);
-      }
-    },
-    []
-  );
+  /**
+   * Determines if a nav link is active based on the current pathname.
+   * For "/" (home), only exact match. For others, starts-with matching.
+   */
+  function isActive(href: string): boolean {
+    if (href === '/') return pathname === '/';
+    return pathname.startsWith(href);
+  }
 
   return (
     <header
@@ -141,9 +68,8 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
     >
       <div className="mx-auto flex h-9 max-w-7xl items-center justify-between px-2 sm:px-3 lg:px-4">
         {/* Logo */}
-        <a
-          href="#inicio"
-          onClick={(e) => handleNavClick(e, '#inicio')}
+        <Link
+          href="/"
           className="flex-shrink-0"
           aria-label="ASGRO LTDA - Ir al inicio"
         >
@@ -153,7 +79,7 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
             className="h-10 w-auto"
             priority
           />
-        </a>
+        </Link>
 
         {/* Desktop Navigation */}
         <nav
@@ -161,24 +87,23 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
           aria-label="Navegación principal"
         >
           {NAV_LINKS.map((link) => {
-            const isActive = activeSection === link.href.replace('#', '');
+            const active = isActive(link.href);
             return (
-              <a
+              <Link
                 key={link.id}
                 href={link.href}
-                onClick={(e) => handleNavClick(e, link.href)}
                 className={`inline-flex min-h-[44px] items-center rounded-md px-2 py-1 text-sm font-medium transition-colors hover:text-brand-blue hover:bg-brand-blue/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue relative ${
-                  isActive
+                  active
                     ? 'text-brand-blue font-semibold'
                     : 'text-brand-dark-blue/80'
                 }`}
-                aria-current={isActive ? 'true' : undefined}
+                aria-current={active ? 'page' : undefined}
               >
                 {link.label}
-                {isActive && (
+                {active && (
                   <span className="absolute bottom-1 left-2 right-2 h-0.5 rounded-full bg-brand-blue" />
                 )}
-              </a>
+              </Link>
             );
           })}
         </nav>
@@ -200,13 +125,12 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
           )}
 
           {/* Cotizar ahora CTA */}
-          <a
-            href="#cotizar"
-            onClick={(e) => handleNavClick(e, '#cotizar')}
+          <Link
+            href="/cotizar"
             className="hidden min-h-[44px] items-center rounded-btn bg-brand-green px-3 py-1 text-sm font-semibold text-white transition-colors hover:bg-brand-green/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green sm:inline-flex active:scale-95"
           >
             Cotizar ahora
-          </a>
+          </Link>
 
           {/* Mobile Menu Button */}
           <button

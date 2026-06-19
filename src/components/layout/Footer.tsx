@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Phone, Mail, MapPin } from 'lucide-react';
 import { FaFacebook, FaInstagram, FaLinkedin } from 'react-icons/fa';
 import {
@@ -12,7 +13,6 @@ import {
 
 /**
  * Social media links configuration.
- * Placeholder URLs — will be replaced with real accounts later.
  */
 const SOCIAL_LINKS = [
   {
@@ -35,24 +35,22 @@ const SOCIAL_LINKS = [
   },
 ];
 
+/**
+ * Microsite service links for the footer.
+ */
+const SERVICE_LINKS = [
+  { label: 'Riesgos Laborales', href: '/servicios/riesgos-laborales' },
+  { label: 'Seguridad y Salud', href: '/servicios/seguridad-salud-trabajo' },
+  { label: 'Bienestar', href: '/servicios/bienestar-proteccion' },
+  { label: 'Seguros Empresariales', href: '/servicios/seguros-empresariales' },
+];
+
 export default function Footer() {
   const phone = getCompanyPhone();
   const email = getCompanyEmail();
   const address = getCompanyAddress();
 
   const hasContactInfo = phone || email || address;
-
-  const handleSmoothScroll = (
-    e: React.MouseEvent<HTMLAnchorElement>,
-    href: string
-  ) => {
-    e.preventDefault();
-    const targetId = href.replace('#', '');
-    const element = document.getElementById(targetId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
 
   return (
     <footer
@@ -97,70 +95,95 @@ export default function Footer() {
               <ul className="flex flex-col gap-0">
                 {NAV_LINKS.map((link) => (
                   <li key={link.id}>
-                    <a
+                    <Link
                       href={link.href}
-                      onClick={(e) => handleSmoothScroll(e, link.href)}
                       className="inline-flex min-h-[44px] items-center text-small text-white/70 transition-colors duration-200 hover:text-brand-green"
                     >
                       {link.label}
-                    </a>
+                    </Link>
                   </li>
                 ))}
+                <li>
+                  <Link
+                    href="/cotizar"
+                    className="inline-flex min-h-[44px] items-center text-small text-white/70 transition-colors duration-200 hover:text-brand-green"
+                  >
+                    Cotizar
+                  </Link>
+                </li>
               </ul>
             </nav>
           </div>
 
-          {/* Column 3: Contact info (hidden gracefully if env vars are empty) */}
-          {hasContactInfo && (
-            <div className="flex flex-col gap-1">
-              <h4 className="text-h4 text-white">Contacto</h4>
+          {/* Column 3: Services + Contact */}
+          <div className="flex flex-col gap-1">
+            <h4 className="text-h4 text-white">Servicios</h4>
+            <nav aria-label="Enlaces de servicios">
               <ul className="flex flex-col gap-0">
-                {address && (
-                  <li className="flex items-start gap-1 min-h-[44px] py-1">
-                    <MapPin className="mt-0.5 h-[20px] w-[20px] flex-shrink-0 text-brand-green" aria-hidden="true" />
-                    <span className="text-small text-white/70">{address}</span>
-                  </li>
-                )}
-                {phone && (
-                  <li className="flex items-center gap-1">
-                    <Phone className="h-[20px] w-[20px] flex-shrink-0 text-brand-green" aria-hidden="true" />
-                    <a
-                      href={`tel:${phone.replace(/\D/g, '')}`}
-                      aria-label={`Llamar al teléfono ${phone}`}
+                {SERVICE_LINKS.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
                       className="inline-flex min-h-[44px] items-center text-small text-white/70 transition-colors duration-200 hover:text-brand-green"
                     >
-                      {phone}
-                    </a>
+                      {link.label}
+                    </Link>
                   </li>
-                )}
-                {email && (
-                  <li className="flex items-center gap-1">
-                    <Mail className="h-[20px] w-[20px] flex-shrink-0 text-brand-green" aria-hidden="true" />
-                    <a
-                      href={`mailto:${email}`}
-                      aria-label={`Enviar correo electrónico a ${email}`}
-                      className="inline-flex min-h-[44px] items-center text-small text-white/70 transition-colors duration-200 hover:text-brand-green"
-                    >
-                      {email}
-                    </a>
-                  </li>
-                )}
+                ))}
               </ul>
-            </div>
-          )}
+            </nav>
+
+            {/* Contact info */}
+            {hasContactInfo && (
+              <div className="mt-3">
+                <h4 className="text-h4 text-white">Contacto</h4>
+                <ul className="flex flex-col gap-0">
+                  {address && (
+                    <li className="flex items-start gap-1 min-h-[44px] py-1">
+                      <MapPin className="mt-0.5 h-[20px] w-[20px] flex-shrink-0 text-brand-green" aria-hidden="true" />
+                      <span className="text-small text-white/70">{address}</span>
+                    </li>
+                  )}
+                  {phone && (
+                    <li className="flex items-center gap-1">
+                      <Phone className="h-[20px] w-[20px] flex-shrink-0 text-brand-green" aria-hidden="true" />
+                      <a
+                        href={`tel:${phone.replace(/\D/g, '')}`}
+                        aria-label={`Llamar al teléfono ${phone}`}
+                        className="inline-flex min-h-[44px] items-center text-small text-white/70 transition-colors duration-200 hover:text-brand-green"
+                      >
+                        {phone}
+                      </a>
+                    </li>
+                  )}
+                  {email && (
+                    <li className="flex items-center gap-1">
+                      <Mail className="h-[20px] w-[20px] flex-shrink-0 text-brand-green" aria-hidden="true" />
+                      <a
+                        href={`mailto:${email}`}
+                        aria-label={`Enviar correo electrónico a ${email}`}
+                        className="inline-flex min-h-[44px] items-center text-small text-white/70 transition-colors duration-200 hover:text-brand-green"
+                      >
+                        {email}
+                      </a>
+                    </li>
+                  )}
+                </ul>
+              </div>
+            )}
+          </div>
 
           {/* Column 4: Legal */}
           <div className="flex flex-col gap-1">
             <h4 className="text-h4 text-white">Legal</h4>
             <ul className="flex flex-col gap-0">
               <li>
-                <a
-                  href="#contacto"
-                  onClick={(e) => handleSmoothScroll(e, '#contacto')}
+                <Link
+                  href="/contacto"
                   className="inline-flex min-h-[44px] items-center text-small text-white/70 transition-colors duration-200 hover:text-brand-green"
                 >
                   {SITE_CONTENT.legalNotice}
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

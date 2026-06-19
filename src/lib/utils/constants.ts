@@ -467,18 +467,13 @@ export interface NavLink {
 }
 
 export const NAV_LINKS: NavLink[] = [
-  { id: 'nav-inicio', label: 'Inicio', href: '#inicio' },
-  { id: 'nav-nosotros', label: 'Nosotros', href: '#nosotros' },
-  { id: 'nav-servicios', label: 'Servicios', href: '#servicios' },
-  { id: 'nav-metodologia', label: 'Metodología', href: '#metodologia' },
-  { id: 'nav-resultados', label: 'Resultados', href: '#resultados' },
-  { id: 'nav-agente-ia', label: 'Agente IA', href: '#agente-ia' },
-  {
-    id: 'nav-preguntas',
-    label: 'Preguntas frecuentes',
-    href: '#preguntas-frecuentes',
-  },
-  { id: 'nav-contacto', label: 'Contacto', href: '#contacto' },
+  { id: 'nav-inicio', label: 'Inicio', href: '/' },
+  { id: 'nav-servicios', label: 'Servicios', href: '/servicios' },
+  { id: 'nav-nosotros', label: 'Nosotros', href: '/nosotros' },
+  { id: 'nav-metodologia', label: 'Metodología', href: '/metodologia' },
+  { id: 'nav-resultados', label: 'Resultados', href: '/resultados' },
+  { id: 'nav-faq', label: 'Preguntas frecuentes', href: '/preguntas-frecuentes' },
+  { id: 'nav-contacto', label: 'Contacto', href: '/contacto' },
 ];
 
 // ============================================================================

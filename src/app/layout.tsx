@@ -4,6 +4,9 @@ import '@/styles/globals.css';
 import HeaderWithMobileNav from '@/components/layout/HeaderWithMobileNav';
 import Footer from '@/components/layout/Footer';
 import SkipNav from '@/components/layout/SkipNav';
+import WhatsAppButton from '@/components/shared/WhatsAppButton';
+import FloatingChatButton from '@/components/shared/FloatingChatButton';
+import HelpDock from '@/components/shared/HelpDock';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -58,7 +61,6 @@ export const metadata: Metadata = {
 
 /**
  * JSON-LD Structured Data — THREE schemas: InsuranceAgency, LocalBusiness, Organization
- * Uses env vars for contact data with fallback empty strings.
  */
 function JsonLdSchemas() {
   const companyName = 'ASGRO LTDA';
@@ -174,6 +176,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '';
+
   return (
     <html lang="es" className={inter.variable}>
       <head>
@@ -184,6 +188,13 @@ export default function RootLayout({
         <HeaderWithMobileNav />
         {children}
         <Footer />
+
+        {/* Global floating elements — visible on ALL pages */}
+        {whatsappNumber && (
+          <WhatsAppButton phoneNumber={whatsappNumber} variant="floating" />
+        )}
+        <FloatingChatButton />
+        <HelpDock />
       </body>
     </html>
   );

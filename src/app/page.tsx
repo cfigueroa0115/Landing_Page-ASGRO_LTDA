@@ -1,81 +1,50 @@
 import HeroSection from '@/components/sections/HeroSection';
-import PillarsSection from '@/components/sections/PillarsSection';
-import AboutSection from '@/components/sections/AboutSection';
-import WhyChooseSection from '@/components/sections/WhyChooseSection';
-import ServicesSection from '@/components/sections/ServicesSection';
-import MethodologySection from '@/components/sections/MethodologySection';
-import BenefitsSection from '@/components/sections/BenefitsSection';
+import HomeServicesSection from '@/components/home/HomeServicesSection';
 import MetricsSection from '@/components/sections/MetricsSection';
-import AIAgentSection from '@/components/sections/AIAgentSection';
-import FAQSection from '@/components/sections/FAQSection';
-import ContactSection from '@/components/sections/ContactSection';
-import QuoteSection from '@/components/sections/QuoteSection';
-import WhatsAppButton from '@/components/shared/WhatsAppButton';
-import FloatingChatButton from '@/components/shared/FloatingChatButton';
+import HomeMethodologyCompact from '@/components/home/HomeMethodologyCompact';
+import WhyChooseSection from '@/components/sections/WhyChooseSection';
+import SectionCTA from '@/components/shared/SectionCTA';
 
 /**
- * Main page — Server Component that assembles all sections in the correct order.
+ * Main page — Short premium home with route-based navigation.
  *
- * Section flow matches the Spanish Header navigation:
- * Inicio → Nosotros → Servicios → Metodología → Resultados → Agente IA →
- * Preguntas frecuentes → Contacto → Cotizar
+ * Structure:
+ * 1. HeroSection — value proposition + CTA buttons (route-based)
+ * 2. HomeServicesSection — 4 service cards with drawer
+ * 3. MetricsSection — animated counters (fetches from /api/metrics)
+ * 4. HomeMethodologyCompact — 5 step indicators (compact)
+ * 5. WhyChooseSection — 5 differentiators with hover effects
+ * 6. SectionCTA — final CTA section
  *
- * MissionVision is merged into AboutSection to reduce page length.
- * SSTARLSection content is accessible through ServiceModal details.
- *
- * Client Components (MetricsSection, AIAgentSection, FAQSection, ContactSection,
- * QuoteSection, WhatsAppButton) are naturally isolated by their "use client" boundaries.
- *
- * @see Requirement 22.7
+ * Floating elements (WhatsApp, AI Chat, HelpDock) are rendered in layout.tsx
+ * so they appear on ALL pages.
  */
 export default function Home() {
-  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '';
-
   return (
     <main id="main-content" className="min-h-screen">
       {/* Inicio */}
       <HeroSection />
 
-      {/* Pilares estratégicos */}
-      <PillarsSection />
+      {/* Servicios — quick cards with drawer */}
+      <HomeServicesSection />
 
-      {/* Nosotros (includes mission & vision) */}
-      <AboutSection />
-
-      {/* Por qué elegirnos */}
-      <WhyChooseSection />
-
-      {/* Servicios */}
-      <ServicesSection />
-
-      {/* Metodología */}
-      <MethodologySection />
-
-      {/* Beneficios */}
-      <BenefitsSection />
-
-      {/* Resultados */}
+      {/* Resultados — metrics with animated counters */}
       <MetricsSection />
 
-      {/* Agente IA */}
-      <AIAgentSection />
+      {/* Metodología — compact 5 steps */}
+      <HomeMethodologyCompact />
 
-      {/* Preguntas frecuentes */}
-      <FAQSection />
+      {/* ¿Por qué ASGRO? — differentiators */}
+      <WhyChooseSection />
 
-      {/* Contacto */}
-      <ContactSection />
-
-      {/* Cotizar */}
-      <QuoteSection />
-
-      {/* Floating WhatsApp button (bottom-right) */}
-      {whatsappNumber && (
-        <WhatsAppButton phoneNumber={whatsappNumber} variant="floating" />
-      )}
-
-      {/* Floating AI Agent button (bottom-left) */}
-      <FloatingChatButton />
+      {/* CTA Final */}
+      <SectionCTA
+        title="¿Listo para proteger su empresa?"
+        subtitle="Contáctenos hoy y reciba asesoría personalizada sin compromiso."
+        primaryAction={{ label: 'Contactar asesor', href: '/contacto' }}
+        secondaryAction={{ label: 'Cotizar ahora', href: '/cotizar' }}
+        whatsappAction
+      />
     </main>
   );
 }
