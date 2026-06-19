@@ -61,12 +61,12 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
     <header
       className={`fixed top-0 left-0 right-0 w-full transition-all duration-300 ${
         isScrolled
-          ? 'z-[60] bg-white/90 backdrop-blur-lg border-b border-gray-200/50 shadow-sm'
-          : 'z-50 bg-white/70 backdrop-blur-md border-b border-white/20'
+          ? 'z-[60] bg-white/98 backdrop-blur-md border-b border-brand-blue/10 shadow-sm'
+          : 'z-50 bg-white border-b border-gray-100 shadow-none'
       }`}
       role="banner"
     >
-      <div className="mx-auto flex h-9 max-w-7xl items-center justify-between px-2 sm:px-3 lg:px-4">
+      <div className="mx-auto flex h-[76px] max-w-7xl items-center justify-between px-2 sm:px-3 lg:px-4">
         {/* Logo */}
         <Link
           href="/"
@@ -75,8 +75,8 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
         >
           <BrandLogo
             width={160}
-            height={48}
-            className="h-12 w-auto"
+            height={44}
+            className="h-[44px] w-auto object-contain"
             priority
           />
         </Link>
@@ -144,6 +144,8 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
           </button>
         </div>
       </div>
+      {/* Gradient bottom accent line */}
+      <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-brand-blue/80 via-brand-green/60 to-brand-blue/80" />
     </header>
   );
 }

@@ -1,9 +1,26 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Sparkles, ChevronDown, X, Send, Loader2 } from 'lucide-react';
+import { ChevronDown, X, Send, Loader2, Headset } from 'lucide-react';
 import { SITE_CONTENT } from '@/lib/utils/constants';
 import type { ChatMessage } from '@/types';
+
+/**
+ * Custom humanized AI avatar icon — person silhouette with headset.
+ * Communicates "asesor virtual" rather than "robot".
+ */
+function AIAvatarIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="8" r="3.5" />
+      <path d="M5.5 20c0-3.5 3-6.5 6.5-6.5s6.5 3 6.5 6.5" />
+      <path d="M4 12c0-1.2.8-2.2 2-2.2" />
+      <path d="M18 12c0-1.2.8-2.2 2-2.2" />
+      <path d="M4 12v1.5" />
+      <path d="M20 12v1.5" />
+    </svg>
+  );
+}
 
 /**
  * FloatingChatButton — Floating AI agent trigger button (bottom-left)
@@ -148,7 +165,7 @@ export default function FloatingChatButton() {
           {/* Panel Header */}
           <div className="flex items-center justify-between px-4 py-3 bg-brand-blue text-white rounded-t-card">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5" />
+              <Headset className="h-5 w-5" />
               <span className="font-semibold text-sm">Asistente ASGRO IA</span>
             </div>
             <button
@@ -255,13 +272,10 @@ export default function FloatingChatButton() {
         aria-label={isPanelOpen ? 'Cerrar asistente IA' : 'Consultar asistente IA de ASGRO'}
         className="relative flex h-14 w-14 min-h-[48px] min-w-[48px] items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-brand-blue/80 text-white shadow-lg shadow-brand-blue/30 transition-all duration-200 hover:scale-110 active:scale-95"
       >
-        {isPanelOpen ? <ChevronDown className="h-7 w-7" /> : <Sparkles className="h-7 w-7" />}
-        {/* Online indicator */}
+        {isPanelOpen ? <ChevronDown className="h-6 w-6" /> : <AIAvatarIcon className="h-7 w-7" />}
+        {/* Online indicator - static green dot */}
         {!isPanelOpen && (
-          <span className="absolute top-0 right-0 flex h-3.5 w-3.5 items-center justify-center">
-            <span className="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 animate-ping" />
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
-          </span>
+          <span className="absolute top-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white" />
         )}
       </button>
     </div>
