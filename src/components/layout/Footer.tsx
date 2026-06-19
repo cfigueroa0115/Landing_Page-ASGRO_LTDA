@@ -155,7 +155,8 @@ export default function Footer() {
             <ul className="flex flex-col gap-0">
               <li>
                 <a
-                  href="#politica-datos"
+                  href="#contacto"
+                  onClick={(e) => handleSmoothScroll(e, '#contacto')}
                   className="inline-flex min-h-[44px] items-center text-small text-white/70 transition-colors duration-200 hover:text-brand-green"
                 >
                   {SITE_CONTENT.legalNotice}

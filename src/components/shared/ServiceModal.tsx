@@ -164,10 +164,10 @@ export default function ServiceModal({ isOpen, onClose, service }: ServiceModalP
             aria-modal="true"
             aria-labelledby={titleId}
             className="relative z-10 w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-modal bg-white p-4 md:p-6 shadow-elevated"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.25, ease: 'easeOut' }}
+            initial={{ opacity: 0, scale: 0.92, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.92, y: 20 }}
+            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             {/* Close button */}
             <button
@@ -220,7 +220,7 @@ export default function ServiceModal({ isOpen, onClose, service }: ServiceModalP
               {/* Quote CTA */}
               <button
                 onClick={handleQuoteClick}
-                className="flex-1 inline-flex items-center justify-center gap-1 rounded-btn bg-brand-blue px-4 py-3 text-small font-medium text-white transition-colors hover:bg-brand-blue/90 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 min-h-[44px]"
+                className="flex-1 inline-flex items-center justify-center gap-1 rounded-btn bg-brand-blue px-4 py-3 text-small font-medium text-white transition-colors hover:bg-brand-blue/90 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 min-h-[44px] active:scale-95"
               >
                 Cotizar este servicio
               </button>
@@ -231,7 +231,7 @@ export default function ServiceModal({ isOpen, onClose, service }: ServiceModalP
                   href={whatsAppUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 inline-flex items-center justify-center gap-1 rounded-btn bg-[#25D366] px-4 py-3 text-small font-medium text-white transition-colors hover:bg-[#1fb855] focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2 min-h-[44px]"
+                  className="flex-1 inline-flex items-center justify-center gap-1 rounded-btn bg-[#25D366] px-4 py-3 text-small font-medium text-white transition-colors hover:bg-[#1fb855] focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2 min-h-[44px] active:scale-95"
                 >
                   <FaWhatsapp className="h-5 w-5" />
                   <span>WhatsApp</span>

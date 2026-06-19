@@ -6,6 +6,7 @@
  * Features:
  * - Fixed top position with glassmorphism effect (backdrop blur, 70-90% bg opacity)
  * - Scroll detection for z-index layering and enhanced visual state
+ * - Active section highlighting via Intersection Observer
  * - ASGRO logo from /public/brand/asgro-logo.png with SVG fallback
  * - Full navigation links in Spanish with smooth scroll (~800ms)
  * - "Cotizar ahora" CTA button → links to #cotizar
@@ -58,6 +59,7 @@ function smoothScrollTo(targetY: number, duration = 800): void {
 
 export default function Header({ onMobileMenuOpen }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState('inicio');
 
   // WhatsApp configuration
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '';
@@ -75,6 +77,38 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // ─── Active Section Detection via Intersection Observer ─────────────────────
+  useEffect(() => {
+    const sectionIds = NAV_LINKS.map((link) => link.href.replace('#', ''));
+    const observers: IntersectionObserver[] = [];
+
+    sectionIds.forEach((id) => {
+      const element = document.getElementById(id);
+      if (!element) return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              setActiveSection(id);
+            }
+          });
+        },
+        {
+          rootMargin: '-20% 0px -60% 0px',
+          threshold: 0,
+        }
+      );
+
+      observer.observe(element);
+      observers.push(observer);
+    });
+
+    return () => {
+      observers.forEach((obs) => obs.disconnect());
+    };
   }, []);
 
   // ─── Smooth Scroll Handler (~800ms) ─────────────────────────────────────────
@@ -126,16 +160,27 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
           className="hidden items-center gap-0 lg:flex"
           aria-label="Navegación principal"
         >
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link.id}
-              href={link.href}
-              onClick={(e) => handleNavClick(e, link.href)}
-              className="inline-flex min-h-[44px] items-center rounded-md px-2 py-1 text-sm font-medium text-brand-dark-blue/80 transition-colors hover:text-brand-blue hover:bg-brand-blue/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
-            >
-              {link.label}
-            </a>
-          ))}
+          {NAV_LINKS.map((link) => {
+            const isActive = activeSection === link.href.replace('#', '');
+            return (
+              <a
+                key={link.id}
+                href={link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
+                className={`inline-flex min-h-[44px] items-center rounded-md px-2 py-1 text-sm font-medium transition-colors hover:text-brand-blue hover:bg-brand-blue/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue relative ${
+                  isActive
+                    ? 'text-brand-blue font-semibold'
+                    : 'text-brand-dark-blue/80'
+                }`}
+                aria-current={isActive ? 'true' : undefined}
+              >
+                {link.label}
+                {isActive && (
+                  <span className="absolute bottom-1 left-2 right-2 h-0.5 rounded-full bg-brand-blue" />
+                )}
+              </a>
+            );
+          })}
         </nav>
 
         {/* Action Buttons */}
@@ -147,7 +192,7 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Contactar por WhatsApp"
-              className="hidden items-center gap-1 min-h-[44px] rounded-btn bg-[#25D366] px-3 py-1 text-sm font-medium text-white transition-colors hover:bg-[#1fb855] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#25D366] sm:inline-flex"
+              className="hidden items-center gap-1 min-h-[44px] rounded-btn bg-[#25D366] px-3 py-1 text-sm font-medium text-white transition-colors hover:bg-[#1fb855] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#25D366] sm:inline-flex active:scale-95"
             >
               <FaWhatsapp className="h-4 w-4" aria-hidden="true" />
               <span className="hidden md:inline">WhatsApp</span>
@@ -158,7 +203,7 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
           <a
             href="#cotizar"
             onClick={(e) => handleNavClick(e, '#cotizar')}
-            className="hidden min-h-[44px] items-center rounded-btn bg-brand-green px-3 py-1 text-sm font-semibold text-white transition-colors hover:bg-brand-green/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green sm:inline-flex"
+            className="hidden min-h-[44px] items-center rounded-btn bg-brand-green px-3 py-1 text-sm font-semibold text-white transition-colors hover:bg-brand-green/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green sm:inline-flex active:scale-95"
           >
             Cotizar ahora
           </a>
@@ -167,7 +212,7 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
           <button
             type="button"
             onClick={onMobileMenuOpen}
-            className="inline-flex h-[44px] w-[44px] min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-brand-dark-blue transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue lg:hidden"
+            className="inline-flex h-[44px] w-[44px] min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-brand-dark-blue transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue lg:hidden active:scale-95"
             aria-label="Abrir menú de navegación"
             aria-expanded="false"
           >

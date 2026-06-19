@@ -97,7 +97,7 @@ export default function BenefitsSection() {
               <motion.article
                 key={benefit.id}
                 variants={cardVariants}
-                className="flex flex-col items-start p-4 rounded-card bg-white shadow-card hover:shadow-card-hover transition-shadow duration-300"
+                className="flex flex-col items-start p-4 rounded-card bg-white shadow-card hover:shadow-card-hover transition-shadow duration-300 h-full"
               >
                 {/* Contenedor del ícono */}
                 <div className="flex items-center justify-center w-6 h-6 rounded-full bg-brand-green/10 mb-2">

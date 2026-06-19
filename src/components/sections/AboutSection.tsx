@@ -1,13 +1,14 @@
 'use client';
 
 /**
- * AboutSection — Sección "Nosotros" de ASGRO LTDA
+ * AboutSection — Sección "Nosotros" de ASGRO LTDA (includes Mission & Vision)
  *
  * Features:
  * - Section with id="nosotros"
  * - Company description paragraph (150-400 chars) in Spanish
  * - Highlighted value proposition callout in a visually distinct container
- * - Specialization list with Lucide React icons (ARL, SST, riesgos laborales, seguros empresariales a la medida)
+ * - Specialization list with Lucide React icons
+ * - Integrated Mission & Vision cards (previously standalone MissionVision section)
  * - Two-column layout above 768px (text left, visual right); single column stacked below
  * - AnimatedSection wrapper for viewport entrance animations
  * - Cards use rounded-card token (22px)
@@ -25,6 +26,8 @@ import {
   Sparkles,
   Building2,
   CheckCircle2,
+  Target,
+  Rocket,
 } from 'lucide-react';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 import { SITE_CONTENT } from '@/lib/utils/constants';
@@ -142,6 +145,56 @@ export default function AboutSection() {
                   </div>
                 </div>
               </AnimatedSection>
+            </div>
+          </div>
+        </AnimatedSection>
+
+        {/* Mission & Vision — integrated into About section */}
+        <AnimatedSection direction="up" threshold={0.2} className="mt-8">
+          <h3 className="mb-4 text-center text-h3 text-brand-dark-blue">
+            Nuestra Razón de Ser
+          </h3>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {/* Tarjeta de Misión — acento azul */}
+            <div className="flex h-full flex-col rounded-card border border-brand-blue/20 bg-white p-4 shadow-card">
+              <div className="mb-3 flex items-center gap-2">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-blue/10">
+                  <Target
+                    className="h-4 w-4 text-brand-blue"
+                    aria-hidden="true"
+                  />
+                </div>
+                <h4 className="text-h4 text-brand-blue font-bold">Misión</h4>
+              </div>
+              <p className="text-body leading-relaxed text-gray-700">
+                Brindar soluciones integrales en gestión de riesgos laborales,
+                seguridad y salud en el trabajo, y seguros empresariales a la
+                medida, protegiendo a las organizaciones y sus colaboradores
+                mediante asesoría especializada, acompañamiento permanente y un
+                compromiso inquebrantable con el cumplimiento normativo y el
+                bienestar laboral.
+              </p>
+            </div>
+
+            {/* Tarjeta de Visión — acento verde */}
+            <div className="flex h-full flex-col rounded-card border border-brand-green/30 bg-white p-4 shadow-card">
+              <div className="mb-3 flex items-center gap-2">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-green/10">
+                  <Rocket
+                    className="h-4 w-4 text-brand-green"
+                    aria-hidden="true"
+                  />
+                </div>
+                <h4 className="text-h4 text-brand-green-alt font-bold">Visión</h4>
+              </div>
+              <p className="text-body leading-relaxed text-gray-700">
+                Ser la agencia de seguros líder en Colombia en protección
+                empresarial, reconocida por la excelencia en la prevención de
+                riesgos, la innovación en programas de SST y la capacidad de
+                ofrecer soluciones de seguros adaptadas a cada sector productivo,
+                contribuyendo al desarrollo sostenible y la competitividad de
+                nuestros clientes.
+              </p>
             </div>
           </div>
         </AnimatedSection>

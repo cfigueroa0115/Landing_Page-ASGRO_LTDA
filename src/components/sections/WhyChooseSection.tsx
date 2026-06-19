@@ -42,6 +42,7 @@ const ICON_COLORS = [
  * - Título (máx 40 chars) y descripción (máx 150 chars)
  * - Grid responsivo: 1col < 640px, 2col 640-1024px, 3col > 1024px
  * - Animación de entrada escalonada con Framer Motion
+ * - Premium hover: scale, glow, elevation
  *
  * Requisitos: 8.1, 8.2, 8.3, 8.4
  */
@@ -104,24 +105,33 @@ export default function WhyChooseSection() {
               <motion.article
                 key={differentiator.id}
                 variants={cardVariants}
-                className="flex flex-col items-center text-center p-4 rounded-card bg-brand-light-gray shadow-card hover:shadow-card-hover transition-shadow duration-300"
+                whileHover={{
+                  scale: 1.03,
+                  y: -4,
+                  boxShadow: '0 12px 32px rgba(2, 78, 163, 0.15)',
+                }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+                className="group flex flex-col items-center text-center p-5 rounded-card bg-brand-light-gray shadow-card transition-all duration-300 cursor-default h-full relative overflow-hidden"
               >
-                {/* Contenedor circular del ícono */}
+                {/* Subtle gradient glow on hover */}
+                <div className="absolute inset-0 bg-gradient-to-br from-brand-blue/5 to-brand-green/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-card" />
+
+                {/* Contenedor circular del ícono — larger */}
                 <div
-                  className={`flex items-center justify-center w-8 h-8 rounded-full ${ICON_COLORS[index]} mb-3`}
+                  className={`relative flex items-center justify-center w-14 h-14 rounded-full ${ICON_COLORS[index]} mb-4 shadow-md group-hover:shadow-lg transition-shadow duration-300`}
                 >
                   {IconComponent && (
-                    <IconComponent className="w-4 h-4 text-white" />
+                    <IconComponent className="w-6 h-6 text-white" />
                   )}
                 </div>
 
-                {/* Título */}
-                <h3 className="text-h4 text-brand-dark-blue mb-1">
+                {/* Título — bolder */}
+                <h3 className="relative text-lg font-bold text-brand-dark-blue mb-2">
                   {differentiator.title}
                 </h3>
 
-                {/* Descripción */}
-                <p className="text-body text-gray-600 leading-relaxed">
+                {/* Descripción — lighter weight */}
+                <p className="relative text-body text-gray-500 leading-relaxed">
                   {differentiator.description}
                 </p>
               </motion.article>
