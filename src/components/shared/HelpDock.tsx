@@ -76,10 +76,10 @@ export default function HelpDock() {
   );
 
   return (
-    <div className="fixed bottom-[24px] left-1/2 -translate-x-1/2 z-[9990]">
+    <div className="fixed bottom-[100px] right-[16px] md:bottom-[110px] md:right-[24px] z-[9990]">
       {/* Expanded panel */}
       {isOpen && (
-        <div className="absolute bottom-[56px] left-1/2 -translate-x-1/2 w-[280px] rounded-card bg-white shadow-elevated border border-gray-200 p-3 animate-in fade-in slide-in-from-bottom-2 duration-200">
+        <div className="absolute bottom-[56px] right-0 w-[280px] rounded-card bg-white shadow-elevated border border-gray-200 p-3 animate-in fade-in slide-in-from-bottom-2 duration-200">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-semibold text-brand-dark-blue">
               ¿Cómo podemos ayudarle?

@@ -41,8 +41,8 @@ interface BrandLogoProps {
  * No broken image icons will ever be shown to the user.
  */
 export function BrandLogo({
-  width = 140,
-  height = 42,
+  width = 160,
+  height = 48,
   className = '',
   alt = 'ASGRO LTDA - Gestión integral de riesgos laborales y seguros empresariales',
   priority = false,

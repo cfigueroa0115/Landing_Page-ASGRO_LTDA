@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Bot, X, Send, Loader2 } from 'lucide-react';
+import { Sparkles, ChevronDown, X, Send, Loader2 } from 'lucide-react';
 import { SITE_CONTENT } from '@/lib/utils/constants';
 import type { ChatMessage } from '@/types';
 
@@ -148,8 +148,8 @@ export default function FloatingChatButton() {
           {/* Panel Header */}
           <div className="flex items-center justify-between px-4 py-3 bg-brand-blue text-white rounded-t-card">
             <div className="flex items-center gap-2">
-              <Bot className="h-5 w-5" />
-              <span className="font-semibold text-sm">Asistente ASGRO</span>
+              <Sparkles className="h-5 w-5" />
+              <span className="font-semibold text-sm">Asistente ASGRO IA</span>
             </div>
             <button
               type="button"
@@ -253,11 +253,16 @@ export default function FloatingChatButton() {
         type="button"
         onClick={isPanelOpen ? handleClosePanel : handleOpenPanel}
         aria-label={isPanelOpen ? 'Cerrar asistente IA' : 'Consultar asistente IA de ASGRO'}
-        className={`flex h-14 w-14 min-h-[48px] min-w-[48px] items-center justify-center rounded-full bg-brand-blue text-white shadow-lg transition-all duration-200 hover:bg-brand-blue/90 hover:scale-110 active:scale-95 ${
-          !isPanelOpen ? 'animate-pulse' : ''
-        }`}
+        className="relative flex h-14 w-14 min-h-[48px] min-w-[48px] items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-brand-blue/80 text-white shadow-lg shadow-brand-blue/30 transition-all duration-200 hover:scale-110 active:scale-95"
       >
-        {isPanelOpen ? <X className="h-7 w-7" /> : <Bot className="h-7 w-7" />}
+        {isPanelOpen ? <ChevronDown className="h-7 w-7" /> : <Sparkles className="h-7 w-7" />}
+        {/* Online indicator */}
+        {!isPanelOpen && (
+          <span className="absolute top-0 right-0 flex h-3.5 w-3.5 items-center justify-center">
+            <span className="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 animate-ping" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
+          </span>
+        )}
       </button>
     </div>
   );

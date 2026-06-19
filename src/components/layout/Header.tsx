@@ -74,9 +74,9 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
           aria-label="ASGRO LTDA - Ir al inicio"
         >
           <BrandLogo
-            width={140}
-            height={42}
-            className="h-10 w-auto"
+            width={160}
+            height={48}
+            className="h-12 w-auto"
             priority
           />
         </Link>

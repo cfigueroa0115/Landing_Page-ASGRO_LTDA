@@ -1,10 +1,17 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Check, Eye, FileText } from 'lucide-react';
+import { Check, Eye, FileText, Shield, HardHat, Heart, FileCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import PremiumButton from '@/components/shared/PremiumButton';
 import type { ServiceData } from '@/types';
+
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  Shield,
+  HardHat,
+  Heart,
+  FileCheck,
+};
 
 export interface ServiceQuickCardProps {
   service: ServiceData;
@@ -35,8 +42,11 @@ export default function ServiceQuickCard({
     >
       {/* Icon & Title */}
       <div className="mb-2 flex items-start gap-1">
-        <div className="flex h-[48px] w-[48px] flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-green/20 to-brand-blue/10 text-2xl">
-          {service.icon}
+        <div className="flex h-[48px] w-[48px] flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-green/20 to-brand-blue/10">
+          {(() => {
+            const IconComponent = ICON_MAP[service.icon as string] ?? Shield;
+            return <IconComponent className="h-6 w-6 text-brand-green" />;
+          })()}
         </div>
         <h3 className="text-lg font-bold text-brand-dark-blue line-clamp-2">
           {service.title}

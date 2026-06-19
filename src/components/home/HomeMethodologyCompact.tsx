@@ -66,16 +66,18 @@ export default function HomeMethodologyCompact() {
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, amount: 0.3 }}
-                className="flex flex-col items-center text-center p-4 rounded-card bg-white shadow-card hover:shadow-card-hover transition-shadow duration-300"
+                className="flex flex-col items-center text-center p-4 rounded-card bg-white shadow-card border border-gray-100 hover:border-brand-green/40 hover:shadow-card-hover transition-all duration-300"
               >
                 {/* Step number badge */}
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-blue text-white text-sm font-bold mb-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-brand-navy text-white text-sm font-bold mb-2">
                   {step.step}
                 </div>
                 {/* Icon */}
-                <Icon className="h-5 w-5 text-brand-green mb-1" />
+                <div className="w-8 h-8 rounded-lg bg-brand-green/10 flex items-center justify-center mb-1">
+                  <Icon className="h-5 w-5 text-brand-blue" />
+                </div>
                 {/* Title */}
-                <span className="text-sm font-semibold text-brand-dark-blue">
+                <span className="text-base font-semibold text-brand-dark-blue">
                   {step.title}
                 </span>
               </motion.div>
