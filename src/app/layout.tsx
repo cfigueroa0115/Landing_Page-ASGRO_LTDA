@@ -15,9 +15,10 @@ const inter = Inter({
   weight: ['400', '500', '600', '700', '800'],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.asgro.com.co';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.asgroseguros.com.co';
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: 'ASGRO LTDA - Seguros y Riesgos Laborales',
   description:
     'Agencia de seguros especializada en ARL, SST, seguros empresariales a la medida y bienestar laboral en Colombia.',
