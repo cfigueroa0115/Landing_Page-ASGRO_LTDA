@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+﻿import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as fc from 'fast-check';
 import { getEnv, _resetEnvCache } from '@/lib/config/env';
 
@@ -17,7 +17,7 @@ const baseValidEnv: Record<string, string> = {
   NEXT_PUBLIC_WHATSAPP_NUMBER: '+573001234567',
   NEXT_PUBLIC_COMPANY_PHONE: '+573009876543',
   NEXT_PUBLIC_COMPANY_EMAIL: 'info@asgro.co',
-  NEXT_PUBLIC_COMPANY_ADDRESS: 'Calle 100 #15-20, Bogotá',
+  NEXT_PUBLIC_COMPANY_ADDRESS: 'Carrera 57 #134-20, BogotÃ¡',
   NODE_ENV: 'production',
 };
 
@@ -162,7 +162,7 @@ describe('Feature: asgro-landing-page, Property 6: Environment validation', () =
             NEXT_PUBLIC_WHATSAPP_NUMBER: '+573001234567',
             NEXT_PUBLIC_COMPANY_PHONE: '+573009876543',
             NEXT_PUBLIC_COMPANY_EMAIL: 'info@asgro.co',
-            NEXT_PUBLIC_COMPANY_ADDRESS: 'Calle 100 #15-20, Bogotá',
+            NEXT_PUBLIC_COMPANY_ADDRESS: 'Carrera 57 #134-20, BogotÃ¡',
           };
 
           // Remove the subset of vars
@@ -216,7 +216,7 @@ describe('Feature: asgro-landing-page, Property 6: Environment validation', () =
             NEXT_PUBLIC_WHATSAPP_NUMBER: '+573001234567',
             NEXT_PUBLIC_COMPANY_PHONE: '+573009876543',
             NEXT_PUBLIC_COMPANY_EMAIL: 'info@asgro.co',
-            NEXT_PUBLIC_COMPANY_ADDRESS: 'Calle 100 #15-20, Bogotá',
+            NEXT_PUBLIC_COMPANY_ADDRESS: 'Carrera 57 #134-20, BogotÃ¡',
           };
 
           // Remove the subset of vars
@@ -226,7 +226,7 @@ describe('Feature: asgro-landing-page, Property 6: Environment validation', () =
 
           stubProcessEnv(env);
 
-          // Should NOT throw — contact vars are optional in development/test
+          // Should NOT throw â€” contact vars are optional in development/test
           expect(() => getEnv()).not.toThrow();
           const result = getEnv();
           expect(result).toBeDefined();
