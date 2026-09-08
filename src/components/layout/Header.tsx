@@ -26,9 +26,11 @@ import { generateWhatsAppUrl, getDefaultWhatsAppMessage } from '@/lib/utils/what
 interface HeaderProps {
   /** Callback to open mobile navigation */
   onMobileMenuOpen?: () => void;
+  /** Whether the mobile navigation is currently open (for aria-expanded) */
+  isMobileMenuOpen?: boolean;
 }
 
-export default function Header({ onMobileMenuOpen }: HeaderProps) {
+export default function Header({ onMobileMenuOpen, isMobileMenuOpen = false }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
 
@@ -71,7 +73,7 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
         <Link
           href="/"
           className="flex-shrink-0"
-          aria-label="ASGRO LTDA - Ir al inicio"
+          aria-label="ASGRO Agencia de Seguros - Ir al inicio"
         >
           <BrandLogo
             width={160}
@@ -81,9 +83,9 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
           />
         </Link>
 
-        {/* Desktop Navigation */}
+        {/* Desktop Navigation — se muestra completo desde xl por las etiquetas largas */}
         <nav
-          className="hidden items-center gap-0 lg:flex"
+          className="hidden items-center gap-0 xl:flex"
           aria-label="Navegación principal"
         >
           {NAV_LINKS.map((link) => {
@@ -92,7 +94,7 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
               <Link
                 key={link.id}
                 href={link.href}
-                className={`inline-flex min-h-[44px] items-center rounded-md px-2 py-1 text-sm font-medium transition-colors hover:text-brand-blue hover:bg-brand-blue/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue relative ${
+                className={`relative inline-flex min-h-[44px] items-center whitespace-nowrap rounded-md px-1.5 py-1 text-sm font-medium transition-colors hover:bg-brand-blue/5 hover:text-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue ${
                   active
                     ? 'text-brand-blue font-semibold'
                     : 'text-brand-dark-blue/80'
@@ -101,7 +103,7 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
               >
                 {link.label}
                 {active && (
-                  <span className="absolute bottom-1 left-2 right-2 h-0.5 rounded-full bg-brand-blue" />
+                  <span className="absolute bottom-1 left-1.5 right-1.5 h-0.5 rounded-full bg-brand-green" />
                 )}
               </Link>
             );
@@ -124,21 +126,22 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
             </a>
           )}
 
-          {/* Cotizar ahora CTA */}
+          {/* Solicitar asesoría — CTA principal */}
           <Link
-            href="/cotizar"
+            href="/contacto"
             className="hidden min-h-[44px] items-center rounded-btn bg-brand-green px-3 py-1 text-sm font-semibold text-white transition-colors hover:bg-brand-green/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green sm:inline-flex active:scale-95"
           >
-            Cotizar ahora
+            Solicitar asesoría
           </Link>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button — visible hasta xl (nav completo aparece en xl) */}
           <button
             type="button"
             onClick={onMobileMenuOpen}
-            className="inline-flex h-[44px] w-[44px] min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-brand-dark-blue transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue lg:hidden active:scale-95"
-            aria-label="Abrir menú de navegación"
-            aria-expanded="false"
+            className="inline-flex h-[44px] w-[44px] min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-brand-dark-blue transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue xl:hidden active:scale-95"
+            aria-label={isMobileMenuOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-nav-panel"
           >
             <Menu className="h-6 w-6" aria-hidden="true" />
           </button>

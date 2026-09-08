@@ -70,7 +70,7 @@ export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+              className="fixed inset-0 z-40 bg-black/50 xl:hidden"
               onClick={onClose}
               aria-hidden="true"
             />
@@ -85,7 +85,7 @@ export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'tween', duration: 0.3, ease: 'easeInOut' }}
-              className="fixed inset-y-0 right-0 z-50 flex w-full max-w-sm flex-col bg-gradient-to-b from-[#011930] to-[#001B33] px-6 py-8 shadow-xl lg:hidden"
+              className="fixed inset-y-0 right-0 z-50 flex w-full max-w-sm flex-col overflow-y-auto bg-gradient-to-b from-[#011930] to-[#001B33] px-6 py-8 shadow-xl xl:hidden"
             >
               {/* Close button inside the panel */}
               <div className="flex justify-end">
@@ -121,14 +121,25 @@ export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
                   );
                 })}
 
-                {/* Cotizar ahora link */}
+                {/* Solicitar asesoría — CTA principal */}
+                <li className="mt-2">
+                  <Link
+                    href="/contacto"
+                    onClick={onClose}
+                    className="flex w-full min-h-[48px] items-center justify-center rounded-btn bg-brand-green px-4 py-3 text-lg font-semibold text-white transition-colors hover:bg-brand-green-alt"
+                  >
+                    Solicitar asesoría
+                  </Link>
+                </li>
+
+                {/* Solicitar una cotización — secundario */}
                 <li>
                   <Link
                     href="/cotizar"
                     onClick={onClose}
                     className="flex w-full min-h-[48px] items-center rounded-btn px-4 py-3 text-lg font-semibold text-[#7AC146] transition-colors hover:bg-white/10"
                   >
-                    Cotizar ahora
+                    Solicitar una cotización
                   </Link>
                 </li>
 

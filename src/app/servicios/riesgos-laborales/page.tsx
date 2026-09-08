@@ -8,7 +8,7 @@ import EqualHeightGrid from '@/components/shared/EqualHeightGrid';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 
 export const metadata: Metadata = {
-  title: 'Gestión de Riesgos Laborales - ASGRO LTDA',
+  title: 'Gestión de Riesgos Laborales - ASGRO Agencia de Seguros',
   description:
     'Gestión integral de riesgos laborales: afiliación ARL, traslado, clasificación de riesgo, gestión de accidentes laborales, enfermedad laboral y acompañamiento en casos.',
 };

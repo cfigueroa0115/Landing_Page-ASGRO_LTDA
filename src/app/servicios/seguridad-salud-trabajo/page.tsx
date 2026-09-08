@@ -8,7 +8,7 @@ import EqualHeightGrid from '@/components/shared/EqualHeightGrid';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 
 export const metadata: Metadata = {
-  title: 'Seguridad y Salud en el Trabajo - ASGRO LTDA',
+  title: 'Seguridad y Salud en el Trabajo - ASGRO Agencia de Seguros',
   description:
     'Diseño, implementación y seguimiento del Sistema de Gestión de Seguridad y Salud en el Trabajo (SG-SST): diagnóstico, matriz de peligros, auditorías, investigación de accidentes y mejora continua.',
 };

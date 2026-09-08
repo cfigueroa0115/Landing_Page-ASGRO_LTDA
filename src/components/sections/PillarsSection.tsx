@@ -2,22 +2,21 @@
 
 import { motion } from 'framer-motion';
 import {
-  ShieldCheck,
-  ClipboardCheck,
-  HeartPulse,
-  TrendingUp,
+  Users,
+  Home,
+  Building2,
 } from 'lucide-react';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 import { PILLARS_DATA } from '@/lib/utils/constants';
 
 /**
  * Mapa de nombres de iconos a componentes de Lucide React.
+ * Alineado con los frentes de valor: Personas / Patrimonio / Empresas.
  */
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  ShieldCheck,
-  ClipboardCheck,
-  HeartPulse,
-  TrendingUp,
+  Users,
+  Home,
+  Building2,
 };
 
 /**
@@ -40,11 +39,11 @@ export default function PillarsSection() {
       <div className="mx-auto max-w-[1280px] px-2 sm:px-3 lg:px-4">
         <AnimatedSection direction="up" threshold={0.2}>
           <h2 className="text-h2 text-center text-brand-dark-blue mb-4">
-            Pilares estratégicos
+            Frentes de protección
           </h2>
           <p className="text-body-lg text-center text-gray-600 mb-6 max-w-[640px] mx-auto">
-            Cuatro ejes fundamentales que guían nuestra gestión integral de
-            riesgos laborales y seguros.
+            Tres grandes frentes en los que acompañamos la protección de lo que
+            importa: personas, patrimonio y empresas.
           </p>
         </AnimatedSection>
 

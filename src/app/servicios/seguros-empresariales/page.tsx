@@ -8,7 +8,7 @@ import EqualHeightGrid from '@/components/shared/EqualHeightGrid';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 
 export const metadata: Metadata = {
-  title: 'Seguros Empresariales a la Medida - ASGRO LTDA',
+  title: 'Seguros Empresariales a la Medida - ASGRO Agencia de Seguros',
   description:
     'Seguros empresariales adaptados a su operación: multirriesgo, responsabilidad civil, cumplimiento, manejo, transporte y protección de daños patrimoniales.',
 };

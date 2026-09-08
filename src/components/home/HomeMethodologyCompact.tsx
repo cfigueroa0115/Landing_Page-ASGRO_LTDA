@@ -1,100 +1,57 @@
 'use client';
 
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { ArrowRight, Search, ClipboardList, Rocket, BarChart3, RefreshCw } from 'lucide-react';
-import AnimatedSection from '@/components/shared/AnimatedSection';
-import { METHODOLOGY_STEPS } from '@/lib/utils/constants';
-
 /**
- * Icon map for the 5 methodology steps.
+ * HomeMethodologyCompact — Modelo de acompañamiento ASGRO como journey visual.
+ *
+ * Cuatro etapas: Entender → Analizar → Gestionar → Acompañar.
+ * Usa el componente reutilizable ProcessStep con conectores en desktop.
  */
-const STEP_ICONS: Record<number, React.ComponentType<{ className?: string }>> = {
+
+import { Search, ClipboardList, Handshake, LifeBuoy } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import SectionHeader from '@/components/shared/SectionHeader';
+import ProcessStep from '@/components/shared/ProcessStep';
+import { METHODOLOGY_STEPS, SITE_CONTENT } from '@/lib/utils/constants';
+
+/** Íconos por número de etapa (1-4). */
+const STEP_ICONS: Record<number, LucideIcon> = {
   1: Search,
   2: ClipboardList,
-  3: Rocket,
-  4: BarChart3,
-  5: RefreshCw,
+  3: Handshake,
+  4: LifeBuoy,
 };
 
-const cardVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: i * 0.1,
-      duration: 0.4,
-      ease: 'easeOut' as const,
-    },
-  }),
-};
-
-/**
- * HomeMethodologyCompact — Compact horizontal methodology steps for the home page.
- * Shows step number + title + icon, no long descriptions.
- * Links to /metodologia for full details.
- */
 export default function HomeMethodologyCompact() {
   return (
     <section
-      className="py-10 md:py-12 lg:py-14 bg-brand-light-gray"
+      id="acompanamiento"
+      className="brand-surface scroll-mt-20 py-12 md:py-16"
       aria-labelledby="home-methodology-heading"
     >
-      <div className="mx-auto max-w-[1280px] px-2 md:px-3">
-        <AnimatedSection className="text-center mb-6 md:mb-8">
-          <h2
-            id="home-methodology-heading"
-            className="text-h2 text-brand-dark-blue mb-2"
-          >
-            Nuestra metodología
-          </h2>
-          <p className="text-body-lg text-gray-600 max-w-[640px] mx-auto">
-            Un proceso estructurado de cinco etapas para resultados medibles.
-          </p>
-        </AnimatedSection>
+      <div className="section-container">
+        <SectionHeader
+          eyebrow="Modelo de acompañamiento"
+          title={SITE_CONTENT.methodologyTitle}
+          subtitle={SITE_CONTENT.methodologySubtitle}
+          titleId="home-methodology-heading"
+        />
 
-        {/* 5 compact step cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {METHODOLOGY_STEPS.map((step, index) => {
             const Icon = STEP_ICONS[step.step] ?? Search;
             return (
-              <motion.div
+              <ProcessStep
                 key={step.id}
-                custom={index}
-                variants={cardVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.3 }}
-                className="flex flex-col items-center text-center p-4 rounded-card bg-white shadow-card border border-gray-100 hover:border-brand-green/40 hover:shadow-card-hover transition-all duration-300"
-              >
-                {/* Step number badge */}
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-brand-navy text-white text-sm font-bold mb-2">
-                  {step.step}
-                </div>
-                {/* Icon */}
-                <div className="w-8 h-8 rounded-lg bg-brand-green/10 flex items-center justify-center mb-1">
-                  <Icon className="h-5 w-5 text-brand-blue" />
-                </div>
-                {/* Title */}
-                <span className="text-base font-semibold text-brand-dark-blue">
-                  {step.title}
-                </span>
-              </motion.div>
+                step={step.step}
+                icon={Icon}
+                title={step.title}
+                description={step.description}
+                index={index}
+                showConnector={index < METHODOLOGY_STEPS.length - 1}
+              />
             );
           })}
         </div>
-
-        {/* CTA to full methodology */}
-        <AnimatedSection delay={300} className="text-center mt-6">
-          <Link
-            href="/metodologia"
-            className="inline-flex items-center gap-1 text-brand-blue font-semibold hover:text-brand-blue/80 transition-colors min-h-[44px]"
-          >
-            Ver metodología completa
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </AnimatedSection>
       </div>
     </section>
   );

@@ -6,7 +6,7 @@ import SectionCTA from '@/components/shared/SectionCTA';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 
 export const metadata: Metadata = {
-  title: 'Metodología - ASGRO LTDA',
+  title: 'Metodología - ASGRO Agencia de Seguros',
   description:
     'Nuestra metodología en 5 fases: diagnóstico, planeación, implementación, seguimiento y mejora continua para la gestión integral de riesgos y cumplimiento normativo.',
 };

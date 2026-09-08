@@ -12,9 +12,9 @@ import type { FAQItem } from '@/types';
 const fallbackFAQs: FAQItem[] = [
   {
     id: '1',
-    question: '¿Qué servicios ofrece ASGRO LTDA?',
+    question: '¿Qué ofrece ASGRO?',
     answer:
-      'Ofrecemos cuatro líneas estratégicas: gestión de riesgos laborales (ARL), seguridad y salud en el trabajo (SG-SST), bienestar y protección, y seguros empresariales a la medida.',
+      'ASGRO es una agencia de seguros y aliado integral en gestión del riesgo. Ofrecemos soluciones de seguros para personas, patrimonio y empresas, y complementamos con ARL, SST y bienestar.',
     category: 'servicios',
     orderIndex: 1,
   },

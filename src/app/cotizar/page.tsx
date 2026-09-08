@@ -6,7 +6,7 @@ import QuoteSection from '@/components/sections/QuoteSection';
 import QuoteSidebar from './QuoteSidebar';
 
 export const metadata: Metadata = {
-  title: 'Solicitar Cotización - ASGRO LTDA',
+  title: 'Solicitar Cotización - ASGRO Agencia de Seguros',
   description:
     'Solicite una cotización personalizada para gestión de riesgos laborales, SG-SST, seguros empresariales o bienestar laboral. Sin costo ni compromiso.',
 };

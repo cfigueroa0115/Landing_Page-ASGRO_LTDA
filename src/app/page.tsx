@@ -1,48 +1,46 @@
 import HeroSection from '@/components/sections/HeroSection';
-import HomeServicesSection from '@/components/home/HomeServicesSection';
-import MetricsSection from '@/components/sections/MetricsSection';
-import HomeMethodologyCompact from '@/components/home/HomeMethodologyCompact';
+import ValuePropositionSection from '@/components/sections/ValuePropositionSection';
+import InsurancePortfolioSection from '@/components/sections/InsurancePortfolioSection';
 import WhyChooseSection from '@/components/sections/WhyChooseSection';
+import HomeMethodologyCompact from '@/components/home/HomeMethodologyCompact';
+import ComplementarySection from '@/components/sections/ComplementarySection';
+import CorporateSection from '@/components/shared/CorporateSection';
+import ValueGeneratedSection from '@/components/sections/ValueGeneratedSection';
 import SectionCTA from '@/components/shared/SectionCTA';
 
 /**
- * Main page — Short premium home with route-based navigation.
+ * Home — ASGRO Agencia de Seguros.
  *
- * Structure:
- * 1. HeroSection — value proposition + CTA buttons (route-based)
- * 2. HomeServicesSection — 4 service cards with drawer
- * 3. MetricsSection — animated counters (fetches from /api/metrics)
- * 4. HomeMethodologyCompact — 5 step indicators (compact)
- * 5. WhyChooseSection — 5 differentiators with hover effects
- * 6. SectionCTA — final CTA section
+ * Arquitectura seguros-first:
+ * 1. Hero — "Protegemos lo que mueve su futuro." (seguros ante todo)
+ * 2. Propuesta de valor — Personas · Patrimonio · Empresas
+ * 3. Portafolio de Seguros — sección núcleo
+ * 4. ¿Por qué elegir ASGRO? — 5 diferenciadores cualitativos
+ * 5. Modelo de acompañamiento — 4 etapas
+ * 6. Capacidades complementarias — ARL y SST (secundarias)
+ * 7. Protección para empresas — bloque B2B (ancla #empresas)
+ * 8. Valor que generamos — beneficios cualitativos (sin cifras)
+ * 9. CTA final
  *
- * Floating elements (WhatsApp, AI Chat, HelpDock) are rendered in layout.tsx
- * so they appear on ALL pages.
+ * Elementos flotantes (WhatsApp, chat IA, HelpDock) viven en layout.tsx.
  */
 export default function Home() {
   return (
     <main id="main-content" className="min-h-screen">
-      {/* Inicio */}
       <HeroSection />
-
-      {/* Servicios — quick cards with drawer */}
-      <HomeServicesSection />
-
-      {/* Resultados — metrics with animated counters */}
-      <MetricsSection />
-
-      {/* Metodología — compact 5 steps */}
-      <HomeMethodologyCompact />
-
-      {/* ¿Por qué ASGRO? — differentiators */}
+      <ValuePropositionSection />
+      <InsurancePortfolioSection />
       <WhyChooseSection />
+      <HomeMethodologyCompact />
+      <ComplementarySection />
+      <CorporateSection />
+      <ValueGeneratedSection />
 
-      {/* CTA Final */}
       <SectionCTA
-        title="¿Listo para proteger su empresa?"
-        subtitle="Contáctenos hoy y reciba asesoría personalizada sin compromiso."
-        primaryAction={{ label: 'Contactar asesor', href: '/contacto' }}
-        secondaryAction={{ label: 'Cotizar ahora', href: '/cotizar' }}
+        title="Conversemos sobre lo que necesita proteger."
+        subtitle="Permítanos conocer su necesidad y acompañarlo en la búsqueda de una solución adecuada."
+        primaryAction={{ label: 'Hablar con un asesor', href: '/contacto' }}
+        secondaryAction={{ label: 'Solicitar una cotización', href: '/cotizar' }}
         whatsappAction
       />
     </main>

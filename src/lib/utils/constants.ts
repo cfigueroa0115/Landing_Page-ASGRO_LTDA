@@ -58,25 +58,25 @@ export const FALLBACK_FAQS: FAQItem[] = [
   // Categoría: servicios
   {
     id: 'faq-1',
-    question: '¿Qué servicios ofrece ASGRO LTDA en gestión de riesgos laborales?',
+    question: '¿Qué es ASGRO y qué ofrece?',
     answer:
-      'Ofrecemos asesoría integral en ARL, diseño e implementación de sistemas de gestión de seguridad y salud en el trabajo (SG-SST), seguros empresariales a la medida, y programas de bienestar laboral adaptados a las necesidades específicas de cada empresa.',
+      'ASGRO es una agencia de seguros y aliado integral en gestión del riesgo. Ofrecemos soluciones de seguros para personas, patrimonio y empresas, y complementamos con acompañamiento en gestión de riesgos laborales (ARL) y seguridad y salud en el trabajo (SST).',
     category: 'servicios',
     orderIndex: 1,
   },
   {
     id: 'faq-2',
-    question: '¿Qué tipo de seguros empresariales a la medida manejan?',
+    question: '¿Qué seguros puedo obtener a través de ASGRO?',
     answer:
-      'Diseñamos soluciones de seguros empresariales a la medida que incluyen pólizas de responsabilidad civil, seguros de cumplimiento, seguros multirriesgo empresarial, y cobertura patrimonial, adaptadas al sector económico y tamaño de su organización.',
+      'Acompañamos la búsqueda de soluciones para personas (vida, salud, accidentes personales), patrimonio (hogar, automóviles, arrendamiento) y empresas (multirriesgo, responsabilidad civil, cumplimiento, manejo, vida grupo y otros riesgos empresariales), acordes con su perfil y exposición al riesgo.',
     category: 'servicios',
     orderIndex: 2,
   },
   {
     id: 'faq-3',
-    question: '¿Trabajan con empresas de todos los tamaños?',
+    question: '¿Atienden tanto a personas como a empresas?',
     answer:
-      'Sí, atendemos desde pequeñas empresas con 5 trabajadores hasta organizaciones con más de 1.000 colaboradores. Nuestras soluciones se adaptan al tamaño, actividad económica y nivel de riesgo de cada cliente.',
+      'Sí. Acompañamos a personas y familias en la protección de su vida, su salud y su patrimonio, y a empresas en la protección de su operación, su talento y su continuidad. Cada solución se ajusta a la necesidad y exposición al riesgo de cada cliente.',
     category: 'servicios',
     orderIndex: 3,
   },
@@ -142,44 +142,38 @@ export const FALLBACK_FAQS: FAQItem[] = [
 ];
 
 // ============================================================================
-// FALLBACK_METRICS - Mínimo 4 métricas con datos realistas para agencia de seguros
+// FALLBACK_METRICS - Indicadores institucionales SEGUROS (sin cifras comerciales
+// no verificadas). Solo describen la estructura y el alcance del servicio.
 // ============================================================================
 
 export const FALLBACK_METRICS: MetricDisplay[] = [
   {
     id: 'metric-1',
-    value: 350,
-    label: 'Empresas asesoradas',
-    unit: 'empresas',
-    icon: 'Building2',
-  },
-  {
-    id: 'metric-2',
-    value: 15,
-    label: 'Años de experiencia',
-    unit: 'años',
-    icon: 'Award',
-  },
-  {
-    id: 'metric-3',
-    value: 98,
-    label: 'Tasa de cumplimiento normativo',
-    unit: '%',
+    value: 3,
+    label: 'Frentes de protección',
+    unit: 'personas · patrimonio · empresas',
     icon: 'ShieldCheck',
   },
   {
-    id: 'metric-4',
-    value: 12000,
-    label: 'Trabajadores protegidos',
-    unit: 'personas',
-    icon: 'Users',
+    id: 'metric-2',
+    value: 4,
+    label: 'Etapas de acompañamiento',
+    unit: 'etapas',
+    icon: 'Route',
   },
   {
-    id: 'metric-5',
-    value: 45,
-    label: 'Reducción de accidentalidad',
+    id: 'metric-3',
+    value: 360,
+    label: 'Visión integral del riesgo',
+    unit: '°',
+    icon: 'CircleDot',
+  },
+  {
+    id: 'metric-4',
+    value: 100,
+    label: 'Enfoque en acompañamiento',
     unit: '%',
-    icon: 'TrendingDown',
+    icon: 'Handshake',
   },
 ];
 
@@ -195,34 +189,148 @@ export interface PillarData {
   description: string;
 }
 
+// Los tres grandes frentes de protección de ASGRO (propuesta de valor).
 export const PILLARS_DATA: PillarData[] = [
   {
-    id: 'pillar-1',
-    icon: 'ShieldCheck',
-    title: 'Protección integral',
+    id: 'pillar-personas',
+    icon: 'Users',
+    title: 'Personas',
     description:
-      'Soluciones de cobertura diseñadas para proteger el patrimonio y la operación de su empresa ante riesgos laborales.',
+      'Protección para usted, su familia y su bienestar frente a los imprevistos de la vida.',
   },
   {
-    id: 'pillar-2',
-    icon: 'ClipboardCheck',
-    title: 'Cumplimiento normativo',
+    id: 'pillar-patrimonio',
+    icon: 'Home',
+    title: 'Patrimonio',
     description:
-      'Acompañamiento experto para garantizar el cumplimiento de la legislación colombiana en SST y riesgos laborales.',
+      'Protección para su vivienda, vehículos y bienes: lo que ha construido con esfuerzo.',
   },
   {
-    id: 'pillar-3',
-    icon: 'HeartPulse',
-    title: 'Bienestar laboral',
+    id: 'pillar-empresas',
+    icon: 'Building2',
+    title: 'Empresas',
     description:
-      'Programas orientados a mejorar la calidad de vida de los colaboradores y fortalecer la cultura organizacional.',
+      'Soluciones para proteger operación, talento, contratos y continuidad del negocio.',
+  },
+];
+
+// ============================================================================
+// INSURANCE_PORTFOLIO - Portafolio de Seguros (NÚCLEO de la propuesta ASGRO)
+// Organizado en tres grupos: Personas, Patrimonio y Empresas.
+// Cada producto: nombre + descripción de 1 línea. Sin cifras ni promesas.
+// ============================================================================
+
+export interface InsuranceProduct {
+  id: string;
+  icon: string;
+  name: string;
+  description: string;
+}
+
+export interface InsuranceGroup {
+  id: string;
+  groupIcon: string;
+  groupTitle: string;
+  groupDescription: string;
+  products: InsuranceProduct[];
+}
+
+export const INSURANCE_PORTFOLIO: InsuranceGroup[] = [
+  {
+    id: 'group-personas',
+    groupIcon: 'Users',
+    groupTitle: 'Personas',
+    groupDescription: 'Protección para usted y su familia.',
+    products: [
+      {
+        id: 'ins-vida',
+        icon: 'HeartPulse',
+        name: 'Vida',
+        description: 'Respaldo económico para quienes dependen de usted.',
+      },
+      {
+        id: 'ins-salud',
+        icon: 'Stethoscope',
+        name: 'Salud',
+        description: 'Acceso a atención y coberturas complementarias en salud.',
+      },
+      {
+        id: 'ins-accidentes',
+        icon: 'ShieldPlus',
+        name: 'Accidentes personales',
+        description: 'Protección ante imprevistos que afectan su integridad.',
+      },
+    ],
   },
   {
-    id: 'pillar-4',
-    icon: 'TrendingUp',
-    title: 'Prevención y mejora continua',
-    description:
-      'Estrategias basadas en datos para reducir la accidentalidad y optimizar los indicadores de gestión de riesgos.',
+    id: 'group-patrimonio',
+    groupIcon: 'Home',
+    groupTitle: 'Patrimonio',
+    groupDescription: 'Protección para sus bienes.',
+    products: [
+      {
+        id: 'ins-hogar',
+        icon: 'House',
+        name: 'Hogar',
+        description: 'Cobertura para su vivienda y su contenido.',
+      },
+      {
+        id: 'ins-auto',
+        icon: 'Car',
+        name: 'Automóviles',
+        description: 'Protección para su vehículo ante daños y terceros.',
+      },
+      {
+        id: 'ins-arrendamiento',
+        icon: 'KeyRound',
+        name: 'Arrendamiento',
+        description: 'Respaldo en la relación entre arrendador y arrendatario.',
+      },
+    ],
+  },
+  {
+    id: 'group-empresas',
+    groupIcon: 'Building2',
+    groupTitle: 'Empresas',
+    groupDescription: 'Protección para su operación y continuidad.',
+    products: [
+      {
+        id: 'ins-multirriesgo',
+        icon: 'Factory',
+        name: 'Multirriesgo empresarial / PYME',
+        description: 'Cobertura integral para activos y operación del negocio.',
+      },
+      {
+        id: 'ins-rc',
+        icon: 'Scale',
+        name: 'Responsabilidad civil',
+        description: 'Protección frente a reclamaciones de terceros.',
+      },
+      {
+        id: 'ins-cumplimiento',
+        icon: 'FileCheck',
+        name: 'Cumplimiento',
+        description: 'Respaldo del cumplimiento de contratos y obligaciones.',
+      },
+      {
+        id: 'ins-manejo',
+        icon: 'Lock',
+        name: 'Manejo',
+        description: 'Protección ante riesgos derivados del manejo de recursos.',
+      },
+      {
+        id: 'ins-vida-grupo',
+        icon: 'UsersRound',
+        name: 'Vida grupo',
+        description: 'Cobertura de vida para los colaboradores de la empresa.',
+      },
+      {
+        id: 'ins-otros',
+        icon: 'LayoutGrid',
+        name: 'Otros riesgos empresariales',
+        description: 'Soluciones adicionales según la exposición de su operación.',
+      },
+    ],
   },
 ];
 
@@ -231,13 +339,29 @@ export const PILLARS_DATA: PillarData[] = [
 // ARL, SST, seguros empresariales a la medida, bienestar laboral
 // ============================================================================
 
+// Orden intencional: SEGUROS primero (eje principal), luego ARL, luego SST.
 export const SERVICES_DATA: ServiceData[] = [
+  {
+    id: 'service-seguros',
+    title: 'Soluciones de Seguros',
+    icon: 'Shield',
+    description:
+      'Analizamos su necesidad y buscamos alternativas de protección para personas, patrimonio y empresas, acordes con su perfil y exposición al riesgo.',
+    subServices: [
+      'Seguros de vida, salud y accidentes personales',
+      'Hogar, automóviles y arrendamiento',
+      'Multirriesgo empresarial y PYME',
+      'Responsabilidad civil, cumplimiento y manejo',
+      'Vida grupo para colaboradores',
+      'Otros riesgos empresariales a la medida',
+    ],
+  },
   {
     id: 'service-arl',
     title: 'ARL y Riesgos Laborales',
-    icon: 'Shield',
+    icon: 'ClipboardCheck',
     description:
-      'Gestión integral de la Administradora de Riesgos Laborales con enfoque en clasificación de riesgos, afiliaciones y asesoría en prevención de accidentes de trabajo.',
+      'Acompañamiento preventivo y gestión de riesgos laborales para complementar la protección de su empresa y su equipo humano.',
     subServices: [
       'Clasificación y reclasificación de riesgo',
       'Gestión de afiliaciones y novedades',
@@ -252,40 +376,25 @@ export const SERVICES_DATA: ServiceData[] = [
     title: 'Seguridad y Salud en el Trabajo',
     icon: 'HardHat',
     description:
-      'Diseño, implementación y mantenimiento del Sistema de Gestión de Seguridad y Salud en el Trabajo conforme al Decreto 1072 de 2015 y la Resolución 0312 de 2019.',
+      'Diseño e implementación del SG-SST y acompañamiento en cumplimiento, como capacidad complementaria a la protección aseguradora.',
     subServices: [
       'Diseño del SG-SST según estándares mínimos',
-      'Matrices de identificación de peligros (IPEVR)',
+      'Auditorías internas y de cumplimiento',
+      'Investigación de accidentes de trabajo',
+      'Capacitación y prevención',
       'Plan de emergencias y simulacros',
-      'Capacitación y formación en SST',
-      'Exámenes médicos ocupacionales',
-      'Inspecciones y auditorías de seguridad',
-    ],
-  },
-  {
-    id: 'service-seguros',
-    title: 'Seguros empresariales a la medida',
-    icon: 'FileCheck',
-    description:
-      'Portafolio de seguros empresariales a la medida diseñados para proteger el patrimonio, la operación y la responsabilidad legal de las organizaciones ante riesgos específicos de cada sector.',
-    subServices: [
-      'Seguros de responsabilidad civil extracontractual',
-      'Pólizas de cumplimiento',
-      'Seguros multirriesgo empresarial',
-      'Seguros de transporte de mercancías',
-      'Cobertura patrimonial y de activos',
-      'Seguros de vida grupo y accidentes personales',
+      'Inspecciones de seguridad',
     ],
   },
   {
     id: 'service-bienestar',
-    title: 'Bienestar Laboral',
+    title: 'Bienestar y Prevención',
     icon: 'Heart',
     description:
-      'Programas integrales de bienestar que fortalecen la cultura organizacional, mejoran el clima laboral y promueven hábitos saludables entre los colaboradores.',
+      'Programas de bienestar que fortalecen la cultura organizacional y promueven hábitos saludables entre los colaboradores.',
     subServices: [
       'Programas de promoción y prevención en salud',
-      'Pausas activas y ergonomía en el puesto de trabajo',
+      'Pausas activas y ergonomía',
       'Programas de riesgo psicosocial',
       'Actividades de integración y bienestar',
       'Medición de clima organizacional',
@@ -306,41 +415,36 @@ export interface MethodologyStep {
   description: string;
 }
 
+// Modelo de acompañamiento ASGRO — 4 etapas claras (Entender → Analizar →
+// Gestionar → Acompañar). Enfocado en asesoría de seguros, no en consultoría SST.
 export const METHODOLOGY_STEPS: MethodologyStep[] = [
   {
     id: 'step-1',
     step: 1,
-    title: 'Diagnóstico',
+    title: 'Entender',
     description:
-      'Evaluamos las condiciones actuales de su empresa, identificamos riesgos, brechas normativas y oportunidades de mejora mediante un análisis integral.',
+      'Comprendemos su necesidad y su exposición al riesgo para partir de lo que realmente importa proteger.',
   },
   {
     id: 'step-2',
     step: 2,
-    title: 'Planeación',
+    title: 'Analizar',
     description:
-      'Diseñamos un plan de acción con objetivos medibles, cronograma de implementación y asignación de responsabilidades alineado a la normatividad vigente.',
+      'Identificamos alternativas de protección disponibles y las comparamos según su perfil.',
   },
   {
     id: 'step-3',
     step: 3,
-    title: 'Implementación',
+    title: 'Gestionar',
     description:
-      'Ejecutamos las estrategias definidas con acompañamiento técnico, capacitación al personal y puesta en marcha de controles operativos efectivos.',
+      'Acompañamos la cotización, la contratación y la emisión de su solución de manera clara.',
   },
   {
     id: 'step-4',
     step: 4,
-    title: 'Seguimiento',
+    title: 'Acompañar',
     description:
-      'Monitoreamos indicadores de gestión, realizamos auditorías periódicas y generamos informes de avance para garantizar el cumplimiento de metas.',
-  },
-  {
-    id: 'step-5',
-    step: 5,
-    title: 'Mejora continua',
-    description:
-      'Analizamos resultados, implementamos acciones correctivas y ajustamos estrategias para optimizar continuamente la gestión de riesgos de su empresa.',
+      'Apoyamos novedades, renovaciones y siniestros: estamos antes, durante y después.',
   },
 ];
 
@@ -355,55 +459,49 @@ export interface BenefitData {
   description: string;
 }
 
+// "Valor que generamos" — beneficios CUALITATIVOS, sin cifras no verificadas.
 export const BENEFITS_DATA: BenefitData[] = [
   {
     id: 'benefit-1',
-    icon: 'TrendingDown',
-    title: 'Reducción de accidentalidad',
+    icon: 'ShieldCheck',
+    title: 'Mayor prevención',
     description:
-      'Disminución promedio del 45% en la tasa de accidentalidad laboral durante el primer año de implementación del SG-SST.',
+      'Comprendemos el riesgo antes de asegurar, para anticipar lo que puede afectar lo que importa.',
   },
   {
     id: 'benefit-2',
-    icon: 'ShieldCheck',
-    title: 'Cumplimiento normativo garantizado',
+    icon: 'Eye',
+    title: 'Mayor claridad',
     description:
-      'Alcance del 98% de cumplimiento de los estándares mínimos exigidos por la Resolución 0312 de 2019.',
+      'Explicamos coberturas y alcances en un lenguaje sencillo, para que decida con confianza.',
   },
   {
     id: 'benefit-3',
-    icon: 'DollarSign',
-    title: 'Optimización de costos',
+    icon: 'Handshake',
+    title: 'Mejor acompañamiento',
     description:
-      'Reducción de hasta el 30% en costos asociados a incapacidades, multas y sanciones por incumplimiento normativo.',
+      'Un aliado cercano en cada etapa: contratación, renovaciones, novedades y siniestros.',
   },
   {
     id: 'benefit-4',
-    icon: 'Users',
-    title: 'Mejora del clima laboral',
+    icon: 'ShieldAlert',
+    title: 'Menor exposición al riesgo',
     description:
-      'Incremento medible en los índices de satisfacción y bienestar de los colaboradores mediante programas especializados.',
+      'Ayudamos a identificar y cerrar brechas de protección en personas, patrimonio y operación.',
   },
   {
     id: 'benefit-5',
-    icon: 'Clock',
-    title: 'Respuesta oportuna',
+    icon: 'Activity',
+    title: 'Mayor continuidad',
     description:
-      'Tiempos de atención inferiores a 24 horas para gestión de incidentes, reclamaciones y requerimientos normativos urgentes.',
+      'Protección pensada para que su vida y su negocio sigan adelante ante imprevistos.',
   },
   {
     id: 'benefit-6',
-    icon: 'BarChart3',
-    title: 'Indicadores en tiempo real',
+    icon: 'Heart',
+    title: 'Mayor tranquilidad',
     description:
-      'Tableros de gestión con indicadores actualizados que facilitan la toma de decisiones basada en datos concretos.',
-  },
-  {
-    id: 'benefit-7',
-    icon: 'GraduationCap',
-    title: 'Capacitación especializada',
-    description:
-      'Programas de formación que reducen en un 60% los comportamientos inseguros identificados en inspecciones de campo.',
+      'Saber que cuenta con respaldo y con alguien que responde cuando lo necesita.',
   },
 ];
 
@@ -418,41 +516,42 @@ export interface DifferentiatorData {
   description: string;
 }
 
+// 5 razones para elegir ASGRO — argumentos cualitativos, sin cifras ni promesas.
 export const DIFFERENTIATORS_DATA: DifferentiatorData[] = [
   {
     id: 'diff-1',
-    icon: 'Target',
-    title: 'Enfoque personalizado',
+    icon: 'Handshake',
+    title: 'Acompañamiento cercano',
     description:
-      'Cada solución se diseña a la medida de su empresa, considerando su sector económico, tamaño, nivel de riesgo y objetivos estratégicos específicos.',
+      'Estamos presentes antes, durante y después de la contratación de su solución.',
   },
   {
     id: 'diff-2',
-    icon: 'Award',
-    title: 'Experiencia comprobada',
+    icon: 'ShieldCheck',
+    title: 'Enfoque preventivo',
     description:
-      'Más de 15 años asesorando empresas colombianas en gestión de riesgos laborales, SST y seguros empresariales con resultados documentados y medibles.',
+      'No buscamos únicamente asegurar; buscamos comprender el riesgo para proteger mejor.',
   },
   {
     id: 'diff-3',
-    icon: 'BookOpen',
-    title: 'Actualización normativa permanente',
+    icon: 'Target',
+    title: 'Soluciones a la medida',
     description:
-      'Equipo especializado que monitorea cambios en la legislación colombiana para mantener su empresa siempre al día con los requisitos vigentes.',
+      'Cada persona, empresa y operación tiene necesidades diferentes, y así las abordamos.',
   },
   {
     id: 'diff-4',
-    icon: 'Headphones',
-    title: 'Acompañamiento integral',
+    icon: 'Zap',
+    title: 'Respuesta ágil',
     description:
-      'Soporte continuo desde el diagnóstico hasta la mejora continua, con canales de comunicación directa y tiempos de respuesta inferiores a 24 horas.',
+      'Procesos claros, comunicación cercana y seguimiento en cada etapa.',
   },
   {
     id: 'diff-5',
-    icon: 'BarChart3',
-    title: 'Gestión basada en datos',
+    icon: 'Layers',
+    title: 'Visión integral',
     description:
-      'Indicadores de gestión, informes periódicos y tableros de control que demuestran el retorno de inversión y el avance en sus objetivos de seguridad.',
+      'Conectamos seguros, personas, riesgos y operación empresarial en una sola mirada.',
   },
 ];
 
@@ -466,13 +565,15 @@ export interface NavLink {
   href: string;
 }
 
+// Navegación seguros-first. Las etiquetas ARL y SST apuntan a los micrositios
+// de servicios existentes; "Seguros" y "Empresas" al hub de servicios y a la home.
 export const NAV_LINKS: NavLink[] = [
   { id: 'nav-inicio', label: 'Inicio', href: '/' },
-  { id: 'nav-servicios', label: 'Servicios', href: '/servicios' },
   { id: 'nav-nosotros', label: 'Nosotros', href: '/nosotros' },
-  { id: 'nav-metodologia', label: 'Metodología', href: '/metodologia' },
-  { id: 'nav-resultados', label: 'Resultados', href: '/resultados' },
-  { id: 'nav-faq', label: 'Preguntas frecuentes', href: '/preguntas-frecuentes' },
+  { id: 'nav-seguros', label: 'Seguros', href: '/servicios/seguros-empresariales' },
+  { id: 'nav-empresas', label: 'Empresas', href: '/#empresas' },
+  { id: 'nav-arl', label: 'ARL y Riesgos Laborales', href: '/servicios/riesgos-laborales' },
+  { id: 'nav-sst', label: 'SST', href: '/servicios/seguridad-salud-trabajo' },
   { id: 'nav-contacto', label: 'Contacto', href: '/contacto' },
 ];
 
@@ -497,59 +598,65 @@ export const SERVICE_OPTIONS: ServiceOption[] = [
 // ============================================================================
 
 export const SITE_CONTENT = {
-  /** Nombre de la empresa */
-  companyName: 'ASGRO LTDA Agencia de Seguros',
+  /** Nombre de la empresa — marca ÚNICA */
+  companyName: 'ASGRO Agencia de Seguros',
 
   /** Nombre corto */
-  companyShortName: 'ASGRO LTDA',
+  companyShortName: 'ASGRO',
 
-  /** Slogan / tagline */
-  tagline: 'Protegemos lo que más importa: su empresa y sus colaboradores',
+  /** Descriptor de marca (bajo el logo) */
+  brandDescriptor: 'Agencia de Seguros',
 
-  /** Descripción del hero (máx 80 caracteres para headline) */
-  heroHeadline: 'Gestión integral de riesgos laborales y seguros empresariales',
+  /** Slogan / tagline principal */
+  tagline: 'Protegemos personas, patrimonio y empresas.',
+
+  /** Titular del hero — seguros primero, alto impacto */
+  heroHeadline: 'Protegemos lo que mueve su futuro.',
 
   /** Subtítulo del hero */
   heroSubtitle:
-    'Soluciones especializadas en ARL, SST, seguros empresariales a la medida y bienestar laboral para proteger su empresa y sus colaboradores.',
+    'Soluciones de seguros para personas y empresas, con acompañamiento cercano, técnico y estratégico.',
 
-  /** Badges del hero */
+  /** Badges del hero — jerarquía: seguros primero */
   heroBadges: [
-    'ARL',
-    'SST',
-    'Bienestar laboral',
-    'Seguros empresariales a la medida',
+    'Personas',
+    'Patrimonio',
+    'Empresas',
+    'Gestión del riesgo',
   ],
 
-  /** Descripción de la sección "Nosotros" */
+  /** Descripción de la sección "Nosotros" — sin cifras ni trayectoria inventada */
   aboutDescription:
-    'Somos una agencia de seguros con más de 15 años de experiencia en la gestión integral de riesgos laborales, seguridad y salud en el trabajo, y seguros empresariales a la medida. Acompañamos a las empresas colombianas en la protección de su capital humano y patrimonio organizacional.',
+    'ASGRO es una agencia de seguros y aliado integral en gestión del riesgo. Acompañamos a personas y empresas en la protección de lo que realmente importa, aplicando conocimiento técnico y trayectoria profesional del equipo a cada cliente.',
 
   /** Propuesta de valor destacada */
   aboutValueProposition:
-    'Combinamos conocimiento técnico, experiencia sectorial y tecnología para ofrecer soluciones que generan resultados medibles y sostenibles para su empresa.',
+    'Más que una póliza, acompañamos la protección de personas, patrimonio y empresas con cercanía, claridad y visión integral del riesgo.',
 
   /** Misión */
   mission:
-    'Brindar asesoría integral en gestión de riesgos laborales, seguros y bienestar, generando valor para las empresas colombianas mediante soluciones que protegen su talento humano y fortalecen su sostenibilidad operativa.',
+    'Acompañar a personas y empresas en la protección de lo que valoran, ofreciendo soluciones de seguros y gestión del riesgo con asesoría cercana, clara y estratégica.',
 
   /** Visión */
   vision:
-    'Ser la agencia de seguros líder en Colombia en soluciones integrales de gestión de riesgos laborales, reconocida por la excelencia en el servicio, la innovación y el impacto positivo en la seguridad y bienestar de los trabajadores.',
+    'Ser reconocidos como una agencia de seguros cercana y confiable, aliada integral en la gestión del riesgo de personas y empresas en Colombia.',
 
-  /** Especialidades listadas en "Nosotros" */
+  /** Especialidades listadas en "Nosotros" — seguros primero */
   specializations: [
-    'Administración de Riesgos Laborales (ARL)',
+    'Seguros para personas, patrimonio y empresas',
+    'Gestión de Riesgos Laborales (ARL)',
     'Seguridad y Salud en el Trabajo (SST)',
-    'Riesgos laborales y prevención',
-    'Seguros empresariales a la medida',
+    'Gestión preventiva del riesgo y acompañamiento',
   ],
 
   /** Texto del CTA principal */
   ctaPrimary: 'Solicitar asesoría',
 
-  /** Texto del CTA secundario */
-  ctaSecondary: 'Cotizar ahora',
+  /** Texto del CTA secundario del hero */
+  ctaSecondary: 'Conocer soluciones',
+
+  /** Texto del CTA de cotización */
+  ctaQuote: 'Solicitar una cotización',
 
   /** Texto del CTA WhatsApp */
   ctaWhatsApp: 'Hablar por WhatsApp',
@@ -562,7 +669,7 @@ export const SITE_CONTENT = {
     'Hola, soy visitante del sitio web de ASGRO LTDA y me gustaría recibir información sobre sus servicios.',
 
   /** Texto del copyright */
-  copyrightText: `© ${new Date().getFullYear()} ASGRO LTDA Agencia de Seguros. Todos los derechos reservados.`,
+  copyrightText: `© ${new Date().getFullYear()} ASGRO Agencia de Seguros. Todos los derechos reservados.`,
 
   /** Texto legal */
   legalNotice: 'Política de tratamiento de datos personales',
@@ -580,29 +687,29 @@ export const SITE_CONTENT = {
   quoteFormSubtitle:
     'Complete la información de su empresa para recibir una propuesta personalizada.',
 
-  /** Título de la sección de métricas */
-  metricsTitle: 'Nuestro impacto en cifras',
+  /** Título de la sección de valor (antes "impacto en cifras") */
+  metricsTitle: 'Valor que generamos',
 
   /** Título de la sección de FAQ */
   faqTitle: 'Preguntas frecuentes',
 
   /** Título de la sección de beneficios */
-  benefitsTitle: '¿Por qué elegirnos?',
+  benefitsTitle: 'Impacto que buscamos generar',
 
-  /** Título de la sección de metodología */
-  methodologyTitle: 'Nuestra metodología',
+  /** Título del modelo de acompañamiento */
+  methodologyTitle: 'Así acompañamos su protección',
   methodologySubtitle:
-    'Un proceso estructurado de cinco etapas diseñado para generar resultados medibles en la gestión de riesgos de su empresa.',
+    'Un modelo cercano de cuatro etapas para entender, analizar, gestionar y acompañar su protección.',
 
-  /** Título de la sección de servicios */
-  servicesTitle: 'Nuestros servicios',
+  /** Título del portafolio de seguros */
+  servicesTitle: 'Soluciones de seguros',
   servicesSubtitle:
-    'Soluciones integrales adaptadas a las necesidades específicas de cada organización.',
+    'Analizamos su necesidad y buscamos alternativas de protección acordes con su perfil y exposición al riesgo.',
 
   /** Título de la sección de diferenciadores */
-  whyChooseTitle: '¿Por qué ASGRO?',
+  whyChooseTitle: '¿Por qué elegir ASGRO?',
   whyChooseSubtitle:
-    'Cinco razones que nos diferencian en el mercado de gestión de riesgos laborales y seguros.',
+    'Cinco razones que reflejan nuestra forma de acompañar la protección de personas y empresas.',
 
   /** Título de la sección AI Agent */
   aiAgentTitle: 'Agente IA',
@@ -623,17 +730,19 @@ export const SITE_CONTENT = {
 // ============================================================================
 
 export const SEO_METADATA = {
-  title: 'ASGRO LTDA | Gestión de Riesgos Laborales y Seguros',
+  title: 'ASGRO Agencia de Seguros | Protegemos personas, patrimonio y empresas',
   description:
-    'Agencia de seguros especializada en ARL, SST, seguros empresariales a la medida y bienestar laboral en Colombia. Más de 15 años protegiendo empresas.',
+    'Agencia de seguros y aliado integral en gestión del riesgo en Colombia. Seguros para personas, patrimonio y empresas, con acompañamiento cercano. Complementamos con ARL y SST.',
   keywords: [
-    'ARL Colombia',
-    'seguridad y salud en el trabajo',
-    'seguros empresariales',
-    'riesgos laborales',
-    'SG-SST',
-    'bienestar laboral',
     'agencia de seguros Colombia',
+    'seguros para personas',
+    'seguros empresariales',
+    'seguro de vida',
+    'seguro de hogar',
+    'seguro de vehículos',
+    'gestión del riesgo',
+    'ARL',
+    'SST',
   ],
   locale: 'es_CO',
   type: 'website',

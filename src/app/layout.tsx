@@ -19,33 +19,35 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.asgroseguros.co
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: 'ASGRO LTDA - Seguros y Riesgos Laborales',
+  title: 'ASGRO Agencia de Seguros | Protegemos personas, patrimonio y empresas',
   description:
-    'Agencia de seguros especializada en ARL, SST, seguros empresariales a la medida y bienestar laboral en Colombia.',
+    'Agencia de seguros y aliado integral en gestión del riesgo en Colombia. Seguros para personas, patrimonio y empresas, con acompañamiento cercano. Complementamos con ARL y SST.',
   keywords: [
+    'agencia de seguros',
+    'seguros para personas',
     'seguros empresariales',
-    'ARL Colombia',
+    'seguro de vida',
+    'seguro de hogar',
+    'gestión del riesgo',
+    'ARL',
     'SST',
-    'riesgos laborales',
-    'seguridad y salud en el trabajo',
-    'seguros corporativos',
   ],
-  authors: [{ name: 'ASGRO LTDA' }],
+  authors: [{ name: 'ASGRO Agencia de Seguros' }],
   alternates: {
     canonical: siteUrl,
   },
   openGraph: {
-    title: 'ASGRO LTDA - Seguros y Riesgos Laborales',
+    title: 'ASGRO Agencia de Seguros',
     description:
-      'Agencia de seguros especializada en ARL, SST, seguros empresariales a la medida y bienestar laboral en Colombia.',
+      'Protegemos personas, patrimonio y empresas. Seguros y gestión integral del riesgo con acompañamiento cercano y estratégico.',
     url: siteUrl,
-    siteName: 'ASGRO LTDA',
+    siteName: 'ASGRO Agencia de Seguros',
     images: [
       {
         url: '/brand/asgro-og-image.png',
         width: 1200,
         height: 630,
-        alt: 'ASGRO LTDA - Seguros y Riesgos Laborales',
+        alt: 'ASGRO Agencia de Seguros',
       },
     ],
     locale: 'es_CO',
@@ -53,9 +55,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ASGRO LTDA - Seguros y Riesgos Laborales',
+    title: 'ASGRO Agencia de Seguros',
     description:
-      'Agencia de seguros especializada en ARL, SST, seguros empresariales a la medida y bienestar laboral en Colombia.',
+      'Protegemos personas, patrimonio y empresas. Seguros y gestión integral del riesgo con acompañamiento cercano.',
     images: ['/brand/asgro-og-image.png'],
   },
 };
@@ -64,11 +66,11 @@ export const metadata: Metadata = {
  * JSON-LD Structured Data — THREE schemas: InsuranceAgency, LocalBusiness, Organization
  */
 function JsonLdSchemas() {
-  const companyName = 'ASGRO LTDA';
+  const companyName = 'ASGRO Agencia de Seguros';
   const companyUrl = siteUrl;
   const companyLogo = `${siteUrl}/brand/asgro-logo.png`;
   const companyDescription =
-    'Agencia de seguros especializada en ARL, SST, seguros empresariales a la medida y bienestar laboral en Colombia.';
+    'Agencia de seguros y aliado integral en gestión del riesgo. Protegemos personas, patrimonio y empresas, y complementamos con ARL y SST.';
   const companyPhone = process.env.NEXT_PUBLIC_COMPANY_PHONE || '';
   const companyEmail = process.env.NEXT_PUBLIC_COMPANY_EMAIL || '';
   const companyAddress = process.env.NEXT_PUBLIC_COMPANY_ADDRESS || '';

@@ -8,9 +8,9 @@ import EqualHeightGrid from '@/components/shared/EqualHeightGrid';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 
 export const metadata: Metadata = {
-  title: 'Nosotros - ASGRO LTDA',
+  title: 'Nosotros - ASGRO Agencia de Seguros',
   description:
-    'Conozca ASGRO LTDA: empresa colombiana con más de 15 años de experiencia en gestión integral de riesgos laborales, seguridad y salud en el trabajo, y seguros empresariales.',
+    'Conozca ASGRO: agencia de seguros y aliado integral en gestión del riesgo en Colombia. Protegemos personas, patrimonio y empresas con acompañamiento cercano.',
 };
 
 export default function NosotrosPage() {
@@ -20,8 +20,8 @@ export default function NosotrosPage() {
         items={[{ label: 'Nosotros', href: '/nosotros' }]}
       />
       <PageHero
-        title="Conozca ASGRO LTDA"
-        subtitle="Más de 15 años protegiendo empresas colombianas con soluciones integrales en gestión de riesgos laborales, seguridad y salud en el trabajo, y seguros empresariales."
+        title="Conozca ASGRO"
+        subtitle="Agencia de seguros y aliado integral en gestión del riesgo. Acompañamos la protección de personas, patrimonio y empresas con conocimiento técnico y cercanía."
         eyebrow="Quiénes somos"
       />
 
@@ -31,17 +31,16 @@ export default function NosotrosPage() {
           <AnimatedSection>
             <div className="max-w-[800px] mx-auto text-center">
               <h2 className="text-h2 text-brand-dark-blue mb-3">
-                Protección integral para su empresa
+                Protegemos personas, patrimonio y empresas
               </h2>
               <p className="text-body-lg text-gray-600 mb-2">
-                ASGRO LTDA es una empresa colombiana especializada en la gestión integral de riesgos
-                laborales y empresariales. Acompañamos a organizaciones de todos los sectores
-                económicos en la implementación de estrategias que protegen su capital humano y
-                patrimonial.
+                ASGRO es una agencia de seguros y aliado integral en gestión del riesgo.
+                Acompañamos a personas y empresas en la protección de lo que realmente importa,
+                buscando alternativas acordes con su perfil y su exposición al riesgo.
               </p>
               <p className="text-body text-gray-600">
-                Nuestro enfoque combina conocimiento técnico, normatividad vigente y atención
-                personalizada para diseñar soluciones que se adaptan a la realidad de cada empresa.
+                Aplicamos el conocimiento técnico y la trayectoria profesional del equipo a cada
+                cliente, con un acompañamiento cercano antes, durante y después de la contratación.
               </p>
             </div>
           </AnimatedSection>
@@ -61,10 +60,9 @@ export default function NosotrosPage() {
                   <h3 className="text-xl font-bold text-brand-dark-blue">Misión</h3>
                 </div>
                 <p className="text-body text-gray-600">
-                  Brindar soluciones integrales en gestión de riesgos laborales, seguridad y salud
-                  en el trabajo, y protección empresarial, garantizando el cumplimiento normativo y
-                  el bienestar de los trabajadores colombianos a través de un acompañamiento
-                  personalizado y continuo.
+                  Acompañar a personas y empresas en la protección de lo que valoran, ofreciendo
+                  soluciones de seguros y gestión del riesgo con asesoría cercana, clara y
+                  estratégica, y complementando con acompañamiento en ARL y SST.
                 </p>
               </div>
 
@@ -76,10 +74,9 @@ export default function NosotrosPage() {
                   <h3 className="text-xl font-bold text-brand-dark-blue">Visión</h3>
                 </div>
                 <p className="text-body text-gray-600">
-                  Ser referentes en Colombia en la gestión integral de riesgos laborales y
-                  empresariales, reconocidos por la calidad de nuestro acompañamiento, la
-                  innovación en nuestras soluciones y el impacto positivo en la cultura de
-                  prevención de las organizaciones que asesoramos.
+                  Ser reconocidos como una agencia de seguros cercana y confiable, aliada integral
+                  en la gestión del riesgo de personas y empresas en Colombia, por la calidad de
+                  nuestro acompañamiento y la claridad de nuestras soluciones.
                 </p>
               </div>
             </div>
@@ -131,8 +128,20 @@ export default function NosotrosPage() {
           <EqualHeightGrid columns={{ sm: 1, md: 2, lg: 4 }}>
             <PremiumCard
               icon={<Shield className="h-[24px] w-[24px] text-brand-green" />}
-              title="Riesgos Laborales"
-              description="Gestión integral de ARL: afiliaciones, traslados, clasificación de riesgo y acompañamiento en eventos laborales."
+              title="Seguros"
+              description="Soluciones para personas, patrimonio y empresas: vida, salud, hogar, automóviles y coberturas empresariales."
+              bullets={['Personas', 'Patrimonio', 'Empresas']}
+            />
+            <PremiumCard
+              icon={<Building2 className="h-[24px] w-[24px] text-brand-green" />}
+              title="Seguros Empresariales"
+              description="Pólizas a la medida: multirriesgo, responsabilidad civil, cumplimiento, manejo y vida grupo."
+              bullets={['Multirriesgo', 'Responsabilidad civil', 'Cumplimiento']}
+            />
+            <PremiumCard
+              icon={<Shield className="h-[24px] w-[24px] text-brand-green" />}
+              title="ARL y Riesgos Laborales"
+              description="Acompañamiento en ARL: afiliaciones, traslados, clasificación de riesgo y gestión de eventos laborales."
               bullets={['Afiliación y traslado', 'Gestión de accidentes', 'Enfermedad laboral']}
             />
             <PremiumCard
@@ -141,27 +150,15 @@ export default function NosotrosPage() {
               description="Diseño, implementación y seguimiento del SG-SST conforme a la normatividad colombiana vigente."
               bullets={['SG-SST', 'Auditorías', 'Investigación de accidentes']}
             />
-            <PremiumCard
-              icon={<Heart className="h-[24px] w-[24px] text-brand-green" />}
-              title="Bienestar y Protección"
-              description="Seguros de vida grupo, accidentes personales, salud, exequiales y programas de bienestar laboral."
-              bullets={['Vida grupo', 'Salud', 'Bienestar laboral']}
-            />
-            <PremiumCard
-              icon={<Building2 className="h-[24px] w-[24px] text-brand-green" />}
-              title="Seguros Empresariales"
-              description="Pólizas a la medida: multirriesgo, responsabilidad civil, cumplimiento, manejo y transporte."
-              bullets={['Multirriesgo', 'Responsabilidad civil', 'Cumplimiento']}
-            />
           </EqualHeightGrid>
         </div>
       </section>
 
       <SectionCTA
-        title="¿Listo para proteger su empresa?"
-        subtitle="Solicite una asesoría personalizada sin compromiso."
-        primaryAction={{ label: 'Solicitar cotización', href: '/cotizar' }}
-        secondaryAction={{ label: 'Contáctenos', href: '/contacto' }}
+        title="Conversemos sobre lo que necesita proteger."
+        subtitle="Permítanos conocer su necesidad y acompañarlo en la búsqueda de una solución adecuada."
+        primaryAction={{ label: 'Hablar con un asesor', href: '/contacto' }}
+        secondaryAction={{ label: 'Solicitar una cotización', href: '/cotizar' }}
         whatsappAction
       />
     </>

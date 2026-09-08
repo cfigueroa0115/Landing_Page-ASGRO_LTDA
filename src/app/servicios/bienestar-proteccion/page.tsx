@@ -8,7 +8,7 @@ import EqualHeightGrid from '@/components/shared/EqualHeightGrid';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 
 export const metadata: Metadata = {
-  title: 'Bienestar y Protección - ASGRO LTDA',
+  title: 'Bienestar y Protección - ASGRO Agencia de Seguros',
   description:
     'Seguros de vida grupo, accidentes personales, salud, exequiales, protección familiar y programas de bienestar laboral para empresas colombianas.',
 };

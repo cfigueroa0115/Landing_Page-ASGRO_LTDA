@@ -94,6 +94,31 @@
     @apply bg-white/80 backdrop-blur-md;
   }
 
+  /* ── Lenguaje visual propio ASGRO ─────────────────────────────────────────
+   * Sello de marca reconocible: arco verde, eyebrow institucional, superficies
+   * blancas con acentos suaves. Paleta 80% blanco / 15% azul / 5% verde.
+   * ───────────────────────────────────────────────────────────────────────── */
+
+  /* Etiqueta pequeña sobre los títulos de sección (eyebrow) */
+  .brand-eyebrow {
+    @apply inline-flex items-center gap-1 text-small font-semibold uppercase tracking-[0.12em] text-brand-green;
+  }
+
+  /* Superficie de sección suave (alterna con el blanco puro) */
+  .brand-surface {
+    @apply bg-brand-light-gray;
+  }
+
+  /* Realce de palabra clave dentro de un titular */
+  .brand-accent {
+    @apply text-brand-green;
+  }
+
+  /* Filete curvo/acento verde bajo elementos destacados */
+  .brand-underline {
+    @apply relative after:absolute after:-bottom-1 after:left-0 after:h-[3px] after:w-10 after:rounded-full after:bg-brand-green;
+  }
+
   /* Visible focus indicator utility — 2px+ solid outline with 3:1 contrast ratio */
   .focus-brand {
     @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue;

@@ -20,7 +20,7 @@ export default function HeaderWithMobileNav() {
 
   return (
     <>
-      <Header onMobileMenuOpen={handleOpen} />
+      <Header onMobileMenuOpen={handleOpen} isMobileMenuOpen={isMobileNavOpen} />
       <MobileNav
         isOpen={isMobileNavOpen}
         onClose={handleClose}

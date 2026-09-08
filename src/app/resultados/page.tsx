@@ -8,9 +8,9 @@ import EqualHeightGrid from '@/components/shared/EqualHeightGrid';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 
 export const metadata: Metadata = {
-  title: 'Resultados - ASGRO LTDA',
+  title: 'Valor que generamos - ASGRO Agencia de Seguros',
   description:
-    'Impacto y resultados de ASGRO LTDA: 4 líneas estratégicas, 5 fases metodológicas, visión 360°, acompañamiento 100% y orientación digital 24/7.',
+    'El valor que genera ASGRO: acompañamiento cercano, claridad, visión integral del riesgo y protección para personas, patrimonio y empresas.',
 };
 
 const metrics = [
@@ -19,7 +19,7 @@ const metrics = [
     value: '4',
     label: 'Líneas Estratégicas',
     description:
-      'Cuatro líneas de servicio que cubren integralmente las necesidades de protección empresarial: riesgos laborales, SST, bienestar y seguros empresariales.',
+      'Cuatro líneas que cubren integralmente la protección: seguros, ARL y riesgos laborales, SST, y bienestar y prevención.',
   },
   {
     icon: <ListChecks className="h-[28px] w-[28px] text-brand-green" />,
@@ -58,9 +58,9 @@ export default function ResultadosPage() {
         items={[{ label: 'Resultados', href: '/resultados' }]}
       />
       <PageHero
-        title="Impacto y Resultados"
-        subtitle="Indicadores institucionales que reflejan nuestro modelo de gestión integral y compromiso con cada organización que acompañamos."
-        eyebrow="Nuestro impacto"
+        title="Valor que generamos"
+        subtitle="Indicadores institucionales que reflejan nuestro modelo de acompañamiento, no promesas comerciales, y el valor que buscamos generar para cada cliente."
+        eyebrow="Impacto que buscamos generar"
       />
 
       {/* Metrics section */}
