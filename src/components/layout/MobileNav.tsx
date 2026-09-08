@@ -70,7 +70,7 @@ export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-40 bg-black/50 xl:hidden"
+              className="fixed inset-0 z-40 bg-black/50 min-[1120px]:hidden"
               onClick={onClose}
               aria-hidden="true"
             />
@@ -85,7 +85,7 @@ export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'tween', duration: 0.3, ease: 'easeInOut' }}
-              className="fixed inset-y-0 right-0 z-50 flex w-full max-w-sm flex-col overflow-y-auto bg-gradient-to-b from-[#011930] to-[#001B33] px-6 py-8 shadow-xl xl:hidden"
+              className="fixed inset-y-0 right-0 z-50 flex w-full max-w-sm flex-col overflow-y-auto bg-gradient-to-b from-[#011930] to-[#001B33] px-6 py-8 shadow-xl min-[1120px]:hidden"
             >
               {/* Close button inside the panel */}
               <div className="flex justify-end">

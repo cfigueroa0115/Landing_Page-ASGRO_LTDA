@@ -11,7 +11,9 @@
  * - Full navigation links in Spanish using next/link
  * - "Cotizar ahora" CTA button → links to /cotizar
  * - "WhatsApp" button → functional, opens WhatsApp (hidden if env var not set)
- * - Navigation links hidden on mobile (lg:flex); hamburger handled by MobileNav
+ * - Navigation links appear from min-[1120px]; below that, the hamburger (MobileNav)
+ *   is shown. WhatsApp button in the header appears from min-[1120px]; the floating
+ *   WhatsApp button remains available at all breakpoints.
  */
 
 import { useState, useEffect } from 'react';
@@ -83,18 +85,23 @@ export default function Header({ onMobileMenuOpen, isMobileMenuOpen = false }: H
           />
         </Link>
 
-        {/* Desktop Navigation — se muestra completo desde xl por las etiquetas largas */}
+        {/* Desktop Navigation — aparece desde min-[1120px] (breakpoint intermedio
+            seguro: en 1024px las 7 etiquetas + logo + CTA quedarían apretadas). */}
         <nav
-          className="hidden items-center gap-0 xl:flex"
+          className="hidden items-center gap-0.5 min-[1120px]:flex"
           aria-label="Navegación principal"
         >
           {NAV_LINKS.map((link) => {
             const active = isActive(link.href);
+            // Etiqueta corta "ARL" en el nav; nombre completo accesible vía aria-label/title.
+            const isArl = link.id === 'nav-arl';
             return (
               <Link
                 key={link.id}
                 href={link.href}
-                className={`relative inline-flex min-h-[44px] items-center whitespace-nowrap rounded-md px-1.5 py-1 text-sm font-medium transition-colors hover:bg-brand-blue/5 hover:text-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue ${
+                title={isArl ? 'ARL y Riesgos Laborales' : undefined}
+                aria-label={isArl ? 'ARL y Riesgos Laborales' : undefined}
+                className={`relative inline-flex min-h-[44px] items-center whitespace-nowrap rounded-md px-2 py-1 text-sm font-medium transition-colors hover:bg-brand-blue/5 hover:text-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue ${
                   active
                     ? 'text-brand-blue font-semibold'
                     : 'text-brand-dark-blue/80'
@@ -103,26 +110,27 @@ export default function Header({ onMobileMenuOpen, isMobileMenuOpen = false }: H
               >
                 {link.label}
                 {active && (
-                  <span className="absolute bottom-1 left-1.5 right-1.5 h-0.5 rounded-full bg-brand-green" />
+                  <span className="absolute bottom-1 left-2 right-2 h-0.5 rounded-full bg-brand-green" />
                 )}
               </Link>
             );
           })}
         </nav>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-1">
-          {/* WhatsApp Button — hidden when env var not set */}
+        {/* Action Buttons — separados del nav con margen izquierdo para no acercar el CTA */}
+        <div className="flex items-center gap-1 min-[1120px]:ml-2">
+          {/* WhatsApp Button — aparece desde min-[1120px]; en 1024-1119px se usa el
+              botón flotante. Oculto si la env var no está configurada. */}
           {whatsappUrl && (
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Contactar por WhatsApp"
-              className="hidden items-center gap-1 min-h-[44px] rounded-btn bg-[#25D366] px-3 py-1 text-sm font-medium text-white transition-colors hover:bg-[#1fb855] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#25D366] sm:inline-flex active:scale-95"
+              className="hidden items-center gap-1 min-h-[44px] rounded-btn bg-[#25D366] px-3 py-1 text-sm font-medium text-white transition-colors hover:bg-[#1fb855] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#25D366] min-[1120px]:inline-flex active:scale-95"
             >
               <FaWhatsapp className="h-4 w-4" aria-hidden="true" />
-              <span className="hidden md:inline">WhatsApp</span>
+              <span>WhatsApp</span>
             </a>
           )}
 
@@ -134,11 +142,12 @@ export default function Header({ onMobileMenuOpen, isMobileMenuOpen = false }: H
             Solicitar asesoría
           </Link>
 
-          {/* Mobile Menu Button — visible hasta xl (nav completo aparece en xl) */}
+          {/* Mobile Menu Button — visible por debajo de min-[1120px]; el nav desktop
+              aparece en min-[1120px]. Nunca coexisten. */}
           <button
             type="button"
             onClick={onMobileMenuOpen}
-            className="inline-flex h-[44px] w-[44px] min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-brand-dark-blue transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue xl:hidden active:scale-95"
+            className="inline-flex h-[44px] w-[44px] min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-brand-dark-blue transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue min-[1120px]:hidden active:scale-95"
             aria-label={isMobileMenuOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'}
             aria-expanded={isMobileMenuOpen}
             aria-controls="mobile-nav-panel"

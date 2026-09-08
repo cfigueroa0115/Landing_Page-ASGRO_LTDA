@@ -618,7 +618,7 @@ export const NAV_LINKS: NavLink[] = [
   { id: 'nav-nosotros', label: 'Nosotros', href: '/nosotros' },
   { id: 'nav-seguros', label: 'Seguros', href: '/servicios/seguros-empresariales' },
   { id: 'nav-empresas', label: 'Empresas', href: '/#empresas' },
-  { id: 'nav-arl', label: 'ARL y Riesgos Laborales', href: '/servicios/riesgos-laborales' },
+  { id: 'nav-arl', label: 'ARL', href: '/servicios/riesgos-laborales' },
   { id: 'nav-sst', label: 'SST', href: '/servicios/seguridad-salud-trabajo' },
   { id: 'nav-contacto', label: 'Contacto', href: '/contacto' },
 ];
