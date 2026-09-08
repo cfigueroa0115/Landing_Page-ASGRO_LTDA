@@ -31,10 +31,19 @@ const envSchema = z.object({
   NEXT_PUBLIC_COMPANY_EMAIL: z.string().default(''),
   NEXT_PUBLIC_COMPANY_ADDRESS: z.string().default(''),
 
+  // Public site URL (used for canonical, sitemap, robots, metadataBase)
+  NEXT_PUBLIC_SITE_URL: z.string().default('https://asgroseguros.com'),
+
   // Optional API keys — never fail
   OPENAI_API_KEY: z.string().default(''),
   GEMINI_API_KEY: z.string().default(''),
   RESEND_API_KEY: z.string().default(''),
+
+  // Email notification configuration (server-side only) — never fail parse.
+  // Destination for lead/quote notifications.
+  CONTACT_NOTIFICATION_TO: z.string().default(''),
+  // Verified sender address for Resend (e.g. "ASGRO <no-reply@asgroseguros.com>").
+  CONTACT_FROM_EMAIL: z.string().default(''),
 
   // Node environment
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
@@ -216,6 +225,42 @@ export function isAIAvailable(): boolean {
 export function isResendAvailable(): boolean {
   try {
     return !!getEnv().RESEND_API_KEY;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Returns the notification recipient for lead/quote emails, or '' if unset.
+ * Server-side only.
+ */
+export function getContactNotificationTo(): string {
+  try {
+    return getEnv().CONTACT_NOTIFICATION_TO;
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * Returns the verified sender address for Resend, or '' if unset.
+ * Server-side only.
+ */
+export function getContactFromEmail(): string {
+  try {
+    return getEnv().CONTACT_FROM_EMAIL;
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * Returns true if email notifications can be sent (all 3 email vars present).
+ */
+export function isEmailNotificationAvailable(): boolean {
+  try {
+    const e = getEnv();
+    return !!(e.RESEND_API_KEY && e.CONTACT_NOTIFICATION_TO && e.CONTACT_FROM_EMAIL);
   } catch {
     return false;
   }

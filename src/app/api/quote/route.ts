@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { quoteSchema } from '@/lib/validations/quote';
 import { db } from '@/lib/db';
 import { quoteRequests } from '@/lib/db/schema';
+import { sendQuoteNotification } from '@/lib/email/notifications';
 
 /**
  * POST /api/quote
@@ -41,6 +42,7 @@ export async function POST(request: Request) {
       dataAcceptance,
     } = validated.data;
 
+    // 1) Persistir la solicitud en la base de datos (fuente de verdad).
     await db.insert(quoteRequests).values({
       companyName,
       nit,
@@ -57,8 +59,25 @@ export async function POST(request: Request) {
       dataAcceptance,
     });
 
+    // 2) Notificar por email sin bloquear el éxito del guardado. `notified`
+    //    refleja el estado real; no se exponen errores internos ni credenciales.
+    const { sent } = await sendQuoteNotification({
+      companyName,
+      nit,
+      contactName,
+      position,
+      phone,
+      email,
+      city,
+      economicActivity,
+      employeeCount,
+      serviceRequired,
+      currentArl: currentArl ?? null,
+      comments: comments ?? null,
+    });
+
     return NextResponse.json(
-      { success: true, message: 'Quote request stored successfully' },
+      { success: true, message: 'Quote request stored successfully', notified: sent },
       { status: 201 }
     );
   } catch (error: unknown) {

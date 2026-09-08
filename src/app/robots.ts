@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 
 const baseUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || 'https://www.asgroseguros.com.co';
+  process.env.NEXT_PUBLIC_SITE_URL || 'https://asgroseguros.com';
 
 export default function robots(): MetadataRoute.Robots {
   return {

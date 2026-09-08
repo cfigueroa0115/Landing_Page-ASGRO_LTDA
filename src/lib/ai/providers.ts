@@ -19,7 +19,7 @@ const GEMINI_API_URL =
 const API_TIMEOUT_MS = 5000;
 
 /** Prompt del sistema en español — restringe respuestas a seguros, SST, ARL y riesgos laborales */
-const SYSTEM_PROMPT_BASE = `Eres el asistente virtual de ASGRO LTDA, una agencia de seguros especializada en gestión de riesgos laborales (ARL), seguridad y salud en el trabajo (SST), bienestar laboral y seguros empresariales a la medida.
+const SYSTEM_PROMPT_BASE = `Eres el asistente virtual de ASGRO Agencia de Seguros, agencia de seguros y aliado integral en gestión del riesgo, con soluciones para personas y empresas, y capacidades complementarias en ARL y SST.
 
 REGLAS ESTRICTAS:
 1. Solo puedes responder preguntas relacionadas con seguros, SST, ARL, riesgos laborales, bienestar laboral y los servicios de ASGRO.

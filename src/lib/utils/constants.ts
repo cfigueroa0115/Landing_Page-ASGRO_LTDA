@@ -770,7 +770,7 @@ export const SITE_CONTENT = {
 
   /** Mensaje de bienvenida del agente IA */
   aiAgentWelcome:
-    '¡Hola! Soy el asistente virtual de ASGRO LTDA. Puedo ayudarle con preguntas sobre seguros, ARL, SST y gestión de riesgos laborales. ¿En qué puedo asistirle?',
+    '¡Hola! Soy el asistente virtual de ASGRO Agencia de Seguros. Puedo ayudarle con preguntas sobre seguros para personas y empresas, y soluciones complementarias de gestión de riesgos. ¿En qué puedo asistirle?',
 
   /** Mensaje de fallback del agente IA */
   aiAgentFallback:

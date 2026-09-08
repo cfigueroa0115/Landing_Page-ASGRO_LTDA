@@ -16,8 +16,13 @@ export const LOGO_PATH = '/brand/asgro-logo.png';
 /** Path to the services banner image in public/brand/ */
 export const SERVICES_BANNER_PATH = '/brand/asgro-services-banner.png';
 
-/** Path to the Open Graph image in public/brand/ */
-export const OG_IMAGE_PATH = '/brand/asgro-og-image.png';
+/**
+ * Path to the Open Graph image in public/brand/.
+ * TEMPORAL: se usa el logo existente (asgro-logo.png) hasta suministrar una
+ * imagen corporativa 1200×630 (asgro-og-image.png). No referenciar assets
+ * inexistentes.
+ */
+export const OG_IMAGE_PATH = '/brand/asgro-logo.png';
 
 // ─── Brand Colors ───────────────────────────────────────────────────────────────
 

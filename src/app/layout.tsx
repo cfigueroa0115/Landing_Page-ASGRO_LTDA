@@ -14,7 +14,7 @@ const inter = Inter({
   weight: ['400', '500', '600', '700', '800'],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.asgroseguros.com.co';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://asgroseguros.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -41,11 +41,10 @@ export const metadata: Metadata = {
       'Protegemos personas, patrimonio y empresas. Seguros y gestión integral del riesgo con acompañamiento cercano y estratégico.',
     url: siteUrl,
     siteName: 'ASGRO Agencia de Seguros',
+    // TEMPORAL: se usa el logo existente hasta suministrar una imagen OG 1200×630.
     images: [
       {
-        url: '/brand/asgro-og-image.png',
-        width: 1200,
-        height: 630,
+        url: '/brand/asgro-logo.png',
         alt: 'ASGRO Agencia de Seguros',
       },
     ],
@@ -53,11 +52,12 @@ export const metadata: Metadata = {
     type: 'website',
   },
   twitter: {
-    card: 'summary_large_image',
+    // 'summary' encaja mejor con un logo que 'summary_large_image' (imagen ancha).
+    card: 'summary',
     title: 'ASGRO Agencia de Seguros',
     description:
       'Protegemos personas, patrimonio y empresas. Seguros y gestión integral del riesgo con acompañamiento cercano.',
-    images: ['/brand/asgro-og-image.png'],
+    images: ['/brand/asgro-logo.png'],
   },
 };
 

@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { contactSchema } from '@/lib/validations/contact';
 import { db } from '@/lib/db';
 import { leads } from '@/lib/db/schema';
+import { sendContactNotification } from '@/lib/email/notifications';
 
 export async function POST(request: Request) {
   try {
@@ -31,6 +32,7 @@ export async function POST(request: Request) {
       dataAcceptance,
     } = validated.data;
 
+    // 1) Persistir el lead en la base de datos (fuente de verdad).
     await db.insert(leads).values({
       fullName,
       company,
@@ -43,8 +45,22 @@ export async function POST(request: Request) {
       dataAcceptance,
     });
 
+    // 2) Enviar notificación por email. NO bloquea el éxito del guardado:
+    //    si el email falla, el lead ya quedó registrado. Reportamos el estado
+    //    real en `notified` sin exponer errores internos ni credenciales.
+    const { sent } = await sendContactNotification({
+      fullName,
+      company,
+      position,
+      phone,
+      email,
+      city,
+      serviceOfInterest,
+      message,
+    });
+
     return NextResponse.json(
-      { success: true, message: 'Lead stored successfully' },
+      { success: true, message: 'Lead stored successfully', notified: sent },
       { status: 201 }
     );
   } catch (error: unknown) {
