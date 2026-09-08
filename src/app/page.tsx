@@ -22,7 +22,7 @@ import SectionCTA from '@/components/shared/SectionCTA';
  * 8. Valor que generamos — beneficios cualitativos (sin cifras)
  * 9. CTA final
  *
- * Elementos flotantes (WhatsApp, chat IA, HelpDock) viven en layout.tsx.
+ * Elementos flotantes (WhatsApp, chat IA) viven en layout.tsx.
  */
 export default function Home() {
   return (

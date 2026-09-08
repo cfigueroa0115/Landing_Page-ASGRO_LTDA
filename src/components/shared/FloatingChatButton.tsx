@@ -253,7 +253,7 @@ export default function FloatingChatButton() {
             ¿Necesitas orientación?
           </p>
           <p className="text-xs text-gray-600 mb-3">
-            Nuestro asistente IA puede ayudarte con consultas sobre seguros, ARL, SST y riesgos laborales.
+            Podemos ayudarte con seguros para personas y empresas, y soluciones complementarias de gestión de riesgos.
           </p>
           <button
             type="button"
@@ -273,10 +273,6 @@ export default function FloatingChatButton() {
         className="relative flex h-14 w-14 min-h-[48px] min-w-[48px] items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-brand-blue/80 text-white shadow-lg shadow-brand-blue/30 transition-all duration-200 hover:scale-110 active:scale-95"
       >
         {isPanelOpen ? <ChevronDown className="h-6 w-6" /> : <AIAvatarIcon className="h-7 w-7" />}
-        {/* Online indicator - static green dot */}
-        {!isPanelOpen && (
-          <span className="absolute top-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-white" />
-        )}
       </button>
     </div>
   );

@@ -6,7 +6,6 @@ import Footer from '@/components/layout/Footer';
 import SkipNav from '@/components/layout/SkipNav';
 import WhatsAppButton from '@/components/shared/WhatsAppButton';
 import FloatingChatButton from '@/components/shared/FloatingChatButton';
-import HelpDock from '@/components/shared/HelpDock';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -192,12 +191,11 @@ export default function RootLayout({
         {children}
         <Footer />
 
-        {/* Global floating elements — visible on ALL pages */}
+        {/* Global floating elements — visible on ALL pages: solo WhatsApp + Chat IA */}
         {whatsappNumber && (
           <WhatsAppButton phoneNumber={whatsappNumber} variant="floating" />
         )}
         <FloatingChatButton />
-        <HelpDock />
       </body>
     </html>
   );
