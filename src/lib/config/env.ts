@@ -223,48 +223,82 @@ export function isAIAvailable(): boolean {
 /**
  * Returns true if the Resend API key is configured.
  */
-export function isResendAvailable(): boolean {
-  try {
-    return !!getEnv().RESEND_API_KEY;
-  } catch {
-    return false;
+// ---------------------------------------------------------------------------
+// Configuración de email (Resend) — VALIDACIÓN INDEPENDIENTE
+//
+// La disponibilidad del envío por correo depende EXCLUSIVAMENTE de las tres
+// variables de email de servidor. NO se acopla al getEnv()/superRefine de
+// producción, de modo que la ausencia de variables públicas de contacto
+// (NEXT_PUBLIC_WHATSAPP_NUMBER / _COMPANY_PHONE / _COMPANY_EMAIL / _COMPANY_ADDRESS)
+// NUNCA impide enviar por Resend. Se leen directamente de process.env.
+// Son server-side y jamás llevan prefijo NEXT_PUBLIC_.
+// ---------------------------------------------------------------------------
+
+/** Esquema mínimo e independiente para las variables de email de servidor. */
+const emailEnvSchema = z.object({
+  RESEND_API_KEY: z.string().default(''),
+  CONTACT_NOTIFICATION_TO: z.string().default(''),
+  CONTACT_FROM_EMAIL: z.string().default(''),
+});
+
+/**
+ * Lee y normaliza SOLO las variables de email desde process.env, sin pasar por
+ * el getEnv() global (evita el acoplamiento con la validación de producción).
+ * Los valores se recortan; si el parse falla, retorna cadenas vacías.
+ */
+function readEmailEnv(): {
+  RESEND_API_KEY: string;
+  CONTACT_NOTIFICATION_TO: string;
+  CONTACT_FROM_EMAIL: string;
+} {
+  const parsed = emailEnvSchema.safeParse({
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    CONTACT_NOTIFICATION_TO: process.env.CONTACT_NOTIFICATION_TO,
+    CONTACT_FROM_EMAIL: process.env.CONTACT_FROM_EMAIL,
+  });
+
+  if (!parsed.success) {
+    return { RESEND_API_KEY: '', CONTACT_NOTIFICATION_TO: '', CONTACT_FROM_EMAIL: '' };
   }
+
+  return {
+    RESEND_API_KEY: parsed.data.RESEND_API_KEY.trim(),
+    CONTACT_NOTIFICATION_TO: parsed.data.CONTACT_NOTIFICATION_TO.trim(),
+    CONTACT_FROM_EMAIL: parsed.data.CONTACT_FROM_EMAIL.trim(),
+  };
+}
+
+/**
+ * Returns true if the Resend API key is configured (independent of public vars).
+ */
+export function isResendAvailable(): boolean {
+  return !!readEmailEnv().RESEND_API_KEY;
 }
 
 /**
  * Returns the notification recipient for lead/quote emails, or '' if unset.
- * Server-side only.
+ * Server-side only. Independent of public contact vars.
  */
 export function getContactNotificationTo(): string {
-  try {
-    return getEnv().CONTACT_NOTIFICATION_TO;
-  } catch {
-    return '';
-  }
+  return readEmailEnv().CONTACT_NOTIFICATION_TO;
 }
 
 /**
  * Returns the verified sender address for Resend, or '' if unset.
- * Server-side only.
+ * Server-side only. Independent of public contact vars.
  */
 export function getContactFromEmail(): string {
-  try {
-    return getEnv().CONTACT_FROM_EMAIL;
-  } catch {
-    return '';
-  }
+  return readEmailEnv().CONTACT_FROM_EMAIL;
 }
 
 /**
- * Returns true if email notifications can be sent (all 3 email vars present).
+ * Returns true if email notifications can be sent: requiere ÚNICAMENTE las tres
+ * variables de email (RESEND_API_KEY, CONTACT_NOTIFICATION_TO, CONTACT_FROM_EMAIL).
+ * La ausencia de variables públicas de contacto NO afecta este resultado.
  */
 export function isEmailNotificationAvailable(): boolean {
-  try {
-    const e = getEnv();
-    return !!(e.RESEND_API_KEY && e.CONTACT_NOTIFICATION_TO && e.CONTACT_FROM_EMAIL);
-  } catch {
-    return false;
-  }
+  const e = readEmailEnv();
+  return !!(e.RESEND_API_KEY && e.CONTACT_NOTIFICATION_TO && e.CONTACT_FROM_EMAIL);
 }
 
 /**

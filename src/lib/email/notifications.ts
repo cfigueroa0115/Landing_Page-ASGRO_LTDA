@@ -11,8 +11,9 @@
 
 import { Resend } from 'resend';
 import {
-  getEnv,
   isEmailNotificationAvailable,
+  getContactFromEmail,
+  getContactNotificationTo,
 } from '@/lib/config/env';
 
 /** Resultado del intento de notificación. `sent` indica si el correo salió. */
@@ -93,15 +94,16 @@ async function sendNotification(
   }
 
   try {
-    const env = getEnv();
-    const resend = new Resend(env.RESEND_API_KEY);
+    // Lectura de config de email desacoplada de las variables públicas.
+    // La API key se lee de process.env (server-side); from/to vía helpers.
+    const resend = new Resend(process.env.RESEND_API_KEY ?? '');
     const timestamp = new Date().toLocaleString('es-CO', {
       timeZone: 'America/Bogota',
     });
 
     const { error } = await resend.emails.send({
-      from: env.CONTACT_FROM_EMAIL,
-      to: env.CONTACT_NOTIFICATION_TO,
+      from: getContactFromEmail(),
+      to: getContactNotificationTo(),
       replyTo: replyTo || undefined,
       subject,
       html: buildEmailHtml(title, rows, timestamp),
