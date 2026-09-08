@@ -12,6 +12,11 @@ vi.mock('next/image', () => ({
   },
 }));
 
+// Mock next/navigation (Header/MobileNav use usePathname)
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/',
+}));
+
 // Mock framer-motion to avoid SSR/animation issues in jsdom
 vi.mock('framer-motion', () => ({
   motion: {
@@ -63,7 +68,29 @@ import Footer from '@/components/layout/Footer';
 import MobileNav from '@/components/layout/MobileNav';
 import { _resetEnvCache } from '@/lib/config/env';
 
-// Reset the env module cache between tests to pick up new env vars
+// Etiquetas de navegación reales (arquitectura seguros-first actual).
+// En el Header, el enlace de ARL expone su nombre completo vía aria-label;
+// en el MobileNav se muestra con la etiqueta corta "ARL".
+const NAV_LABELS_HEADER = [
+  'Inicio',
+  'Nosotros',
+  'Seguros',
+  'Empresas',
+  'ARL y Riesgos Laborales',
+  'SST',
+  'Contacto',
+];
+
+const NAV_LABELS_MOBILE = [
+  'Inicio',
+  'Nosotros',
+  'Seguros',
+  'Empresas',
+  'ARL',
+  'SST',
+  'Contacto',
+];
+
 beforeEach(() => {
   setEnvVars();
   _resetEnvCache();
@@ -76,36 +103,27 @@ afterEach(() => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// HEADER TESTS
+// HEADER TESTS — arquitectura actual: nav + CTA "Solicitar asesoría" + hamburguesa
 // ═══════════════════════════════════════════════════════════════════════════════
 
 describe('Header', () => {
-  it('renders all Spanish navigation links', () => {
+  it('renderiza los enlaces de navegación en español', () => {
     render(<Header />);
 
-    const expectedLabels = [
-      'Inicio',
-      'Nosotros',
-      'Servicios',
-      'Metodología',
-      'Resultados',
-      'Agente IA',
-      'Preguntas frecuentes',
-      'Contacto',
-    ];
-
-    expectedLabels.forEach((label) => {
+    NAV_LABELS_HEADER.forEach((label) => {
       expect(screen.getByRole('link', { name: label })).toBeInTheDocument();
     });
   });
 
-  it('renders "Cotizar ahora" button', () => {
+  it('renderiza el CTA "Solicitar asesoría" hacia /contacto', () => {
     render(<Header />);
 
-    expect(screen.getByRole('link', { name: 'Cotizar ahora' })).toBeInTheDocument();
+    const cta = screen.getByRole('link', { name: 'Solicitar asesoría' });
+    expect(cta).toBeInTheDocument();
+    expect(cta).toHaveAttribute('href', '/contacto');
   });
 
-  it('renders WhatsApp button when env var is set', () => {
+  it('renderiza el botón de WhatsApp cuando la env var está configurada', () => {
     render(<Header />);
 
     expect(
@@ -113,7 +131,7 @@ describe('Header', () => {
     ).toBeInTheDocument();
   });
 
-  it('hides WhatsApp button when env var is empty', () => {
+  it('oculta el botón de WhatsApp cuando la env var está vacía', () => {
     process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = '';
     _resetEnvCache();
 
@@ -124,15 +142,15 @@ describe('Header', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('logo link has proper aria-label', () => {
+  it('el logo enlaza al inicio (/) con aria-label de marca', () => {
     render(<Header />);
 
-    const logoLink = screen.getByRole('link', { name: /ASGRO LTDA.*Ir al inicio/i });
+    const logoLink = screen.getByRole('link', { name: /ASGRO Agencia de Seguros.*Ir al inicio/i });
     expect(logoLink).toBeInTheDocument();
-    expect(logoLink).toHaveAttribute('href', '#inicio');
+    expect(logoLink).toHaveAttribute('href', '/');
   });
 
-  it('mobile menu button has aria-label', () => {
+  it('el botón hamburguesa vive en el Header, con aria-label y aria-expanded', () => {
     render(<Header />);
 
     const menuButton = screen.getByRole('button', {
@@ -141,6 +159,25 @@ describe('Header', () => {
     expect(menuButton).toBeInTheDocument();
     expect(menuButton).toHaveAttribute('aria-expanded', 'false');
   });
+
+  it('el botón hamburguesa refleja aria-expanded=true cuando el menú está abierto', () => {
+    render(<Header isMobileMenuOpen />);
+
+    const menuButton = screen.getByRole('button', {
+      name: 'Cerrar menú de navegación',
+    });
+    expect(menuButton).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('llama a onMobileMenuOpen al hacer clic en la hamburguesa', async () => {
+    const user = userEvent.setup();
+    const onMobileMenuOpen = vi.fn();
+
+    render(<Header onMobileMenuOpen={onMobileMenuOpen} />);
+
+    await user.click(screen.getByRole('button', { name: 'Abrir menú de navegación' }));
+    expect(onMobileMenuOpen).toHaveBeenCalledTimes(1);
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -148,43 +185,26 @@ describe('Header', () => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 describe('Footer', () => {
-  it('renders navigation quick links in Spanish', () => {
+  it('renderiza los enlaces de navegación (NAV_LINKS) en el pie de página', () => {
     render(<Footer />);
 
-    const expectedLabels = [
-      'Inicio',
-      'Nosotros',
-      'Servicios',
-      'Metodología',
-      'Resultados',
-      'Agente IA',
-      'Preguntas frecuentes',
-      'Contacto',
-    ];
-
-    expectedLabels.forEach((label) => {
-      expect(screen.getByRole('link', { name: label })).toBeInTheDocument();
+    // El footer incluye los NAV_LINKS; "ARL" se muestra con su etiqueta corta.
+    ['Inicio', 'Nosotros', 'Empresas', 'SST', 'Contacto'].forEach((label) => {
+      expect(
+        screen.getAllByRole('link', { name: label }).length
+      ).toBeGreaterThanOrEqual(1);
     });
   });
 
-  it('renders company contact info when env vars are set', () => {
+  it('renderiza la info de contacto cuando las env vars están configuradas', () => {
     render(<Footer />);
 
-    // Phone link
-    expect(
-      screen.getByRole('link', { name: /Llamar al teléfono/i })
-    ).toBeInTheDocument();
-
-    // Email link
-    expect(
-      screen.getByRole('link', { name: /Enviar correo electrónico/i })
-    ).toBeInTheDocument();
-
-    // Address text
+    expect(screen.getByRole('link', { name: /Llamar al teléfono/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Enviar correo electrónico/i })).toBeInTheDocument();
     expect(screen.getByText('Bogotá, Colombia')).toBeInTheDocument();
   });
 
-  it('hides contact info gracefully when env vars are empty', () => {
+  it('oculta la info de contacto cuando las env vars están vacías', () => {
     process.env.NEXT_PUBLIC_COMPANY_PHONE = '';
     process.env.NEXT_PUBLIC_COMPANY_EMAIL = '';
     process.env.NEXT_PUBLIC_COMPANY_ADDRESS = '';
@@ -200,37 +220,21 @@ describe('Footer', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('phone link has proper tel: href', () => {
+  it('el enlace de teléfono tiene href tel: correcto', () => {
     render(<Footer />);
 
     const phoneLink = screen.getByRole('link', { name: /Llamar al teléfono/i });
-    // Phone is "+57 300 123 4567", stripped non-digits = "573001234567"
     expect(phoneLink).toHaveAttribute('href', 'tel:573001234567');
   });
 
-  it('email link has proper mailto: href', () => {
+  it('el enlace de email tiene href mailto: correcto', () => {
     render(<Footer />);
 
     const emailLink = screen.getByRole('link', { name: /Enviar correo electrónico/i });
     expect(emailLink).toHaveAttribute('href', 'mailto:contacto@asgro.co');
   });
 
-  it('social media links open in new tab', () => {
-    render(<Footer />);
-
-    const socialLinks = [
-      screen.getByRole('link', { name: /Facebook/i }),
-      screen.getByRole('link', { name: /Instagram/i }),
-      screen.getByRole('link', { name: /LinkedIn/i }),
-    ];
-
-    socialLinks.forEach((link) => {
-      expect(link).toHaveAttribute('target', '_blank');
-      expect(link).toHaveAttribute('rel', expect.stringContaining('noopener'));
-    });
-  });
-
-  it('copyright includes current year', () => {
+  it('el copyright incluye el año actual', () => {
     render(<Footer />);
 
     const currentYear = new Date().getFullYear().toString();
@@ -239,7 +243,7 @@ describe('Footer', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// MOBILENAV TESTS
+// MOBILENAV TESTS — arquitectura actual: enlaces (next/link), sin hamburguesa propia
 // ═══════════════════════════════════════════════════════════════════════════════
 
 describe('MobileNav', () => {
@@ -249,38 +253,29 @@ describe('MobileNav', () => {
     onToggle: vi.fn(),
   };
 
-  it('renders all Spanish navigation links when open', () => {
+  it('renderiza los enlaces de navegación como links cuando está abierto', () => {
     render(<MobileNav {...defaultProps} />);
 
-    const expectedLabels = [
-      'Inicio',
-      'Nosotros',
-      'Servicios',
-      'Metodología',
-      'Resultados',
-      'Agente IA',
-      'Preguntas frecuentes',
-      'Contacto',
-    ];
-
-    expectedLabels.forEach((label) => {
-      expect(screen.getByRole('button', { name: label })).toBeInTheDocument();
+    NAV_LABELS_MOBILE.forEach((label) => {
+      expect(screen.getByRole('link', { name: label })).toBeInTheDocument();
     });
   });
 
-  it('renders "Cotizar ahora" button when open', () => {
+  it('renderiza el CTA "Solicitar asesoría" cuando está abierto', () => {
     render(<MobileNav {...defaultProps} />);
 
-    expect(screen.getByRole('button', { name: 'Cotizar ahora' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Solicitar asesoría' })
+    ).toBeInTheDocument();
   });
 
-  it('renders WhatsApp link when env var is set', () => {
+  it('renderiza el enlace de WhatsApp cuando la env var está configurada', () => {
     render(<MobileNav {...defaultProps} />);
 
     expect(screen.getByRole('link', { name: /WhatsApp/i })).toBeInTheDocument();
   });
 
-  it('hides WhatsApp link when env var is empty', () => {
+  it('oculta el enlace de WhatsApp cuando la env var está vacía', () => {
     process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = '';
     _resetEnvCache();
 
@@ -289,61 +284,35 @@ describe('MobileNav', () => {
     expect(screen.queryByRole('link', { name: /WhatsApp/i })).not.toBeInTheDocument();
   });
 
-  it('toggle button has proper aria-label and aria-expanded', () => {
-    render(<MobileNav {...defaultProps} isOpen={false} />);
+  it('tiene un botón para cerrar el menú', () => {
+    render(<MobileNav {...defaultProps} />);
 
-    const toggleButton = screen.getByRole('button', {
-      name: 'Abrir menú de navegación',
-    });
-    expect(toggleButton).toBeInTheDocument();
-    expect(toggleButton).toHaveAttribute('aria-expanded', 'false');
+    expect(
+      screen.getByRole('button', { name: 'Cerrar menú de navegación' })
+    ).toBeInTheDocument();
   });
 
-  it('toggle button shows "Cerrar" label when open', () => {
-    render(<MobileNav {...defaultProps} isOpen={true} />);
-
-    const closeButtons = screen.getAllByRole('button', {
-      name: 'Cerrar menú de navegación',
-    });
-    // The hamburger toggle button (with aria-expanded) and the close button inside the panel
-    expect(closeButtons.length).toBeGreaterThanOrEqual(1);
-    const toggleButton = closeButtons.find(
-      (btn) => btn.getAttribute('aria-expanded') === 'true'
-    );
-    expect(toggleButton).toBeDefined();
-  });
-
-  it('calls onToggle when hamburger button is clicked', async () => {
-    const user = userEvent.setup();
-    const onToggle = vi.fn();
-
-    render(<MobileNav {...defaultProps} isOpen={false} onToggle={onToggle} />);
-
-    const toggleButton = screen.getByRole('button', {
-      name: 'Abrir menú de navegación',
-    });
-    await user.click(toggleButton);
-
-    expect(onToggle).toHaveBeenCalledTimes(1);
-  });
-
-  it('calls onClose when a nav link is clicked', async () => {
+  it('llama a onClose al hacer clic en un enlace de navegación', async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
 
     render(<MobileNav {...defaultProps} onClose={onClose} />);
 
-    const inicioButton = screen.getByRole('button', { name: 'Inicio' });
-    await user.click(inicioButton);
-
+    await user.click(screen.getByRole('link', { name: 'Inicio' }));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('nav panel has proper aria attributes for accessibility', () => {
+  it('el panel tiene los atributos aria de accesibilidad correctos', () => {
     render(<MobileNav {...defaultProps} />);
 
     const navPanel = screen.getByRole('dialog');
     expect(navPanel).toHaveAttribute('aria-modal', 'true');
     expect(navPanel).toHaveAttribute('aria-label', 'Menú de navegación');
+  });
+
+  it('no renderiza el panel cuando isOpen es false', () => {
+    render(<MobileNav {...defaultProps} isOpen={false} />);
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });

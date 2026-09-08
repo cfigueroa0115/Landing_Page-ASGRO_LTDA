@@ -30,7 +30,8 @@ const SERVICE_OPTIONS = [
  * POST a /api/quote con confirmación de éxito y manejo de errores.
  */
 export default function QuoteSection() {
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  // 'success' = registrada y notificada; 'received' = registrada sin notificación.
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'received' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
   const {
@@ -70,7 +71,9 @@ export default function QuoteSection() {
       });
 
       if (response.ok) {
-        setSubmitStatus('success');
+        // La solicitud quedó almacenada. Diferenciamos si además se notificó.
+        const data = await response.json().catch(() => null);
+        setSubmitStatus(data?.notified === true ? 'success' : 'received');
         reset();
       } else {
         const errorData = await response.json().catch(() => null);
@@ -96,7 +99,7 @@ export default function QuoteSection() {
             Complete el formulario y nuestro equipo le enviará una propuesta personalizada.
           </p>
 
-          {/* Mensaje de éxito */}
+          {/* Mensaje de éxito (registrada y notificada) */}
           {submitStatus === 'success' && (
             <div
               role="alert"
@@ -104,6 +107,18 @@ export default function QuoteSection() {
               className="mb-3 p-2 bg-green-50 border border-green-300 text-green-800 rounded-input text-sm text-center"
             >
               ¡Su solicitud de cotización ha sido enviada exitosamente! Nos comunicaremos pronto.
+            </div>
+          )}
+
+          {/* Mensaje honesto: registrada aunque la notificación no se envió */}
+          {submitStatus === 'received' && (
+            <div
+              role="alert"
+              aria-live="polite"
+              className="mb-3 p-2 bg-green-50 border border-green-300 text-green-800 rounded-input text-sm text-center"
+            >
+              Hemos recibido y registrado su solicitud. Si requiere atención inmediata, también
+              puede comunicarse con nosotros por WhatsApp.
             </div>
           )}
 

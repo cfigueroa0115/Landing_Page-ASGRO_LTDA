@@ -27,7 +27,8 @@ const serviceOptions = [
 ] as const;
 
 export default function ContactSection() {
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  // 'success' = registrado y notificado; 'received' = registrado sin notificación.
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'received' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
   const {
@@ -63,7 +64,9 @@ export default function ContactSection() {
       });
 
       if (response.ok) {
-        setSubmitStatus('success');
+        // El registro quedó almacenado. Diferenciamos si además se notificó.
+        const data = await response.json().catch(() => null);
+        setSubmitStatus(data?.notified === true ? 'success' : 'received');
         reset();
       } else {
         const errorData = await response.json().catch(() => null);
@@ -326,6 +329,20 @@ export default function ContactSection() {
                 <CheckCircle className="h-[20px] w-[20px] shrink-0" />
                 <p className="text-sm">
                   ¡Mensaje enviado exitosamente! Nos comunicaremos con usted pronto.
+                </p>
+              </div>
+            )}
+
+            {submitStatus === 'received' && (
+              <div
+                className="flex items-center gap-1 p-2 bg-green-50 border border-green-200 rounded-input text-green-700"
+                role="status"
+                aria-live="polite"
+              >
+                <CheckCircle className="h-[20px] w-[20px] shrink-0" />
+                <p className="text-sm">
+                  Hemos recibido y registrado su solicitud. Si requiere atención inmediata,
+                  también puede comunicarse con nosotros por WhatsApp.
                 </p>
               </div>
             )}

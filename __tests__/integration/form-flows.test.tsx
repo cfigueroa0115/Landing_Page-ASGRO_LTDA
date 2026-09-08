@@ -171,9 +171,10 @@ describe('Integration: Contact Form Flow', () => {
   it('successful submission: fills all fields → submits → verifies fetch body → shows success → resets form', async () => {
     const user = userEvent.setup();
 
+    // Flujo exitoso completo: registrado + notificado (notified:true).
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ success: true, id: 'lead-123' }),
+      json: async () => ({ success: true, id: 'lead-123', notified: true }),
     });
 
     render(<ContactSection />);
@@ -224,6 +225,33 @@ describe('Integration: Contact Form Flow', () => {
     expect(screen.getByLabelText(/mensaje/i)).toHaveValue('');
   });
 
+  it('received (notified:false): registrado pero sin notificación → muestra mensaje honesto y limpia el formulario', async () => {
+    const user = userEvent.setup();
+
+    // El registro fue exitoso pero la notificación no salió.
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ success: true, id: 'lead-789', notified: false }),
+    });
+
+    render(<ContactSection />);
+
+    await fillContactForm(user);
+
+    await user.click(screen.getByRole('button', { name: /enviar mensaje/i }));
+
+    // No debe decir "enviado exitosamente"; debe mostrar el mensaje honesto.
+    await waitFor(() => {
+      expect(
+        screen.getByText(/hemos recibido y registrado su solicitud/i)
+      ).toBeInTheDocument();
+    });
+    expect(screen.queryByText(/mensaje enviado exitosamente/i)).not.toBeInTheDocument();
+
+    // El formulario se limpia porque el registro fue exitoso.
+    expect(screen.getByLabelText(/nombre completo/i)).toHaveValue('');
+  });
+
   it('error submission: fills fields → submits → server returns 500 → shows error → preserves data', async () => {
     const user = userEvent.setup();
 
@@ -272,9 +300,10 @@ describe('Integration: Quote Form Flow', () => {
   it('successful submission: fills all 13 fields → submits → verifies fetch body → shows success', async () => {
     const user = userEvent.setup();
 
+    // Flujo exitoso completo: registrada + notificada (notified:true).
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ success: true, id: 'quote-456' }),
+      json: async () => ({ success: true, id: 'quote-456', notified: true }),
     });
 
     render(<QuoteSection />);
@@ -318,6 +347,30 @@ describe('Integration: Quote Form Flow', () => {
         screen.getByText(/solicitud de cotización ha sido enviada exitosamente/i)
       ).toBeInTheDocument();
     });
+  });
+
+  it('received (notified:false): cotización registrada pero sin notificación → muestra mensaje honesto', async () => {
+    const user = userEvent.setup();
+
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ success: true, id: 'quote-789', notified: false }),
+    });
+
+    render(<QuoteSection />);
+
+    await fillQuoteForm(user);
+
+    await user.click(screen.getByRole('button', { name: /solicitar cotización/i }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/hemos recibido y registrado su solicitud/i)
+      ).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByText(/solicitud de cotización ha sido enviada exitosamente/i)
+    ).not.toBeInTheDocument();
   });
 
   it('validation: submitting empty form shows inline errors for required fields', async () => {

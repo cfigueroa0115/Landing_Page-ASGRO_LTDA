@@ -73,6 +73,15 @@ vi.mock('@/lib/ai/agent', () => ({
   processMessage: (...args: unknown[]) => mockProcessMessage(...args),
 }));
 
+// Mock @/lib/email/notifications — controla el resultado `notified` de forma
+// determinista (sin depender de env de email ni de la red).
+const mockSendContactNotification = vi.fn();
+const mockSendQuoteNotification = vi.fn();
+vi.mock('@/lib/email/notifications', () => ({
+  sendContactNotification: (...args: unknown[]) => mockSendContactNotification(...args),
+  sendQuoteNotification: (...args: unknown[]) => mockSendQuoteNotification(...args),
+}));
+
 // Mock drizzle-orm operators
 vi.mock('drizzle-orm', () => ({
   eq: vi.fn((...args: unknown[]) => args),
@@ -139,6 +148,8 @@ describe('POST /api/contact', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     resetDbMocks();
+    // Por defecto la notificación se envía correctamente.
+    mockSendContactNotification.mockResolvedValue({ sent: true });
     const mod = await import('@/app/api/contact/route');
     POST = mod.POST;
   });
@@ -151,6 +162,29 @@ describe('POST /api/contact', () => {
     expect(response.status).toBe(201);
     expect(data.success).toBe(true);
     expect(data.message).toBe('Lead stored successfully');
+  });
+
+  it('returns 201 with notified:true when the email notification is sent', async () => {
+    mockSendContactNotification.mockResolvedValue({ sent: true });
+    const request = createPostRequest('http://localhost/api/contact', validContactBody);
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(data.success).toBe(true);
+    expect(data.notified).toBe(true);
+  });
+
+  it('returns 201 with notified:false when the lead is stored but the email fails', async () => {
+    // El lead se guarda igual; solo la notificación falla de forma controlada.
+    mockSendContactNotification.mockResolvedValue({ sent: false });
+    const request = createPostRequest('http://localhost/api/contact', validContactBody);
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(data.success).toBe(true);
+    expect(data.notified).toBe(false);
   });
 
   it('returns 400 with field errors on invalid body', async () => {
@@ -206,6 +240,8 @@ describe('POST /api/quote', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     resetDbMocks();
+    // Por defecto la notificación se envía correctamente.
+    mockSendQuoteNotification.mockResolvedValue({ sent: true });
     const mod = await import('@/app/api/quote/route');
     POST = mod.POST;
   });
@@ -218,6 +254,28 @@ describe('POST /api/quote', () => {
     expect(response.status).toBe(201);
     expect(data.success).toBe(true);
     expect(data.message).toBe('Quote request stored successfully');
+  });
+
+  it('returns 201 with notified:true when the email notification is sent', async () => {
+    mockSendQuoteNotification.mockResolvedValue({ sent: true });
+    const request = createPostRequest('http://localhost/api/quote', validQuoteBody);
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(data.success).toBe(true);
+    expect(data.notified).toBe(true);
+  });
+
+  it('returns 201 with notified:false when the quote is stored but the email fails', async () => {
+    mockSendQuoteNotification.mockResolvedValue({ sent: false });
+    const request = createPostRequest('http://localhost/api/quote', validQuoteBody);
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(data.success).toBe(true);
+    expect(data.notified).toBe(false);
   });
 
   it('returns 201 with optional fields', async () => {
