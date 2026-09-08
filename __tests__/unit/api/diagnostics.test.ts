@@ -11,20 +11,25 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 // Mock de la conexión a DB: controlamos si SELECT 1 resuelve o falla.
 let mockExecuteResult: Promise<unknown>;
 
-vi.mock('@/lib/db', () => ({
-  db: {
-    execute: () => mockExecuteResult,
-  },
-}));
+vi.mock('@/lib/db', () => {
+  const dbMock = { execute: () => mockExecuteResult };
+  return {
+    db: dbMock,
+    getDbAsync: () => Promise.resolve(dbMock),
+    getDb: () => dbMock,
+  };
+});
 
 vi.mock('drizzle-orm', () => ({
   sql: (...args: unknown[]) => args,
 }));
 
-// Mock del resolver de secretos: controlamos hasSecret sin exponer valores.
+// Mock del resolver de secretos: controlamos hasSecret y hasSsmSecret sin exponer valores.
 const mockHasSecret = vi.fn();
+const mockHasSsmSecret = vi.fn();
 vi.mock('@/lib/config/secrets', () => ({
   hasSecret: (name: string) => mockHasSecret(name),
+  hasSsmSecret: (name: string) => mockHasSsmSecret(name),
 }));
 
 describe('GET /api/diagnostics/runtime', () => {
@@ -36,6 +41,7 @@ describe('GET /api/diagnostics/runtime', () => {
     vi.clearAllMocks();
     mockExecuteResult = Promise.resolve([{ '?column?': 1 }]);
     mockHasSecret.mockReturnValue(true);
+    mockHasSsmSecret.mockResolvedValue(false);
 
     // Valores "reales" en el entorno para verificar que NO se filtran.
     process.env.DATABASE_URL = SECRET_VALUE;
@@ -58,7 +64,20 @@ describe('GET /api/diagnostics/runtime', () => {
     expect(typeof data.amplifySecretsContainerAvailable).toBe('boolean');
     expect(typeof data.directDatabaseEnvAvailable).toBe('boolean');
     expect(typeof data.directResendEnvAvailable).toBe('boolean');
+    expect(typeof data.ssmDatabaseAvailable).toBe('boolean');
+    expect(typeof data.ssmResendAvailable).toBe('boolean');
     expect(['ok', 'failed']).toContain(data.databaseConnectivity);
+  });
+
+  it('refleja hasSsmSecret para ssmDatabaseAvailable / ssmResendAvailable', async () => {
+    mockHasSsmSecret.mockImplementation((name: string) =>
+      Promise.resolve(name === 'RESEND_API_KEY')
+    );
+    const response = await GET();
+    const data = await response.json();
+
+    expect(data.ssmResendAvailable).toBe(true);
+    expect(data.ssmDatabaseAvailable).toBe(false);
   });
 
   it('reporta databaseConnectivity=ok cuando SELECT 1 resuelve', async () => {

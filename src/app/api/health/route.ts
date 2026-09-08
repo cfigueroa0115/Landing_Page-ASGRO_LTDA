@@ -1,10 +1,11 @@
-import { db } from '@/lib/db';
+import { getDbAsync } from '@/lib/db';
 import { sql } from 'drizzle-orm';
 
 export async function GET() {
   let status: 'ok' | 'degraded' = 'ok';
 
   try {
+    const db = await getDbAsync();
     await db.execute(sql`SELECT 1`);
   } catch {
     status = 'degraded';

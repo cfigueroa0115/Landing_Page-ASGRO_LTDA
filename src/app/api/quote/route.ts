@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { quoteSchema } from '@/lib/validations/quote';
-import { db } from '@/lib/db';
+import { getDbAsync } from '@/lib/db';
 import { quoteRequests } from '@/lib/db/schema';
 import { sendQuoteNotification } from '@/lib/email/notifications';
 
@@ -43,6 +43,7 @@ export async function POST(request: Request) {
     } = validated.data;
 
     // 1) Persistir la solicitud en la base de datos (fuente de verdad).
+    const db = await getDbAsync();
     await db.insert(quoteRequests).values({
       companyName,
       nit,

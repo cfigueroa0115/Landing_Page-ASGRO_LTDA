@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { getSecret } from '@/lib/config/secrets';
+import { getSecret, getSecretAsync } from '@/lib/config/secrets';
 
 /**
  * Environment variable validation using Zod.
@@ -309,6 +309,29 @@ export function getContactFromEmail(): string {
 export function isEmailNotificationAvailable(): boolean {
   const e = readEmailEnv();
   return !!(e.RESEND_API_KEY && e.CONTACT_NOTIFICATION_TO && e.CONTACT_FROM_EMAIL);
+}
+
+// ---------------------------------------------------------------------------
+// Variantes ASÍNCRONAS — resuelven RESEND_API_KEY incluyendo SSM Parameter
+// Store (env → secrets JSON → SSM). CONTACT_* siguen leyéndose de process.env
+// (server-side no sensible). Son las que debe usar el runtime SSR.
+// ---------------------------------------------------------------------------
+
+/** Resuelve RESEND_API_KEY de forma asíncrona (incluye SSM). Server-side. */
+export async function getResendApiKeyAsync(): Promise<string> {
+  return getSecretAsync('RESEND_API_KEY');
+}
+
+/**
+ * Versión asíncrona de isEmailNotificationAvailable: resuelve RESEND_API_KEY
+ * incluyendo SSM. Requiere ÚNICAMENTE las tres variables de email; la ausencia
+ * de variables públicas de contacto NO afecta el resultado.
+ */
+export async function isEmailNotificationAvailableAsync(): Promise<boolean> {
+  const resendApiKey = await getResendApiKeyAsync();
+  const contactTo = (process.env.CONTACT_NOTIFICATION_TO ?? '').trim();
+  const fromEmail = (process.env.CONTACT_FROM_EMAIL ?? '').trim();
+  return !!(resendApiKey && contactTo && fromEmail);
 }
 
 /**

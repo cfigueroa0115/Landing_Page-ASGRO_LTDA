@@ -12,12 +12,12 @@
 // TEMPORAL: debe ELIMINARSE antes del merge a master.
 // ============================================================================
 
-import { db } from '@/lib/db';
+import { getDbAsync } from '@/lib/db';
 import { sql } from 'drizzle-orm';
-import { hasSecret } from '@/lib/config/secrets';
+import { hasSecret, hasSsmSecret } from '@/lib/config/secrets';
 
 export async function GET() {
-  // Disponibilidad de secretos (booleanos, nunca valores).
+  // Disponibilidad de secretos por fuentes SÍNCRONAS (env directo / secrets JSON).
   const databaseUrlAvailable = hasSecret('DATABASE_URL');
   const resendApiKeyAvailable = hasSecret('RESEND_API_KEY');
 
@@ -29,10 +29,15 @@ export async function GET() {
   const directResendEnvAvailable =
     typeof process.env.RESEND_API_KEY === 'string' && process.env.RESEND_API_KEY.length > 0;
 
-  // Conectividad de base de datos: solo ejecuta SELECT 1.
-  // Nunca se propaga el error crudo; solo el estado ok/failed.
+  // Disponibilidad ESPECÍFICA en AWS SSM Parameter Store (solo booleanos).
+  const ssmDatabaseAvailable = await hasSsmSecret('DATABASE_URL');
+  const ssmResendAvailable = await hasSsmSecret('RESEND_API_KEY');
+
+  // Conectividad de base de datos: solo ejecuta SELECT 1 (resuelve DATABASE_URL
+  // por la cadena completa env → secrets JSON → SSM). Nunca propaga el error crudo.
   let databaseConnectivity: 'ok' | 'failed' = 'ok';
   try {
+    const db = await getDbAsync();
     await db.execute(sql`SELECT 1`);
   } catch {
     databaseConnectivity = 'failed';
@@ -45,6 +50,8 @@ export async function GET() {
     amplifySecretsContainerAvailable,
     directDatabaseEnvAvailable,
     directResendEnvAvailable,
+    ssmDatabaseAvailable,
+    ssmResendAvailable,
     databaseConnectivity,
     timestamp: new Date().toISOString(),
   });

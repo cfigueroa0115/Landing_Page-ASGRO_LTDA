@@ -1,9 +1,10 @@
-import { db } from '@/lib/db';
+import { getDbAsync } from '@/lib/db';
 import { faqs } from '@/lib/db/schema';
 import { eq, asc } from 'drizzle-orm';
 
 export async function GET() {
   try {
+    const db = await getDbAsync();
     const results = await db
       .select()
       .from(faqs)

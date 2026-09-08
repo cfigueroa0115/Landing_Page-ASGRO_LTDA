@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { contactSchema } from '@/lib/validations/contact';
-import { db } from '@/lib/db';
+import { getDbAsync } from '@/lib/db';
 import { leads } from '@/lib/db/schema';
 import { sendContactNotification } from '@/lib/email/notifications';
 
@@ -33,6 +33,7 @@ export async function POST(request: Request) {
     } = validated.data;
 
     // 1) Persistir el lead en la base de datos (fuente de verdad).
+    const db = await getDbAsync();
     await db.insert(leads).values({
       fullName,
       company,

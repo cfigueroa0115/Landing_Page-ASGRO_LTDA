@@ -11,11 +11,11 @@
 
 import { Resend } from 'resend';
 import {
-  isEmailNotificationAvailable,
+  isEmailNotificationAvailableAsync,
+  getResendApiKeyAsync,
   getContactFromEmail,
   getContactNotificationTo,
 } from '@/lib/config/env';
-import { getSecret } from '@/lib/config/secrets';
 
 /** Resultado del intento de notificación. `sent` indica si el correo salió. */
 export interface NotificationResult {
@@ -89,15 +89,15 @@ async function sendNotification(
   rows: EmailRow[],
   replyTo: string
 ): Promise<NotificationResult> {
-  if (!isEmailNotificationAvailable()) {
+  if (!(await isEmailNotificationAvailableAsync())) {
     // Config incompleta — no es un error del usuario. No exponemos detalles.
     return { sent: false };
   }
 
   try {
     // Lectura de config de email desacoplada de las variables públicas.
-    // La API key (secreto) se resuelve vía getSecret; from/to vía helpers.
-    const resend = new Resend(getSecret('RESEND_API_KEY'));
+    // La API key (secreto) se resuelve async (incluye SSM); from/to vía helpers.
+    const resend = new Resend(await getResendApiKeyAsync());
     const timestamp = new Date().toLocaleString('es-CO', {
       timeZone: 'America/Bogota',
     });

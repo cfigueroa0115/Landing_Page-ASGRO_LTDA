@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { eq, desc } from 'drizzle-orm';
 
 import { chatSchema } from '@/lib/validations/chat';
-import { db } from '@/lib/db';
+import { getDbAsync } from '@/lib/db';
 import { chatSessions, chatMessages, knowledgeBase } from '@/lib/db/schema';
 import { processMessage } from '@/lib/ai/agent';
 import type { ChatMessage } from '@/types';
@@ -38,6 +38,8 @@ export async function POST(request: Request) {
     let resolvedSessionId: string;
 
     try {
+      const db = await getDbAsync();
+
       if (sessionId) {
         // Verify the session exists
         const existingSession = await db

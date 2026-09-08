@@ -20,8 +20,8 @@ function resetDbMocks() {
   mockReturningResult = Promise.resolve([{ id: 'mock-uuid-1234' }]);
 }
 
-vi.mock('@/lib/db', () => ({
-  db: new Proxy(
+vi.mock('@/lib/db', () => {
+  const dbProxy = new Proxy(
     {},
     {
       get(_target, prop) {
@@ -64,8 +64,14 @@ vi.mock('@/lib/db', () => ({
         return undefined;
       },
     }
-  ),
-}));
+  );
+  return {
+    db: dbProxy,
+    // Las rutas ahora usan getDbAsync(); devuelve el mismo Proxy mockeado.
+    getDbAsync: () => Promise.resolve(dbProxy),
+    getDb: () => dbProxy,
+  };
+});
 
 // Mock @/lib/ai/agent
 const mockProcessMessage = vi.fn();
