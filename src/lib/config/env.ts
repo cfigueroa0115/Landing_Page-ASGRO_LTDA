@@ -31,8 +31,9 @@ const envSchema = z.object({
   NEXT_PUBLIC_COMPANY_EMAIL: z.string().default(''),
   NEXT_PUBLIC_COMPANY_ADDRESS: z.string().default(''),
 
-  // Public site URL (used for canonical, sitemap, robots, metadataBase)
-  NEXT_PUBLIC_SITE_URL: z.string().default('https://asgroseguros.com'),
+  // Public site URL (used for canonical, sitemap, robots, metadataBase).
+  // El dominio WEB es .com.co (el .com es solo para correo corporativo).
+  NEXT_PUBLIC_SITE_URL: z.string().default('https://asgroseguros.com.co'),
 
   // Optional API keys — never fail
   OPENAI_API_KEY: z.string().default(''),

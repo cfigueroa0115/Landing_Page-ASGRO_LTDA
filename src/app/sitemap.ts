@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 
 const baseUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || 'https://asgroseguros.com';
+  process.env.NEXT_PUBLIC_SITE_URL || 'https://asgroseguros.com.co';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
