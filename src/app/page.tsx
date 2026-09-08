@@ -2,6 +2,7 @@ import HeroSection from '@/components/sections/HeroSection';
 import ValuePropositionSection from '@/components/sections/ValuePropositionSection';
 import InsurancePortfolioSection from '@/components/sections/InsurancePortfolioSection';
 import WhyChooseSection from '@/components/sections/WhyChooseSection';
+import TrustSection from '@/components/sections/TrustSection';
 import HomeMethodologyCompact from '@/components/home/HomeMethodologyCompact';
 import ComplementarySection from '@/components/sections/ComplementarySection';
 import CorporateSection from '@/components/shared/CorporateSection';
@@ -16,11 +17,12 @@ import SectionCTA from '@/components/shared/SectionCTA';
  * 2. Propuesta de valor — Personas · Patrimonio · Empresas
  * 3. Portafolio de Seguros — sección núcleo
  * 4. ¿Por qué elegir ASGRO? — 5 diferenciadores cualitativos
- * 5. Modelo de acompañamiento — 4 etapas
- * 6. Capacidades complementarias — ARL y SST (secundarias)
- * 7. Protección para empresas — bloque B2B (ancla #empresas)
- * 8. Valor que generamos — beneficios cualitativos (sin cifras)
- * 9. CTA final
+ * 5. Confianza y respaldo — rol de aliado/intermediario (4 pilares)
+ * 6. Modelo de acompañamiento — 4 etapas
+ * 7. Capacidades complementarias — ARL y SST (secundarias)
+ * 8. Protección para empresas — bloque B2B (ancla #empresas)
+ * 9. Valor que generamos — beneficios cualitativos (sin cifras)
+ * 10. CTA final
  *
  * Elementos flotantes (WhatsApp, chat IA) viven en layout.tsx.
  */
@@ -31,6 +33,7 @@ export default function Home() {
       <ValuePropositionSection />
       <InsurancePortfolioSection />
       <WhyChooseSection />
+      <TrustSection />
       <HomeMethodologyCompact />
       <ComplementarySection />
       <CorporateSection />

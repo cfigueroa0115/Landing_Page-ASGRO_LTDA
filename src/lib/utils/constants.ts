@@ -556,6 +556,52 @@ export const DIFFERENTIATORS_DATA: DifferentiatorData[] = [
 ];
 
 // ============================================================================
+// TRUST_PILLARS - Confianza y respaldo (rol de ASGRO como agencia/intermediario)
+// Narrativa del rol y el proceso de valor. NO duplica DIFFERENTIATORS_DATA
+// (esos son atributos de carácter; estos son acciones del intermediario).
+// Sin cifras, sin alianzas, sin afirmaciones regulatorias, sin posicionar
+// a ASGRO como aseguradora.
+// ============================================================================
+
+export interface TrustPillar {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+}
+
+export const TRUST_PILLARS: TrustPillar[] = [
+  {
+    id: 'trust-1',
+    icon: 'UserCheck',
+    title: 'Asesoría cercana y especializada',
+    description:
+      'Escuchamos su necesidad y la traducimos en una protección clara y adecuada.',
+  },
+  {
+    id: 'trust-2',
+    icon: 'SearchCheck',
+    title: 'Estudio de alternativas',
+    description:
+      'Analizamos opciones del mercado asegurador según su perfil y su exposición al riesgo.',
+  },
+  {
+    id: 'trust-3',
+    icon: 'CalendarClock',
+    title: 'Acompañamiento en la vigencia',
+    description:
+      'Estamos presentes en renovaciones, novedades y siniestros mientras dure su póliza.',
+  },
+  {
+    id: 'trust-4',
+    icon: 'Layers',
+    title: 'Seguros y gestión del riesgo',
+    description:
+      'Integramos la gestión de seguros con una mirada más amplia sobre los riesgos de personas y empresas.',
+  },
+];
+
+// ============================================================================
 // NAV_LINKS - Enlaces de navegación en español
 // ============================================================================
 
@@ -710,6 +756,12 @@ export const SITE_CONTENT = {
   whyChooseTitle: '¿Por qué elegir ASGRO?',
   whyChooseSubtitle:
     'Cinco razones que reflejan nuestra forma de acompañar la protección de personas y empresas.',
+
+  /** Sección de confianza y respaldo (rol de aliado/intermediario) */
+  trustEyebrow: 'Nuestro rol como su aliado',
+  trustTitle: 'Un aliado que acompaña cada decisión de protección',
+  trustSubtitle:
+    'ASGRO ayuda a personas y empresas a identificar sus necesidades de protección, estudiar alternativas del mercado asegurador y gestionar sus seguros durante toda su vigencia.',
 
   /** Título de la sección AI Agent */
   aiAgentTitle: 'Agente IA',
