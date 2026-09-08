@@ -1,5 +1,6 @@
 import { drizzle } from 'drizzle-orm/neon-serverless';
 import { Pool } from '@neondatabase/serverless';
+import { getSecret } from '@/lib/config/secrets';
 
 /**
  * Drizzle ORM client initialization with Neon PostgreSQL.
@@ -15,7 +16,9 @@ let _db: ReturnType<typeof drizzle> | null = null;
 function getPool(): Pool {
   if (_pool) return _pool;
 
-  const databaseUrl = process.env.DATABASE_URL;
+  // Resuelve DATABASE_URL vía el helper server-side (process.env directo o,
+  // como fallback, process.env.secrets JSON de Amplify Gen 1).
+  const databaseUrl = getSecret('DATABASE_URL');
 
   if (!databaseUrl) {
     throw new Error(

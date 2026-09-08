@@ -15,6 +15,7 @@ import {
   getContactFromEmail,
   getContactNotificationTo,
 } from '@/lib/config/env';
+import { getSecret } from '@/lib/config/secrets';
 
 /** Resultado del intento de notificación. `sent` indica si el correo salió. */
 export interface NotificationResult {
@@ -95,8 +96,8 @@ async function sendNotification(
 
   try {
     // Lectura de config de email desacoplada de las variables públicas.
-    // La API key se lee de process.env (server-side); from/to vía helpers.
-    const resend = new Resend(process.env.RESEND_API_KEY ?? '');
+    // La API key (secreto) se resuelve vía getSecret; from/to vía helpers.
+    const resend = new Resend(getSecret('RESEND_API_KEY'));
     const timestamp = new Date().toLocaleString('es-CO', {
       timeZone: 'America/Bogota',
     });

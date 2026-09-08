@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { getSecret } from '@/lib/config/secrets';
 
 /**
  * Environment variable validation using Zod.
@@ -234,35 +235,44 @@ export function isAIAvailable(): boolean {
 // Son server-side y jamás llevan prefijo NEXT_PUBLIC_.
 // ---------------------------------------------------------------------------
 
-/** Esquema mínimo e independiente para las variables de email de servidor. */
+/**
+ * Esquema mínimo para las variables de email server-side NO sensibles
+ * (destinatario y remitente). El secreto RESEND_API_KEY se resuelve aparte
+ * vía el helper de secretos (getSecret).
+ */
 const emailEnvSchema = z.object({
-  RESEND_API_KEY: z.string().default(''),
   CONTACT_NOTIFICATION_TO: z.string().default(''),
   CONTACT_FROM_EMAIL: z.string().default(''),
 });
 
 /**
- * Lee y normaliza SOLO las variables de email desde process.env, sin pasar por
- * el getEnv() global (evita el acoplamiento con la validación de producción).
- * Los valores se recortan; si el parse falla, retorna cadenas vacías.
+ * Lee y normaliza las variables de email, sin pasar por el getEnv() global
+ * (evita el acoplamiento con la validación de producción).
+ * - RESEND_API_KEY (secreto): vía getSecret (process.env directo o secrets JSON).
+ * - CONTACT_NOTIFICATION_TO / CONTACT_FROM_EMAIL (no sensibles): vía process.env.
  */
 function readEmailEnv(): {
   RESEND_API_KEY: string;
   CONTACT_NOTIFICATION_TO: string;
   CONTACT_FROM_EMAIL: string;
 } {
+  const resendApiKey = getSecret('RESEND_API_KEY');
+
   const parsed = emailEnvSchema.safeParse({
-    RESEND_API_KEY: process.env.RESEND_API_KEY,
     CONTACT_NOTIFICATION_TO: process.env.CONTACT_NOTIFICATION_TO,
     CONTACT_FROM_EMAIL: process.env.CONTACT_FROM_EMAIL,
   });
 
   if (!parsed.success) {
-    return { RESEND_API_KEY: '', CONTACT_NOTIFICATION_TO: '', CONTACT_FROM_EMAIL: '' };
+    return {
+      RESEND_API_KEY: resendApiKey,
+      CONTACT_NOTIFICATION_TO: '',
+      CONTACT_FROM_EMAIL: '',
+    };
   }
 
   return {
-    RESEND_API_KEY: parsed.data.RESEND_API_KEY.trim(),
+    RESEND_API_KEY: resendApiKey,
     CONTACT_NOTIFICATION_TO: parsed.data.CONTACT_NOTIFICATION_TO.trim(),
     CONTACT_FROM_EMAIL: parsed.data.CONTACT_FROM_EMAIL.trim(),
   };
