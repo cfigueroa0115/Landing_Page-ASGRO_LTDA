@@ -14,7 +14,7 @@
 
 import { getDbAsync } from '@/lib/db';
 import { sql } from 'drizzle-orm';
-import { hasSecret, hasSsmSecret } from '@/lib/config/secrets';
+import { hasSecret, hasSsmSecret, isSsmPrefixConfigured } from '@/lib/config/secrets';
 import { isEmailNotificationAvailableAsync } from '@/lib/config/env';
 
 export async function GET() {
@@ -29,6 +29,9 @@ export async function GET() {
     typeof process.env.DATABASE_URL === 'string' && process.env.DATABASE_URL.length > 0;
   const directResendEnvAvailable =
     typeof process.env.RESEND_API_KEY === 'string' && process.env.RESEND_API_KEY.length > 0;
+
+  // Prefijo SSM configurado con un valor autorizado (no revela el prefijo real).
+  const ssmPrefixConfigured = isSsmPrefixConfigured();
 
   // Disponibilidad ESPECÍFICA en AWS SSM Parameter Store (solo booleanos).
   const ssmDatabaseAvailable = await hasSsmSecret('DATABASE_URL');
@@ -57,6 +60,7 @@ export async function GET() {
     amplifySecretsContainerAvailable,
     directDatabaseEnvAvailable,
     directResendEnvAvailable,
+    ssmPrefixConfigured,
     ssmDatabaseAvailable,
     ssmResendAvailable,
     ssmContactNotificationToAvailable,

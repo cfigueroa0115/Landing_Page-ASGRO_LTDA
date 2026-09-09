@@ -27,9 +27,11 @@ vi.mock('drizzle-orm', () => ({
 // Mock del resolver de secretos: controlamos hasSecret y hasSsmSecret sin exponer valores.
 const mockHasSecret = vi.fn();
 const mockHasSsmSecret = vi.fn();
+const mockIsSsmPrefixConfigured = vi.fn();
 vi.mock('@/lib/config/secrets', () => ({
   hasSecret: (name: string) => mockHasSecret(name),
   hasSsmSecret: (name: string) => mockHasSsmSecret(name),
+  isSsmPrefixConfigured: () => mockIsSsmPrefixConfigured(),
 }));
 
 // Mock de la disponibilidad de email (resuelta de forma async, incl. SSM).
@@ -49,6 +51,7 @@ describe('GET /api/diagnostics/runtime', () => {
     mockHasSecret.mockReturnValue(true);
     mockHasSsmSecret.mockResolvedValue(false);
     mockEmailAvailable.mockResolvedValue(false);
+    mockIsSsmPrefixConfigured.mockReturnValue(true);
 
     // Valores "reales" en el entorno para verificar que NO se filtran.
     process.env.DATABASE_URL = SECRET_VALUE;
@@ -76,7 +79,19 @@ describe('GET /api/diagnostics/runtime', () => {
     expect(typeof data.ssmContactNotificationToAvailable).toBe('boolean');
     expect(typeof data.ssmContactFromEmailAvailable).toBe('boolean');
     expect(typeof data.emailNotificationAvailable).toBe('boolean');
+    expect(typeof data.ssmPrefixConfigured).toBe('boolean');
     expect(['ok', 'failed']).toContain(data.databaseConnectivity);
+  });
+
+  it('ssmPrefixConfigured refleja isSsmPrefixConfigured y NO revela el prefijo real', async () => {
+    mockIsSsmPrefixConfigured.mockReturnValue(true);
+    const response = await GET();
+    const raw = await response.text();
+    const data = JSON.parse(raw);
+
+    expect(data.ssmPrefixConfigured).toBe(true);
+    // El prefijo real nunca debe aparecer en la respuesta.
+    expect(raw).not.toContain('/asgro/');
   });
 
   it('refleja hasSsmSecret/email para los campos de contacto y email', async () => {

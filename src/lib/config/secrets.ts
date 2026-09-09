@@ -10,7 +10,7 @@
 //   1. process.env.<NOMBRE>
 //   2. process.env.secrets[<NOMBRE>]
 //   3. AWS SSM Parameter Store (SecureString), ruta:
-//        /asgro/redesign-seguros-first/<NOMBRE>
+//        <NEXT_PUBLIC_SSM_PATH_PREFIX>/<NOMBRE>  (prefijo por entorno, allowlist)
 //   4. ''
 //
 // Reglas de seguridad (estrictas):
@@ -41,8 +41,33 @@ export type SecretName =
 /** Región de AWS para SSM Parameter Store. */
 const SSM_REGION = 'us-east-1';
 
-/** Prefijo de ruta de los parámetros en SSM (por rama/entorno). */
-const SSM_PATH_PREFIX = '/asgro/redesign-seguros-first';
+/**
+ * Prefijo de ruta de los parámetros en SSM, resuelto por ENTORNO en build-time
+ * vía NEXT_PUBLIC_SSM_PATH_PREFIX (horneada por rama en AWS Amplify).
+ *
+ * Política de FALLO CERRADO: solo se aceptan valores de la allowlist. Si la
+ * variable está ausente, vacía o contiene un valor NO autorizado, el prefijo
+ * es null → el resolver NO consulta SSM (comportamiento seguro). No se usa
+ * NODE_ENV, AWS_BRANCH ni detección de rama en runtime, ni fallback automático.
+ */
+const ALLOWED_SSM_PREFIXES = [
+  '/asgro/redesign-seguros-first',
+  '/asgro/production',
+] as const;
+
+/**
+ * Resuelve y valida el prefijo SSM. Retorna null si no está en la allowlist
+ * (fallo cerrado). No revela el valor en errores/logs.
+ */
+function resolveSsmPrefix(): string | null {
+  const raw = (process.env.NEXT_PUBLIC_SSM_PATH_PREFIX ?? '').trim();
+  return (ALLOWED_SSM_PREFIXES as readonly string[]).includes(raw) ? raw : null;
+}
+
+/** Indica si el prefijo SSM está configurado con un valor autorizado. */
+export function isSsmPrefixConfigured(): boolean {
+  return resolveSsmPrefix() !== null;
+}
 
 // ─── SSM client singleton (lazy) ────────────────────────────────────────────
 
@@ -124,18 +149,27 @@ export function hasSecret(name: SecretName): boolean {
 
 /**
  * Lee un parámetro SecureString desde AWS SSM Parameter Store.
- * Ruta: /asgro/redesign-seguros-first/<NOMBRE>. Usa WithDecryption.
+ * Ruta: <prefijo-por-entorno>/<NOMBRE>. Usa WithDecryption.
  * Cachea el resultado. Ante cualquier error, retorna '' (nunca lanza ni
  * loguea el error crudo ni el valor).
+ *
+ * FALLO CERRADO: si el prefijo no está en la allowlist (ausente/inválido),
+ * NO se consulta SSM y se retorna '' de inmediato.
  */
 async function resolveFromSsm(name: SecretName): Promise<string> {
+  const prefix = resolveSsmPrefix();
+  if (prefix === null) {
+    // Prefijo no autorizado: no consultar SSM. Valor seguro.
+    return '';
+  }
+
   const cached = _ssmCache.get(name);
   if (cached !== undefined) return cached;
 
   try {
     const client = getSsmClient();
     const command = new GetParameterCommand({
-      Name: `${SSM_PATH_PREFIX}/${name}`,
+      Name: `${prefix}/${name}`,
       WithDecryption: true,
     });
     const response = await client.send(command);

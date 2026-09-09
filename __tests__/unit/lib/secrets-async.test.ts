@@ -35,6 +35,7 @@ import {
   getSecretAsync,
   hasSecretAsync,
   hasSsmSecret,
+  isSsmPrefixConfigured,
   _resetSsmCache,
 } from '@/lib/config/secrets';
 import {
@@ -52,7 +53,11 @@ const SSM_KEYS = [
   'secrets',
   'CONTACT_NOTIFICATION_TO',
   'CONTACT_FROM_EMAIL',
+  'NEXT_PUBLIC_SSM_PATH_PREFIX',
 ];
+
+const PREVIEW_PREFIX = '/asgro/redesign-seguros-first';
+const PRODUCTION_PREFIX = '/asgro/production';
 
 function clearEnv() {
   SSM_KEYS.forEach((k) => delete process.env[k]);
@@ -76,6 +81,9 @@ beforeEach(() => {
   clearEnv();
   _resetSsmCache();
   mockSend.mockReset();
+  // Prefijo válido por defecto (preview) para que los tests de SSM consulten.
+  // Los tests de fallo cerrado lo sobrescriben explícitamente.
+  process.env.NEXT_PUBLIC_SSM_PATH_PREFIX = PREVIEW_PREFIX;
   // Por defecto SSM no encuentra nada.
   mockSend.mockRejectedValue(new Error('ParameterNotFound'));
 });
@@ -83,6 +91,49 @@ beforeEach(() => {
 afterEach(() => {
   clearEnv();
   _resetSsmCache();
+});
+
+describe('Prefijo SSM por entorno (allowlist + fallo cerrado)', () => {
+  it('preview: usa /asgro/redesign-seguros-first en la ruta del parámetro', async () => {
+    process.env.NEXT_PUBLIC_SSM_PATH_PREFIX = PREVIEW_PREFIX;
+    mockSsmValue('DATABASE_URL', 'x');
+    await getSecretAsync('DATABASE_URL');
+    const command = mockSend.mock.calls[0]![0] as { input: { Name: string } };
+    expect(command.input.Name).toBe(`${PREVIEW_PREFIX}/DATABASE_URL`);
+    expect(isSsmPrefixConfigured()).toBe(true);
+  });
+
+  it('producción: usa /asgro/production en la ruta del parámetro', async () => {
+    process.env.NEXT_PUBLIC_SSM_PATH_PREFIX = PRODUCTION_PREFIX;
+    mockSsmValue('RESEND_API_KEY', 'x');
+    await getSecretAsync('RESEND_API_KEY');
+    const command = mockSend.mock.calls[0]![0] as { input: { Name: string } };
+    expect(command.input.Name).toBe(`${PRODUCTION_PREFIX}/RESEND_API_KEY`);
+    expect(isSsmPrefixConfigured()).toBe(true);
+  });
+
+  it('variable ausente → falla cerrada: NO consulta SSM y retorna cadena vacía', async () => {
+    delete process.env.NEXT_PUBLIC_SSM_PATH_PREFIX;
+    mockSsmValue('DATABASE_URL', 'no-deberia-leerse');
+    expect(await getSecretAsync('DATABASE_URL')).toBe('');
+    expect(mockSend).not.toHaveBeenCalled();
+    expect(isSsmPrefixConfigured()).toBe(false);
+  });
+
+  it('prefijo NO autorizado → falla cerrada: NO consulta SSM', async () => {
+    process.env.NEXT_PUBLIC_SSM_PATH_PREFIX = '/asgro/otro-entorno';
+    mockSsmValue('DATABASE_URL', 'no-deberia-leerse');
+    expect(await getSecretAsync('DATABASE_URL')).toBe('');
+    expect(mockSend).not.toHaveBeenCalled();
+    expect(isSsmPrefixConfigured()).toBe(false);
+  });
+
+  it('prefijo vacío → falla cerrada', async () => {
+    process.env.NEXT_PUBLIC_SSM_PATH_PREFIX = '';
+    mockSsmValue('DATABASE_URL', 'no-deberia-leerse');
+    expect(await getSecretAsync('DATABASE_URL')).toBe('');
+    expect(mockSend).not.toHaveBeenCalled();
+  });
 });
 
 describe('getSecretAsync — lectura desde SSM Parameter Store', () => {
