@@ -31,8 +31,9 @@ const PANEL_ID = 'asgro-assistant-panel';
  * Comportamiento (Bloque 4B):
  * - Inicia CERRADO. Sin panel, tooltip, tarjeta ni mensaje automáticos.
  * - Sin temporizadores de autoapertura.
- * - Abre solo por clic/tap/teclado. Al cerrar, no reaparece automáticamente
- *   durante la sesión (se recuerda el cierre explícito en sessionStorage).
+ * - Abre solo por clic/tap/teclado. No hay autoapertura de ningún tipo, por lo
+ *   que no se requiere persistencia de "cerrado" (sin sessionStorage/cookies).
+ * - Al abrir, el foco se mueve al botón Cerrar; al cerrar, vuelve al trigger.
  * - Popover NO modal: Escape cierra y devuelve el foco al botón. Sin focus trap.
  * - Respeta prefers-reduced-motion (sin animación pulsante permanente).
  * - Botón compacto y ejecutivo (52px desktop / 48px móvil).
@@ -46,11 +47,26 @@ export default function FloatingChatButton() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   // Auto-scroll de mensajes (solo dentro del panel; no afecta la página).
+  // Sin transición suave si el usuario pidió reducir movimiento.
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const prefersReduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    messagesEndRef.current?.scrollIntoView(
+      prefersReduced ? undefined : { behavior: 'smooth' }
+    );
   }, [messages, isLoading]);
+
+  // Al abrir, mover el foco al primer control del panel (botón Cerrar).
+  // Popover NO modal: no se implementa focus trap.
+  useEffect(() => {
+    if (isPanelOpen) {
+      closeButtonRef.current?.focus();
+    }
+  }, [isPanelOpen]);
 
   // Mensaje de bienvenida al abrir el panel por primera vez.
   useEffect(() => {
@@ -72,12 +88,6 @@ export default function FloatingChatButton() {
 
   const handleClosePanel = useCallback(() => {
     setIsPanelOpen(false);
-    // Recordar el cierre explícito: no reabrir automáticamente en la sesión.
-    try {
-      sessionStorage.setItem('asgro-assistant-closed', '1');
-    } catch {
-      // sessionStorage no disponible: no es crítico, se ignora.
-    }
     // Devolver el foco al botón que abrió el panel (popover no modal).
     triggerRef.current?.focus();
   }, []);
@@ -169,21 +179,23 @@ export default function FloatingChatButton() {
           id={PANEL_ID}
           role="dialog"
           aria-label="Asistente de orientación de ASGRO"
-          className="absolute bottom-[64px] left-0 flex max-h-[500px] w-[300px] flex-col overflow-hidden rounded-card border border-gray-200 bg-white shadow-elevated motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-300 sm:w-[320px]"
+          className="absolute bottom-[64px] left-0 flex w-[300px] flex-col overflow-hidden rounded-card border border-gray-200 bg-white shadow-elevated motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-300 sm:w-[320px]"
+          style={{ maxHeight: 'min(500px, calc(100dvh - 96px))' }}
         >
           {/* Encabezado */}
-          <div className="flex items-center justify-between rounded-t-card bg-brand-blue px-4 py-3 text-white">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between rounded-t-card bg-brand-blue px-3 py-2 text-white">
+            <div className="flex items-center gap-2 pl-1">
               <Headset className="h-5 w-5" aria-hidden="true" />
               <span className="text-sm font-semibold">Orientación ASGRO</span>
             </div>
             <button
+              ref={closeButtonRef}
               type="button"
               onClick={handleClosePanel}
-              className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full transition-colors hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               aria-label="Cerrar asistente"
             >
-              <X className="h-4 w-4" aria-hidden="true" />
+              <X className="h-5 w-5" aria-hidden="true" />
             </button>
           </div>
 
@@ -225,7 +237,7 @@ export default function FloatingChatButton() {
             {isLoading && (
               <div className="flex justify-start">
                 <div className="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2">
-                  <Loader2 className="h-4 w-4 animate-spin text-brand-blue" aria-hidden="true" />
+                  <Loader2 className="h-4 w-4 text-brand-blue motion-safe:animate-spin" aria-hidden="true" />
                   <span className="text-xs italic text-gray-500">Escribiendo...</span>
                 </div>
               </div>
@@ -254,7 +266,7 @@ export default function FloatingChatButton() {
                 aria-label="Enviar mensaje"
               >
                 {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  <Loader2 className="h-4 w-4 motion-safe:animate-spin" aria-hidden="true" />
                 ) : (
                   <Send className="h-4 w-4" aria-hidden="true" />
                 )}
@@ -272,7 +284,7 @@ export default function FloatingChatButton() {
         aria-label={isPanelOpen ? 'Cerrar asistente de orientación' : 'Abrir asistente de orientación de ASGRO'}
         aria-expanded={isPanelOpen}
         aria-controls={PANEL_ID}
-        className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-blue text-white shadow-lg shadow-brand-blue/25 transition-transform duration-200 hover:bg-brand-blue/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue active:scale-95 motion-safe:hover:scale-105 md:h-[54px] md:w-[54px]"
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-blue text-white shadow-lg shadow-brand-blue/25 transition-colors duration-200 hover:bg-brand-blue/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue motion-safe:transition-transform motion-safe:active:scale-95 motion-safe:hover:scale-105 md:h-[54px] md:w-[54px]"
       >
         {isPanelOpen ? (
           <ChevronDown className="h-6 w-6" aria-hidden="true" />

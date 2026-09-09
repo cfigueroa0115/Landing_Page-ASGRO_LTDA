@@ -148,4 +148,61 @@ describe('FloatingChatButton — asistente de orientación', () => {
     });
     expect(trigger).toHaveAttribute('aria-controls');
   });
+
+  it('al abrir, el foco entra al panel (botón Cerrar)', async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<FloatingChatButton />);
+
+    await user.click(
+      screen.getByRole('button', { name: /abrir asistente de orientación/i })
+    );
+
+    const closeBtn = screen.getByRole('button', { name: /cerrar asistente$/i });
+    expect(closeBtn).toHaveFocus();
+  });
+
+  it('al cerrar con Escape, el foco vuelve al trigger', async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<FloatingChatButton />);
+
+    const trigger = screen.getByRole('button', {
+      name: /abrir asistente de orientación/i,
+    });
+    await user.click(trigger);
+    await user.keyboard('{Escape}');
+
+    expect(
+      screen.getByRole('button', { name: /abrir asistente de orientación/i })
+    ).toHaveFocus();
+  });
+
+  it('el botón Cerrar conserva su nombre accesible', async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<FloatingChatButton />);
+    await user.click(
+      screen.getByRole('button', { name: /abrir asistente de orientación/i })
+    );
+    expect(
+      screen.getByRole('button', { name: /cerrar asistente$/i })
+    ).toBeInTheDocument();
+  });
+
+  it('el estado (abierto/cerrado) se comunica sin depender de animación', async () => {
+    // reduced-motion: aunque no haya animación, el estado es observable por
+    // la presencia del dialog y por aria-expanded.
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<FloatingChatButton />);
+
+    const trigger = screen.getByRole('button', {
+      name: /abrir asistente de orientación/i,
+    });
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+    await user.click(trigger);
+    // Estado abierto: dialog presente + aria-expanded true (sin depender de motion).
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /cerrar asistente de orientación/i })
+    ).toHaveAttribute('aria-expanded', 'true');
+  });
 });
