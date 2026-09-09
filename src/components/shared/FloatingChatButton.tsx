@@ -172,7 +172,7 @@ export default function FloatingChatButton() {
   };
 
   return (
-    <div className="fixed bottom-[20px] left-[16px] md:bottom-[28px] md:left-[24px] z-[9998]">
+    <div className="fixed left-[16px] bottom-[calc(20px+env(safe-area-inset-bottom,0px))] z-[9998] md:left-[24px] md:bottom-[calc(28px+env(safe-area-inset-bottom,0px))]">
       {/* Panel de orientación + chat (popover no modal) */}
       {isPanelOpen && (
         <div
@@ -180,10 +180,10 @@ export default function FloatingChatButton() {
           role="dialog"
           aria-label="Asistente de orientación de ASGRO"
           className="absolute bottom-[64px] left-0 flex w-[300px] flex-col overflow-hidden rounded-card border border-gray-200 bg-white shadow-elevated motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-300 sm:w-[320px]"
-          style={{ maxHeight: 'min(500px, calc(100dvh - 96px))' }}
+          style={{ maxHeight: 'min(500px, calc(100dvh - 96px - env(safe-area-inset-bottom, 0px)))' }}
         >
-          {/* Encabezado */}
-          <div className="flex items-center justify-between rounded-t-card bg-brand-blue px-3 py-2 text-white">
+          {/* Encabezado — no se contrae */}
+          <div className="flex shrink-0 items-center justify-between rounded-t-card bg-brand-blue px-3 py-2 text-white">
             <div className="flex items-center gap-2 pl-1">
               <Headset className="h-5 w-5" aria-hidden="true" />
               <span className="text-sm font-semibold">Orientación ASGRO</span>
@@ -199,8 +199,8 @@ export default function FloatingChatButton() {
             </button>
           </div>
 
-          {/* Bloque de orientación */}
-          <div className="border-b border-gray-100 px-4 py-3">
+          {/* Bloque de orientación — contenido esencial, no se contrae */}
+          <div className="shrink-0 border-b border-gray-100 px-4 py-3">
             <p className="text-sm font-semibold text-brand-dark-blue">
               ¿Necesita orientación?
             </p>
@@ -216,8 +216,15 @@ export default function FloatingChatButton() {
             </Link>
           </div>
 
-          {/* Área de mensajes del chat */}
-          <div className="min-h-[160px] max-h-[280px] flex-1 space-y-3 overflow-y-auto p-3">
+          {/* Área de mensajes — zona flexible que se contrae y hace scroll cuando
+              la altura es limitada (móvil landscape / viewports bajos).
+              role="log" + aria-live para anunciar respuestas nuevas. */}
+          <div
+            className="min-h-0 flex-1 space-y-3 overflow-y-auto p-3"
+            role="log"
+            aria-live="polite"
+            aria-label="Conversación con el asistente"
+          >
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -235,7 +242,7 @@ export default function FloatingChatButton() {
               </div>
             ))}
             {isLoading && (
-              <div className="flex justify-start">
+              <div className="flex justify-start" role="status">
                 <div className="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2">
                   <Loader2 className="h-4 w-4 text-brand-blue motion-safe:animate-spin" aria-hidden="true" />
                   <span className="text-xs italic text-gray-500">Escribiendo...</span>
@@ -245,8 +252,8 @@ export default function FloatingChatButton() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Entrada de texto */}
-          <form onSubmit={handleSubmit} className="border-t border-gray-200 p-3">
+          {/* Entrada de texto — no se contrae */}
+          <form onSubmit={handleSubmit} className="shrink-0 border-t border-gray-200 p-3">
             <div className="flex items-end gap-2">
               <textarea
                 value={inputValue}

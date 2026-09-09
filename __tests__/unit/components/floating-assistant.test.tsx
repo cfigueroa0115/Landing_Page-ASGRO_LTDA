@@ -40,13 +40,27 @@ vi.mock('lucide-react', () => {
 
 import FloatingChatButton from '@/components/shared/FloatingChatButton';
 
+/**
+ * Configura window.matchMedia. `reduce` = true simula
+ * prefers-reduced-motion: reduce.
+ */
+function mockMatchMedia(reduce: boolean) {
+  window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+    matches: query.includes('prefers-reduced-motion') ? reduce : false,
+    media: query,
+    onchange: null,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  }));
+}
+
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
-  try {
-    sessionStorage.clear();
-  } catch {
-    // ignore
-  }
+  // Por defecto, sin reduced motion.
+  mockMatchMedia(false);
 });
 
 afterEach(() => {
@@ -204,5 +218,53 @@ describe('FloatingChatButton — asistente de orientación', () => {
     expect(
       screen.getByRole('button', { name: /cerrar asistente de orientación/i })
     ).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('con prefers-reduced-motion: reduce, scrollIntoView NO usa behavior smooth', async () => {
+    mockMatchMedia(true);
+    const scrollSpy = vi
+      .spyOn(Element.prototype, 'scrollIntoView')
+      .mockImplementation(() => {});
+
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<FloatingChatButton />);
+
+    // Ignorar cualquier llamada del render inicial; medimos solo tras abrir.
+    scrollSpy.mockClear();
+    await user.click(
+      screen.getByRole('button', { name: /abrir asistente de orientación/i })
+    );
+
+    expect(scrollSpy).toHaveBeenCalled();
+    // Ninguna llamada debe incluir { behavior: 'smooth' } bajo reduced-motion.
+    for (const call of scrollSpy.mock.calls) {
+      const arg = call[0];
+      if (arg && typeof arg === 'object') {
+        expect((arg as ScrollIntoViewOptions).behavior).not.toBe('smooth');
+      }
+    }
+  });
+
+  it('sin reduced-motion, scrollIntoView usa behavior smooth', async () => {
+    mockMatchMedia(false);
+    const scrollSpy = vi
+      .spyOn(Element.prototype, 'scrollIntoView')
+      .mockImplementation(() => {});
+
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<FloatingChatButton />);
+
+    scrollSpy.mockClear();
+    await user.click(
+      screen.getByRole('button', { name: /abrir asistente de orientación/i })
+    );
+
+    expect(scrollSpy).toHaveBeenCalled();
+    const usedSmooth = scrollSpy.mock.calls.some((call) => {
+      const arg = call[0];
+      return !!arg && typeof arg === 'object' &&
+        (arg as ScrollIntoViewOptions).behavior === 'smooth';
+    });
+    expect(usedSmooth).toBe(true);
   });
 });
