@@ -312,9 +312,9 @@ export function isEmailNotificationAvailable(): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// Variantes ASÍNCRONAS — resuelven RESEND_API_KEY incluyendo SSM Parameter
-// Store (env → secrets JSON → SSM). CONTACT_* siguen leyéndose de process.env
-// (server-side no sensible). Son las que debe usar el runtime SSR.
+// Variantes ASÍNCRONAS — resuelven las TRES variables de email incluyendo SSM
+// Parameter Store (env → secrets JSON → SSM). Son las que debe usar el runtime
+// SSR, donde las variables normales pueden no estar disponibles.
 // ---------------------------------------------------------------------------
 
 /** Resuelve RESEND_API_KEY de forma asíncrona (incluye SSM). Server-side. */
@@ -322,15 +322,27 @@ export async function getResendApiKeyAsync(): Promise<string> {
   return getSecretAsync('RESEND_API_KEY');
 }
 
+/** Resuelve CONTACT_NOTIFICATION_TO de forma asíncrona (incluye SSM). Server-side. */
+export async function getContactNotificationToAsync(): Promise<string> {
+  return getSecretAsync('CONTACT_NOTIFICATION_TO');
+}
+
+/** Resuelve CONTACT_FROM_EMAIL de forma asíncrona (incluye SSM). Server-side. */
+export async function getContactFromEmailAsync(): Promise<string> {
+  return getSecretAsync('CONTACT_FROM_EMAIL');
+}
+
 /**
- * Versión asíncrona de isEmailNotificationAvailable: resuelve RESEND_API_KEY
- * incluyendo SSM. Requiere ÚNICAMENTE las tres variables de email; la ausencia
- * de variables públicas de contacto NO afecta el resultado.
+ * Versión asíncrona de isEmailNotificationAvailable: resuelve las TRES variables
+ * de email incluyendo SSM. Requiere ÚNICAMENTE esas tres; la ausencia de
+ * variables públicas de contacto NO afecta el resultado.
  */
 export async function isEmailNotificationAvailableAsync(): Promise<boolean> {
-  const resendApiKey = await getResendApiKeyAsync();
-  const contactTo = (process.env.CONTACT_NOTIFICATION_TO ?? '').trim();
-  const fromEmail = (process.env.CONTACT_FROM_EMAIL ?? '').trim();
+  const [resendApiKey, contactTo, fromEmail] = await Promise.all([
+    getResendApiKeyAsync(),
+    getContactNotificationToAsync(),
+    getContactFromEmailAsync(),
+  ]);
   return !!(resendApiKey && contactTo && fromEmail);
 }
 

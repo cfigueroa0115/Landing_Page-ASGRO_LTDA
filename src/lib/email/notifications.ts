@@ -13,8 +13,8 @@ import { Resend } from 'resend';
 import {
   isEmailNotificationAvailableAsync,
   getResendApiKeyAsync,
-  getContactFromEmail,
-  getContactNotificationTo,
+  getContactFromEmailAsync,
+  getContactNotificationToAsync,
 } from '@/lib/config/env';
 
 /** Resultado del intento de notificación. `sent` indica si el correo salió. */
@@ -102,9 +102,14 @@ async function sendNotification(
       timeZone: 'America/Bogota',
     });
 
+    const [fromEmail, toEmail] = await Promise.all([
+      getContactFromEmailAsync(),
+      getContactNotificationToAsync(),
+    ]);
+
     const { error } = await resend.emails.send({
-      from: getContactFromEmail(),
-      to: getContactNotificationTo(),
+      from: fromEmail,
+      to: toEmail,
       replyTo: replyTo || undefined,
       subject,
       html: buildEmailHtml(title, rows, timestamp),

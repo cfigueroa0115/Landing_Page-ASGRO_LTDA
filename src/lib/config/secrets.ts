@@ -24,12 +24,19 @@
 
 import { SSMClient, GetParameterCommand } from '@aws-sdk/client-ssm';
 
-/** Nombres de secretos soportados por el resolver. */
+/**
+ * Nombres soportados por el resolver.
+ * Incluye secretos (DATABASE_URL, RESEND_API_KEY, ...) y configuración
+ * server-side no sensible que también puede vivir en SSM en runtimes donde
+ * las variables normales no llegan (CONTACT_NOTIFICATION_TO, CONTACT_FROM_EMAIL).
+ */
 export type SecretName =
   | 'DATABASE_URL'
   | 'RESEND_API_KEY'
   | 'OPENAI_API_KEY'
-  | 'GEMINI_API_KEY';
+  | 'GEMINI_API_KEY'
+  | 'CONTACT_NOTIFICATION_TO'
+  | 'CONTACT_FROM_EMAIL';
 
 /** Región de AWS para SSM Parameter Store. */
 const SSM_REGION = 'us-east-1';

@@ -32,6 +32,12 @@ vi.mock('@/lib/config/secrets', () => ({
   hasSsmSecret: (name: string) => mockHasSsmSecret(name),
 }));
 
+// Mock de la disponibilidad de email (resuelta de forma async, incl. SSM).
+const mockEmailAvailable = vi.fn();
+vi.mock('@/lib/config/env', () => ({
+  isEmailNotificationAvailableAsync: () => mockEmailAvailable(),
+}));
+
 describe('GET /api/diagnostics/runtime', () => {
   let GET: () => Promise<Response>;
 
@@ -42,6 +48,7 @@ describe('GET /api/diagnostics/runtime', () => {
     mockExecuteResult = Promise.resolve([{ '?column?': 1 }]);
     mockHasSecret.mockReturnValue(true);
     mockHasSsmSecret.mockResolvedValue(false);
+    mockEmailAvailable.mockResolvedValue(false);
 
     // Valores "reales" en el entorno para verificar que NO se filtran.
     process.env.DATABASE_URL = SECRET_VALUE;
@@ -66,7 +73,26 @@ describe('GET /api/diagnostics/runtime', () => {
     expect(typeof data.directResendEnvAvailable).toBe('boolean');
     expect(typeof data.ssmDatabaseAvailable).toBe('boolean');
     expect(typeof data.ssmResendAvailable).toBe('boolean');
+    expect(typeof data.ssmContactNotificationToAvailable).toBe('boolean');
+    expect(typeof data.ssmContactFromEmailAvailable).toBe('boolean');
+    expect(typeof data.emailNotificationAvailable).toBe('boolean');
     expect(['ok', 'failed']).toContain(data.databaseConnectivity);
+  });
+
+  it('refleja hasSsmSecret/email para los campos de contacto y email', async () => {
+    mockHasSsmSecret.mockImplementation((name: string) =>
+      Promise.resolve(
+        name === 'CONTACT_NOTIFICATION_TO' || name === 'CONTACT_FROM_EMAIL'
+      )
+    );
+    mockEmailAvailable.mockResolvedValue(true);
+
+    const response = await GET();
+    const data = await response.json();
+
+    expect(data.ssmContactNotificationToAvailable).toBe(true);
+    expect(data.ssmContactFromEmailAvailable).toBe(true);
+    expect(data.emailNotificationAvailable).toBe(true);
   });
 
   it('refleja hasSsmSecret para ssmDatabaseAvailable / ssmResendAvailable', async () => {

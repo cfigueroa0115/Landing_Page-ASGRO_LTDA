@@ -15,6 +15,7 @@
 import { getDbAsync } from '@/lib/db';
 import { sql } from 'drizzle-orm';
 import { hasSecret, hasSsmSecret } from '@/lib/config/secrets';
+import { isEmailNotificationAvailableAsync } from '@/lib/config/env';
 
 export async function GET() {
   // Disponibilidad de secretos por fuentes SÍNCRONAS (env directo / secrets JSON).
@@ -32,6 +33,12 @@ export async function GET() {
   // Disponibilidad ESPECÍFICA en AWS SSM Parameter Store (solo booleanos).
   const ssmDatabaseAvailable = await hasSsmSecret('DATABASE_URL');
   const ssmResendAvailable = await hasSsmSecret('RESEND_API_KEY');
+  const ssmContactNotificationToAvailable = await hasSsmSecret('CONTACT_NOTIFICATION_TO');
+  const ssmContactFromEmailAvailable = await hasSsmSecret('CONTACT_FROM_EMAIL');
+
+  // Disponibilidad efectiva del envío por email (las 3 variables resueltas,
+  // incluyendo SSM). Solo booleano; no revela valores.
+  const emailNotificationAvailable = await isEmailNotificationAvailableAsync();
 
   // Conectividad de base de datos: solo ejecuta SELECT 1 (resuelve DATABASE_URL
   // por la cadena completa env → secrets JSON → SSM). Nunca propaga el error crudo.
@@ -52,6 +59,9 @@ export async function GET() {
     directResendEnvAvailable,
     ssmDatabaseAvailable,
     ssmResendAvailable,
+    ssmContactNotificationToAvailable,
+    ssmContactFromEmailAvailable,
+    emailNotificationAvailable,
     databaseConnectivity,
     timestamp: new Date().toISOString(),
   });

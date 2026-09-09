@@ -39,6 +39,8 @@ import {
 } from '@/lib/config/secrets';
 import {
   getResendApiKeyAsync,
+  getContactNotificationToAsync,
+  getContactFromEmailAsync,
   isEmailNotificationAvailableAsync,
 } from '@/lib/config/env';
 
@@ -150,23 +152,75 @@ describe('getSecretAsync — robustez', () => {
   });
 });
 
-describe('Config de email — resolución asíncrona de RESEND vía SSM', () => {
+/**
+ * Configura el mock de SSM para devolver un mapa nombre→valor. Cualquier
+ * parámetro no presente en el mapa se simula como "no encontrado".
+ */
+function mockSsmValues(values: Record<string, string>) {
+  mockSend.mockImplementation((command: { input?: { Name?: string } }) => {
+    const requested = command?.input?.Name ?? '';
+    for (const [name, value] of Object.entries(values)) {
+      if (requested.endsWith(`/${name}`)) {
+        return Promise.resolve({ Parameter: { Value: value } });
+      }
+    }
+    return Promise.reject(new Error('ParameterNotFound'));
+  });
+}
+
+describe('Config de email — resolución asíncrona vía SSM (RESEND + CONTACT_*)', () => {
   it('getResendApiKeyAsync obtiene la clave desde SSM', async () => {
     mockSsmValue('RESEND_API_KEY', 'resend_ssm_key');
     expect(await getResendApiKeyAsync()).toBe('resend_ssm_key');
   });
 
-  it('isEmailNotificationAvailableAsync=true con RESEND en SSM + CONTACT_* en env', async () => {
-    mockSsmValue('RESEND_API_KEY', 'resend_ssm_key');
-    process.env.CONTACT_NOTIFICATION_TO = 'destino@example.com';
-    process.env.CONTACT_FROM_EMAIL = 'ASGRO <no-reply@example.com>';
+  it('getContactNotificationToAsync obtiene el destinatario desde SSM', async () => {
+    mockSsmValue('CONTACT_NOTIFICATION_TO', 'destino@example.com');
+    expect(await getContactNotificationToAsync()).toBe('destino@example.com');
+  });
+
+  it('getContactFromEmailAsync obtiene el remitente desde SSM', async () => {
+    mockSsmValue('CONTACT_FROM_EMAIL', 'ASGRO <no-reply@example.com>');
+    expect(await getContactFromEmailAsync()).toBe('ASGRO <no-reply@example.com>');
+  });
+
+  it('CONTACT_NOTIFICATION_TO: prioriza env directo sobre SSM', async () => {
+    process.env.CONTACT_NOTIFICATION_TO = 'env@example.com';
+    mockSsmValue('CONTACT_NOTIFICATION_TO', 'ssm@example.com');
+    expect(await getContactNotificationToAsync()).toBe('env@example.com');
+    expect(mockSend).not.toHaveBeenCalled();
+  });
+
+  it('isEmailNotificationAvailableAsync=true con las TRES variables vía SSM', async () => {
+    mockSsmValues({
+      RESEND_API_KEY: 'resend_ssm_key',
+      CONTACT_NOTIFICATION_TO: 'destino@example.com',
+      CONTACT_FROM_EMAIL: 'ASGRO <no-reply@example.com>',
+    });
     expect(await isEmailNotificationAvailableAsync()).toBe(true);
   });
 
+  it('isEmailNotificationAvailableAsync=false si falta CONTACT_NOTIFICATION_TO en SSM', async () => {
+    mockSsmValues({
+      RESEND_API_KEY: 'resend_ssm_key',
+      CONTACT_FROM_EMAIL: 'ASGRO <no-reply@example.com>',
+    });
+    expect(await isEmailNotificationAvailableAsync()).toBe(false);
+  });
+
+  it('isEmailNotificationAvailableAsync=false si falta CONTACT_FROM_EMAIL en SSM', async () => {
+    mockSsmValues({
+      RESEND_API_KEY: 'resend_ssm_key',
+      CONTACT_NOTIFICATION_TO: 'destino@example.com',
+    });
+    expect(await isEmailNotificationAvailableAsync()).toBe(false);
+  });
+
   it('isEmailNotificationAvailableAsync=false si falta RESEND aun con CONTACT_* presentes', async () => {
-    mockSend.mockRejectedValue(new Error('ParameterNotFound'));
-    process.env.CONTACT_NOTIFICATION_TO = 'destino@example.com';
-    process.env.CONTACT_FROM_EMAIL = 'ASGRO <no-reply@example.com>';
+    mockSsmValues({
+      CONTACT_NOTIFICATION_TO: 'destino@example.com',
+      CONTACT_FROM_EMAIL: 'ASGRO <no-reply@example.com>',
+    });
     expect(await isEmailNotificationAvailableAsync()).toBe(false);
   });
 });
