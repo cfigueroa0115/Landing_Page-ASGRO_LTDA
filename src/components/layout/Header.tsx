@@ -1,19 +1,18 @@
 'use client';
 
 /**
- * Header Component — Sticky glassmorphism navigation bar with route-based navigation.
+ * Header Component — Header BLANCO PREMIUM PERMANENTE con navegación por rutas.
  *
- * Features:
- * - Fixed top position with glassmorphism effect (backdrop blur, 70-90% bg opacity)
- * - Scroll detection for z-index layering and enhanced visual state
- * - Active route highlighting via usePathname()
- * - ASGRO logo from /public/brand/asgro-logo.png with SVG fallback
- * - Full navigation links in Spanish using next/link
- * - "Cotizar ahora" CTA button → links to /cotizar
- * - "WhatsApp" button → functional, opens WhatsApp (hidden if env var not set)
- * - Navigation links appear from min-[1120px]; below that, the hamburger (MobileNav)
- *   is shown. WhatsApp button in the header appears from min-[1120px]; the floating
- *   WhatsApp button remains available at all breakpoints.
+ * Diseño (Bloque 4C):
+ * - Fondo blanco sólido en TODO estado (carga, scroll, sticky) → contraste AA
+ *   garantizado; sin estados transparentes ni cambio dinámico de color de texto.
+ * - Sombra/borde inferior sutil que se refuerza al hacer scroll (profundidad
+ *   sin recargar). Filete de acento azul→verde como sello de marca.
+ * - Links: azul oscuro (#011930) sobre blanco (AA holgado). Activo = color
+ *   azul + peso semibold + filete verde (no depende solo del color).
+ * - CTA "Solicitar asesoría": verde corporativo con texto azul oscuro (AA ~8:1).
+ * - Nav completo desde min-[1120px]; por debajo, hamburguesa (MobileNav). Nunca
+ *   coexisten. Botón WhatsApp del header desde min-[1120px]; el flotante siempre.
  */
 
 import { useState, useEffect } from 'react';
@@ -63,10 +62,10 @@ export default function Header({ onMobileMenuOpen, isMobileMenuOpen = false }: H
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 w-full transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 w-full bg-white transition-shadow duration-300 ${
         isScrolled
-          ? 'z-[60] bg-white/98 backdrop-blur-md border-b border-brand-blue/10 shadow-sm'
-          : 'z-50 bg-white border-b border-gray-100 shadow-none'
+          ? 'z-[60] border-b border-gray-200/80 shadow-[0_2px_12px_rgba(1,25,48,0.08)]'
+          : 'z-50 border-b border-gray-100 shadow-[0_1px_0_rgba(1,25,48,0.04)]'
       }`}
       role="banner"
     >
@@ -101,16 +100,20 @@ export default function Header({ onMobileMenuOpen, isMobileMenuOpen = false }: H
                 href={link.href}
                 title={isArl ? 'ARL y Riesgos Laborales' : undefined}
                 aria-label={isArl ? 'ARL y Riesgos Laborales' : undefined}
-                className={`relative inline-flex min-h-[44px] items-center whitespace-nowrap rounded-md px-2 py-1 text-sm font-medium transition-colors hover:bg-brand-blue/5 hover:text-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue ${
+                className={`relative inline-flex min-h-[44px] items-center whitespace-nowrap rounded-md px-2 py-1 text-sm transition-colors hover:bg-brand-blue/5 hover:text-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue ${
                   active
-                    ? 'text-brand-blue font-semibold'
-                    : 'text-brand-dark-blue/80'
+                    ? 'font-semibold text-brand-blue'
+                    : 'font-medium text-brand-dark-blue'
                 }`}
                 aria-current={active ? 'page' : undefined}
               >
                 {link.label}
+                {/* Estado activo: color + peso + filete verde (no depende solo del color) */}
                 {active && (
-                  <span className="absolute bottom-1 left-2 right-2 h-0.5 rounded-full bg-brand-green" />
+                  <span
+                    aria-hidden="true"
+                    className="absolute bottom-1 left-2 right-2 h-[3px] rounded-full bg-brand-green"
+                  />
                 )}
               </Link>
             );
@@ -134,10 +137,11 @@ export default function Header({ onMobileMenuOpen, isMobileMenuOpen = false }: H
             </a>
           )}
 
-          {/* Solicitar asesoría — CTA principal */}
+          {/* Solicitar asesoría — CTA principal. Verde corporativo con texto
+              azul oscuro para garantizar contraste AA (~8:1) sin cambiar el color. */}
           <Link
             href="/contacto"
-            className="hidden min-h-[44px] items-center rounded-btn bg-brand-green px-3 py-1 text-sm font-semibold text-white transition-colors hover:bg-brand-green/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green sm:inline-flex active:scale-95"
+            className="hidden min-h-[44px] items-center rounded-btn bg-brand-green px-3.5 py-1 text-sm font-bold text-brand-dark-blue shadow-btn transition-all hover:bg-brand-green-alt hover:shadow-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue sm:inline-flex active:scale-95"
           >
             Solicitar asesoría
           </Link>
@@ -156,8 +160,11 @@ export default function Header({ onMobileMenuOpen, isMobileMenuOpen = false }: H
           </button>
         </div>
       </div>
-      {/* Gradient bottom accent line */}
-      <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-brand-blue/80 via-brand-green/60 to-brand-blue/80" />
+      {/* Filete de acento corporativo azul→verde (sello de marca, muy sutil) */}
+      <div
+        aria-hidden="true"
+        className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-brand-blue via-brand-green to-brand-blue opacity-80"
+      />
     </header>
   );
 }
