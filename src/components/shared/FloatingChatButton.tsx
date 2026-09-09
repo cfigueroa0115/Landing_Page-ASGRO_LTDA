@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import Link from 'next/link';
 import { ChevronDown, X, Send, Loader2, Headset } from 'lucide-react';
 import { SITE_CONTENT } from '@/lib/utils/constants';
 import type { ChatMessage } from '@/types';
 
 /**
- * Custom humanized AI avatar icon — person silhouette with headset.
- * Communicates "asesor virtual" rather than "robot".
+ * Icono humanizado del asistente — silueta de persona con diadema.
+ * Comunica "asesor virtual" en lugar de "robot".
  */
 function AIAvatarIcon({ className }: { className?: string }) {
   return (
@@ -22,46 +23,36 @@ function AIAvatarIcon({ className }: { className?: string }) {
   );
 }
 
+const PANEL_ID = 'asgro-assistant-panel';
+
 /**
- * FloatingChatButton — Floating AI agent trigger button (bottom-left)
- * with an expandable chat panel overlay.
+ * FloatingChatButton — Asistente flotante de orientación de ASGRO (abajo-izq.).
  *
- * Features:
- * - Fixed bottom-left position (distinct from WhatsApp bottom-right)
- * - Pulse animation to draw attention
- * - On click: opens a floating chat panel (max-width 380px, max-height 500px)
- * - Chat panel uses /api/chat endpoint
- * - Auto-help tooltip appears after 10 seconds, dismissible
- * - Panel includes close button to minimize back to floating button
- * - Accessible from ANY page (rendered in layout)
+ * Comportamiento (Bloque 4B):
+ * - Inicia CERRADO. Sin panel, tooltip, tarjeta ni mensaje automáticos.
+ * - Sin temporizadores de autoapertura.
+ * - Abre solo por clic/tap/teclado. Al cerrar, no reaparece automáticamente
+ *   durante la sesión (se recuerda el cierre explícito en sessionStorage).
+ * - Popover NO modal: Escape cierra y devuelve el foco al botón. Sin focus trap.
+ * - Respeta prefers-reduced-motion (sin animación pulsante permanente).
+ * - Botón compacto y ejecutivo (52px desktop / 48px móvil).
+ * - Encabezado de orientación + CTA "Hablar con un asesor" (/contacto) + chat IA.
  */
 export default function FloatingChatButton() {
-  const [showTooltip, setShowTooltip] = useState(false);
-  const [tooltipDismissed, setTooltipDismissed] = useState(false);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
-  // Show auto-help tooltip after 10 seconds
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!tooltipDismissed && !isPanelOpen) {
-        setShowTooltip(true);
-      }
-    }, 10000);
-
-    return () => clearTimeout(timer);
-  }, [tooltipDismissed, isPanelOpen]);
-
-  // Auto-scroll messages
+  // Auto-scroll de mensajes (solo dentro del panel; no afecta la página).
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
-  // Add welcome message when panel opens for the first time
+  // Mensaje de bienvenida al abrir el panel por primera vez.
   useEffect(() => {
     if (isPanelOpen && messages.length === 0) {
       setMessages([
@@ -75,20 +66,33 @@ export default function FloatingChatButton() {
     }
   }, [isPanelOpen, messages.length]);
 
-  const handleDismissTooltip = useCallback(() => {
-    setShowTooltip(false);
-    setTooltipDismissed(true);
-  }, []);
-
   const handleOpenPanel = useCallback(() => {
-    setShowTooltip(false);
-    setTooltipDismissed(true);
     setIsPanelOpen(true);
   }, []);
 
   const handleClosePanel = useCallback(() => {
     setIsPanelOpen(false);
+    // Recordar el cierre explícito: no reabrir automáticamente en la sesión.
+    try {
+      sessionStorage.setItem('asgro-assistant-closed', '1');
+    } catch {
+      // sessionStorage no disponible: no es crítico, se ignora.
+    }
+    // Devolver el foco al botón que abrió el panel (popover no modal).
+    triggerRef.current?.focus();
   }, []);
+
+  // Cerrar con Escape cuando el panel está abierto.
+  useEffect(() => {
+    if (!isPanelOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleClosePanel();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [isPanelOpen, handleClosePanel]);
 
   const handleSendMessage = useCallback(
     async (messageText: string) => {
@@ -158,28 +162,50 @@ export default function FloatingChatButton() {
   };
 
   return (
-    <div className="fixed bottom-[24px] left-[16px] md:bottom-[32px] md:left-[24px] z-[9998]">
-      {/* Floating Chat Panel */}
+    <div className="fixed bottom-[20px] left-[16px] md:bottom-[28px] md:left-[24px] z-[9998]">
+      {/* Panel de orientación + chat (popover no modal) */}
       {isPanelOpen && (
-        <div className="absolute bottom-[72px] left-0 w-[340px] sm:w-[380px] max-h-[500px] rounded-card bg-white shadow-elevated border border-gray-200 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
-          {/* Panel Header */}
-          <div className="flex items-center justify-between px-4 py-3 bg-brand-blue text-white rounded-t-card">
+        <div
+          id={PANEL_ID}
+          role="dialog"
+          aria-label="Asistente de orientación de ASGRO"
+          className="absolute bottom-[64px] left-0 flex max-h-[500px] w-[300px] flex-col overflow-hidden rounded-card border border-gray-200 bg-white shadow-elevated motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-300 sm:w-[320px]"
+        >
+          {/* Encabezado */}
+          <div className="flex items-center justify-between rounded-t-card bg-brand-blue px-4 py-3 text-white">
             <div className="flex items-center gap-2">
-              <Headset className="h-5 w-5" />
-              <span className="font-semibold text-sm">Asistente ASGRO IA</span>
+              <Headset className="h-5 w-5" aria-hidden="true" />
+              <span className="text-sm font-semibold">Orientación ASGRO</span>
             </div>
             <button
               type="button"
               onClick={handleClosePanel}
-              className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/20 transition-colors"
-              aria-label="Cerrar panel de chat"
+              className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              aria-label="Cerrar asistente"
             >
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
 
-          {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-3 min-h-[200px] max-h-[340px]">
+          {/* Bloque de orientación */}
+          <div className="border-b border-gray-100 px-4 py-3">
+            <p className="text-sm font-semibold text-brand-dark-blue">
+              ¿Necesita orientación?
+            </p>
+            <p className="mt-1 text-sm text-gray-600">
+              Le ayudamos a identificar la solución de seguros más adecuada para su necesidad.
+            </p>
+            <Link
+              href="/contacto"
+              onClick={handleClosePanel}
+              className="mt-3 inline-flex min-h-[40px] w-full items-center justify-center rounded-btn bg-brand-green px-3 py-2 text-sm font-bold text-brand-dark-blue transition-colors hover:bg-brand-green-alt focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
+            >
+              Hablar con un asesor
+            </Link>
+          </div>
+
+          {/* Área de mensajes del chat */}
+          <div className="min-h-[160px] max-h-[280px] flex-1 space-y-3 overflow-y-auto p-3">
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -198,39 +224,39 @@ export default function FloatingChatButton() {
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-gray-100 rounded-lg px-3 py-2 flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin text-brand-blue" />
-                  <span className="text-xs text-gray-500 italic">Escribiendo...</span>
+                <div className="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-brand-blue" aria-hidden="true" />
+                  <span className="text-xs italic text-gray-500">Escribiendo...</span>
                 </div>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input Area */}
+          {/* Entrada de texto */}
           <form onSubmit={handleSubmit} className="border-t border-gray-200 p-3">
-            <div className="flex gap-2 items-end">
+            <div className="flex items-end gap-2">
               <textarea
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Escribe tu consulta..."
+                placeholder="Escriba su consulta..."
                 rows={1}
                 maxLength={500}
                 disabled={isLoading}
-                className="flex-1 rounded-input border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/20 focus-visible:border-brand-blue disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-200 resize-none"
+                className="flex-1 resize-none rounded-input border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 transition-colors duration-200 focus-visible:border-brand-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/20 disabled:cursor-not-allowed disabled:opacity-50"
                 aria-label="Mensaje para el asistente"
               />
               <button
                 type="submit"
                 disabled={!inputValue.trim() || isLoading}
-                className="flex-shrink-0 w-[40px] h-[40px] flex items-center justify-center rounded-btn bg-brand-blue text-white hover:bg-brand-blue/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex h-[40px] w-[40px] flex-shrink-0 items-center justify-center rounded-btn bg-brand-blue text-white transition-colors hover:bg-brand-blue/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:cursor-not-allowed disabled:opacity-50"
                 aria-label="Enviar mensaje"
               >
                 {isLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                 ) : (
-                  <Send className="w-4 h-4" />
+                  <Send className="h-4 w-4" aria-hidden="true" />
                 )}
               </button>
             </div>
@@ -238,41 +264,21 @@ export default function FloatingChatButton() {
         </div>
       )}
 
-      {/* Auto-help tooltip */}
-      {showTooltip && !isPanelOpen && (
-        <div className="absolute bottom-[72px] left-0 w-[260px] rounded-card bg-white shadow-elevated border border-gray-200 p-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-          <button
-            type="button"
-            onClick={handleDismissTooltip}
-            className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 transition-colors"
-            aria-label="Cerrar sugerencia"
-          >
-            <X className="h-4 w-4" />
-          </button>
-          <p className="text-sm text-brand-dark-blue font-medium mb-2 pr-5">
-            ¿Necesitas orientación?
-          </p>
-          <p className="text-xs text-gray-600 mb-3">
-            Podemos ayudarte con seguros para personas y empresas, y soluciones complementarias de gestión de riesgos.
-          </p>
-          <button
-            type="button"
-            onClick={handleOpenPanel}
-            className="w-full text-xs font-medium text-white bg-brand-blue rounded-btn px-3 py-2 hover:bg-brand-blue/90 transition-colors active:scale-95"
-          >
-            Consultar asistente
-          </button>
-        </div>
-      )}
-
-      {/* Floating button */}
+      {/* Botón flotante compacto (52px desktop / 48px móvil) */}
       <button
+        ref={triggerRef}
         type="button"
         onClick={isPanelOpen ? handleClosePanel : handleOpenPanel}
-        aria-label={isPanelOpen ? 'Cerrar asistente IA' : 'Consultar asistente IA de ASGRO'}
-        className="relative flex h-14 w-14 min-h-[48px] min-w-[48px] items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-brand-blue/80 text-white shadow-lg shadow-brand-blue/30 transition-all duration-200 hover:scale-110 active:scale-95"
+        aria-label={isPanelOpen ? 'Cerrar asistente de orientación' : 'Abrir asistente de orientación de ASGRO'}
+        aria-expanded={isPanelOpen}
+        aria-controls={PANEL_ID}
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-blue text-white shadow-lg shadow-brand-blue/25 transition-transform duration-200 hover:bg-brand-blue/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue active:scale-95 motion-safe:hover:scale-105 md:h-[54px] md:w-[54px]"
       >
-        {isPanelOpen ? <ChevronDown className="h-6 w-6" /> : <AIAvatarIcon className="h-7 w-7" />}
+        {isPanelOpen ? (
+          <ChevronDown className="h-6 w-6" aria-hidden="true" />
+        ) : (
+          <AIAvatarIcon className="h-7 w-7" aria-hidden="true" />
+        )}
       </button>
     </div>
   );
