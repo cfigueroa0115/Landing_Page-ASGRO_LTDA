@@ -130,7 +130,7 @@ export default function Header({ onMobileMenuOpen, isMobileMenuOpen = false }: H
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Contactar por WhatsApp"
-              className="hidden items-center gap-1 min-h-[44px] rounded-btn bg-[#25D366] px-3 py-1 text-sm font-medium text-white transition-colors hover:bg-[#1fb855] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#25D366] min-[1120px]:inline-flex active:scale-95"
+              className="hidden items-center gap-1 min-h-[44px] rounded-btn bg-[#25D366] px-3 py-1 text-sm font-semibold text-brand-dark-blue transition-colors hover:bg-[#1fb855] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#25D366] min-[1120px]:inline-flex active:scale-95"
             >
               <FaWhatsapp className="h-4 w-4" aria-hidden="true" />
               <span>WhatsApp</span>
