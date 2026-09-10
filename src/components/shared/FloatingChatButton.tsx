@@ -165,10 +165,10 @@ export default function FloatingChatButton() {
           className="absolute bottom-[64px] left-0 flex w-[300px] flex-col overflow-hidden rounded-card border border-gray-200 bg-white shadow-elevated motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-300 sm:w-[320px]"
           style={{ maxHeight: 'min(500px, calc(100dvh - 96px - env(safe-area-inset-bottom, 0px)))' }}
         >
-          {/* Encabezado — no se contrae */}
-          <div className="flex shrink-0 items-center justify-between bg-gradient-to-r from-brand-blue to-brand-dark-blue px-3 py-2.5 text-white">
+          {/* Encabezado — no se contrae (py explícito 10px por escala custom) */}
+          <div className="flex shrink-0 items-center justify-between bg-gradient-to-r from-brand-blue to-brand-dark-blue px-3 py-[10px] text-white">
             <div className="flex items-center gap-2 pl-1">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/15">
+              <span className="flex h-[32px] w-[32px] items-center justify-center rounded-full bg-white/10 ring-1 ring-white/15">
                 <Headset className="h-[18px] w-[18px]" aria-hidden="true" />
               </span>
               <span className="text-sm font-semibold tracking-tight">Orientación ASGRO</span>
@@ -177,10 +177,10 @@ export default function FloatingChatButton() {
               ref={closeButtonRef}
               type="button"
               onClick={handleClosePanel}
-              className="flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full transition-colors hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="flex h-[44px] w-[44px] items-center justify-center rounded-full transition-colors hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               aria-label="Cerrar asistente"
             >
-              <X className="h-5 w-5" aria-hidden="true" />
+              <X className="h-[18px] w-[18px]" aria-hidden="true" />
             </button>
           </div>
 
@@ -232,7 +232,7 @@ export default function FloatingChatButton() {
               {isLoading && (
                 <div className="flex justify-start" role="status">
                   <div className="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2">
-                    <Loader2 className="h-4 w-4 text-brand-blue motion-safe:animate-spin" aria-hidden="true" />
+                    <Loader2 className="h-[16px] w-[16px] text-brand-blue motion-safe:animate-spin" aria-hidden="true" />
                     <span className="text-xs italic text-gray-500">Escribiendo...</span>
                   </div>
                 </div>
@@ -257,7 +257,7 @@ export default function FloatingChatButton() {
                 rows={1}
                 maxLength={500}
                 disabled={isLoading}
-                className="min-h-[44px] flex-1 resize-none rounded-input border border-gray-300 bg-white px-3 py-2.5 text-sm text-brand-dark-blue shadow-sm placeholder:text-gray-500 transition-colors duration-200 focus-visible:border-brand-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/25 disabled:cursor-not-allowed disabled:opacity-50"
+                className="min-h-[44px] flex-1 resize-none rounded-input border border-gray-300 bg-white px-3 py-[10px] text-sm text-brand-dark-blue shadow-sm placeholder:text-gray-500 transition-colors duration-200 focus-visible:border-brand-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/25 disabled:cursor-not-allowed disabled:opacity-50"
                 aria-label="Mensaje para el asistente"
               />
               <button
@@ -286,10 +286,10 @@ export default function FloatingChatButton() {
         aria-label={isPanelOpen ? 'Cerrar asistente de orientación' : 'Abrir asistente de orientación de ASGRO'}
         aria-expanded={isPanelOpen}
         aria-controls={PANEL_ID}
-        className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-brand-dark-blue text-white shadow-xl shadow-brand-dark-blue/30 ring-1 ring-white/15 transition-colors duration-200 hover:from-brand-blue hover:to-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue motion-safe:transition-transform motion-safe:active:scale-95 motion-safe:hover:scale-105 md:h-[54px] md:w-[54px]"
+        className="flex h-[48px] w-[48px] items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-brand-dark-blue text-white shadow-xl shadow-brand-dark-blue/30 ring-1 ring-white/15 transition-colors duration-200 hover:from-brand-blue hover:to-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue motion-safe:transition-transform motion-safe:active:scale-95 motion-safe:hover:scale-105 md:h-[54px] md:w-[54px]"
       >
         {isPanelOpen ? (
-          <ChevronDown className="h-6 w-6" aria-hidden="true" />
+          <ChevronDown className="h-[24px] w-[24px]" aria-hidden="true" />
         ) : (
           <MessagesSquare className="h-[24px] w-[24px]" strokeWidth={1.75} aria-hidden="true" />
         )}

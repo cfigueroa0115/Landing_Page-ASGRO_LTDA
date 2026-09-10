@@ -71,19 +71,20 @@ export default function HeroSection() {
       </div>
 
       {/* ─── Contenido ─────────────────────────────────────────────────────── */}
-      <div className="relative z-10 section-container py-16 md:py-20">
+      {/* py-8=64px móvil / py-10=80px desktop (escala custom: 8=64px, 10=80px) */}
+      <div className="relative z-10 section-container py-8 md:py-10">
         <motion.div
           className="mx-auto flex max-w-3xl flex-col items-center text-center"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          {/* Eyebrow institucional */}
+          {/* Eyebrow institucional (padding explícito: ~14px H / 6px V) */}
           <motion.span
             variants={itemVariants}
-            className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-brand-green/30 bg-white/[0.06] px-3.5 py-1.5 text-small font-semibold text-brand-neon-green backdrop-blur-sm"
+            className="mb-3 inline-flex items-center gap-[6px] rounded-full border border-brand-green/30 bg-white/[0.06] px-[14px] py-[6px] text-small font-semibold text-brand-neon-green backdrop-blur-sm"
           >
-            <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+            <ShieldCheck className="h-[16px] w-[16px]" aria-hidden="true" />
             ASGRO · Agencia de Seguros
           </motion.span>
 
@@ -103,15 +104,15 @@ export default function HeroSection() {
             {SITE_CONTENT.heroSubtitle}
           </motion.p>
 
-          {/* CTAs con jerarquía clara */}
+          {/* CTAs con jerarquía clara (separación ~10px; ancho contenido) */}
           <motion.div
             variants={itemVariants}
-            className="mt-7 flex w-full flex-col items-stretch gap-2.5 sm:w-auto sm:flex-row sm:items-center"
+            className="mt-6 flex w-full flex-col items-stretch gap-[10px] sm:w-auto sm:flex-row sm:items-center"
           >
             {/* Primario: verde con texto oscuro (contraste AA ~8:1) */}
             <Link
               href="/contacto"
-              className="inline-flex min-h-[48px] items-center justify-center rounded-btn bg-brand-green px-6 text-[0.95rem] font-bold text-brand-dark-blue shadow-btn transition-all duration-200 hover:bg-brand-green-alt hover:shadow-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-neon-green"
+              className="inline-flex min-h-[48px] items-center justify-center rounded-btn bg-brand-green px-[22px] text-[0.95rem] font-bold text-brand-dark-blue shadow-btn transition-all duration-200 hover:bg-brand-green-alt hover:shadow-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-neon-green"
             >
               {SITE_CONTENT.ctaPrimary}
             </Link>
@@ -119,16 +120,16 @@ export default function HeroSection() {
             {/* Secundario: outline claro */}
             <a
               href="#portafolio"
-              className="inline-flex min-h-[48px] items-center justify-center rounded-btn border border-white/60 px-6 text-[0.95rem] font-semibold text-white transition-all duration-200 hover:border-white hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="inline-flex min-h-[48px] items-center justify-center rounded-btn border border-white/60 px-[22px] text-[0.95rem] font-semibold text-white transition-all duration-200 hover:border-white hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               {SITE_CONTENT.ctaSecondary}
             </a>
           </motion.div>
 
-          {/* Chips de los frentes de protección */}
+          {/* Chips de los frentes de protección (mt-8=64px; gap explícito 8px) */}
           <motion.div
             variants={itemVariants}
-            className="mt-9 flex flex-wrap items-center justify-center gap-x-2 gap-y-2"
+            className="mt-8 flex flex-wrap items-center justify-center gap-x-[8px] gap-y-[8px]"
           >
             {SITE_CONTENT.heroBadges.map((badge) => (
               <span
@@ -144,7 +145,7 @@ export default function HeroSection() {
 
       {/* ─── Transición inferior hacia el contenido blanco (onda suave) ────── */}
       <div className="absolute bottom-0 left-0 right-0 z-10 leading-none" aria-hidden="true">
-        <svg viewBox="0 0 1440 60" preserveAspectRatio="none" className="h-8 w-full md:h-10">
+        <svg viewBox="0 0 1440 60" preserveAspectRatio="none" className="h-[32px] w-full md:h-[40px]">
           <path d="M0,60 C480,10 960,10 1440,60 L1440,60 L0,60 Z" fill="#ffffff" />
         </svg>
       </div>
