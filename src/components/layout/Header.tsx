@@ -130,7 +130,7 @@ export default function Header({ onMobileMenuOpen, isMobileMenuOpen = false }: H
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Contactar por WhatsApp"
-              className="hidden h-[42px] items-center gap-1.5 rounded-btn bg-[#25D366] px-4 text-sm font-semibold leading-none text-brand-dark-blue transition-colors hover:bg-[#1fb855] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue min-[1120px]:inline-flex active:scale-95"
+              className="hidden h-11 min-h-[44px] items-center gap-1.5 rounded-btn bg-[#25D366] px-4 text-sm font-semibold leading-none text-brand-dark-blue transition-colors hover:bg-[#1fb855] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue min-[1120px]:inline-flex active:scale-95"
             >
               <FaWhatsapp className="h-4 w-4" aria-hidden="true" />
               <span>WhatsApp</span>
@@ -143,7 +143,7 @@ export default function Header({ onMobileMenuOpen, isMobileMenuOpen = false }: H
               tipografía sm con peso semibold para verse elegante y no pesado. */}
           <Link
             href="/contacto"
-            className="hidden h-[42px] items-center justify-center whitespace-nowrap rounded-btn bg-brand-green px-4 text-sm font-semibold leading-none text-brand-dark-blue shadow-btn transition-all hover:bg-brand-green-alt hover:shadow-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue sm:inline-flex active:scale-95"
+            className="hidden h-11 min-h-[44px] items-center justify-center whitespace-nowrap rounded-btn bg-brand-green px-4 text-sm font-semibold leading-none text-brand-dark-blue shadow-btn transition-all hover:bg-brand-green-alt hover:shadow-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue sm:inline-flex active:scale-95"
           >
             Solicitar asesoría
           </Link>

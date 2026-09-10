@@ -103,6 +103,7 @@ vi.mock('framer-motion', () => ({
   AnimatePresence: ({ children }: any) => <>{children}</>,
   useInView: () => true,
   useAnimation: () => ({ start: vi.fn(), set: vi.fn() }),
+  useReducedMotion: () => false,
 }));
 
 // Mock AnimatedSection as pass-through

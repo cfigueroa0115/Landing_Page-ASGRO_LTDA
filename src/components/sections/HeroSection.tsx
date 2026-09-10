@@ -10,45 +10,47 @@
  */
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { ShieldCheck } from 'lucide-react';
 import { SITE_CONTENT } from '@/lib/utils/constants';
-import { ServicesBanner } from '@/lib/utils/brand-assets-components';
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.12, delayChildren: 0.1 },
-  },
-} as const;
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as const },
-  },
-} as const;
 
 export default function HeroSection() {
+  const prefersReducedMotion = useReducedMotion();
+
+  // Con reduced-motion: sin stagger ni desplazamientos; el contenido aparece
+  // de inmediato (transición mínima de opacidad, sin movimiento).
+  const containerVariants = {
+    hidden: { opacity: prefersReducedMotion ? 1 : 0 },
+    visible: {
+      opacity: 1,
+      transition: prefersReducedMotion
+        ? { duration: 0 }
+        : { staggerChildren: 0.12, delayChildren: 0.1 },
+    },
+  } as const;
+
+  const itemVariants = {
+    hidden: prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: prefersReducedMotion
+        ? { duration: 0 }
+        : { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as const },
+    },
+  } as const;
+
   return (
     <section
       id="inicio"
       className="relative flex min-h-[82vh] items-center overflow-hidden bg-hero-gradient pt-[76px]"
       aria-label="Sección principal - ASGRO Agencia de Seguros"
     >
-      {/* ─── Capas de fondo (profundidad) ─────────────────────────────────── */}
+      {/* ─── Capas de fondo (profundidad, 100% CSS/geometría) ─────────────────
+          Sin imagen: el banner al 10% no aportaba valor perceptible y penalizaba
+          el LCP (asset 1920×1080 con priority). Cuando exista la fotografía
+          corporativa premium definitiva se integrará aquí con next/image + sizes. */}
       <div className="absolute inset-0 z-0" aria-hidden="true">
-        {/* Imagen corporativa decorativa muy tenue */}
-        <ServicesBanner
-          width={1920}
-          height={1080}
-          className="h-full w-full object-cover opacity-[0.10]"
-          alt=""
-          priority
-        />
         {/* Overlay base direccional para legibilidad impecable del texto */}
         <div className="absolute inset-0 bg-gradient-to-b from-brand-dark-blue/90 via-brand-navy/85 to-brand-navy/95" />
         {/* Luz ambiental superior (glow azul) que aporta profundidad */}
@@ -140,12 +142,7 @@ export default function HeroSection() {
         </motion.div>
       </div>
 
-      {/* ─── Transición inferior premium hacia el contenido blanco ─────────── */}
-      {/* Degradado de fusión + onda muy suave (menos "wave template") */}
-      <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-24 bg-gradient-to-b from-transparent to-brand-navy/0"
-        aria-hidden="true"
-      />
+      {/* ─── Transición inferior hacia el contenido blanco (onda suave) ────── */}
       <div className="absolute bottom-0 left-0 right-0 z-10 leading-none" aria-hidden="true">
         <svg viewBox="0 0 1440 60" preserveAspectRatio="none" className="h-8 w-full md:h-10">
           <path d="M0,60 C480,10 960,10 1440,60 L1440,60 L0,60 Z" fill="#ffffff" />

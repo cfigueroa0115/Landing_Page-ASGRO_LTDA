@@ -2,26 +2,9 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import { ChevronDown, X, Send, Loader2, Headset } from 'lucide-react';
+import { ChevronDown, X, Send, Loader2, Headset, MessagesSquare } from 'lucide-react';
 import { SITE_CONTENT } from '@/lib/utils/constants';
 import type { ChatMessage } from '@/types';
-
-/**
- * Icono humanizado del asistente — silueta de persona con diadema.
- * Comunica "asesor virtual" en lugar de "robot".
- */
-function AIAvatarIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="8" r="3.5" />
-      <path d="M5.5 20c0-3.5 3-6.5 6.5-6.5s6.5 3 6.5 6.5" />
-      <path d="M4 12c0-1.2.8-2.2 2-2.2" />
-      <path d="M18 12c0-1.2.8-2.2 2-2.2" />
-      <path d="M4 12v1.5" />
-      <path d="M20 12v1.5" />
-    </svg>
-  );
-}
 
 const PANEL_ID = 'asgro-assistant-panel';
 
@@ -201,57 +184,61 @@ export default function FloatingChatButton() {
             </button>
           </div>
 
-          {/* Bloque de orientación — contenido esencial, no se contrae */}
-          <div className="shrink-0 border-b border-gray-100 px-4 py-3">
-            <p className="text-sm font-semibold text-brand-dark-blue">
-              ¿Necesita orientación?
-            </p>
-            <p className="mt-1 text-sm text-gray-600">
-              Le ayudamos a identificar la solución de seguros más adecuada para su necesidad.
-            </p>
-            <Link
-              href="/contacto"
-              onClick={handleClosePanel}
-              className="mt-3 inline-flex min-h-[40px] w-full items-center justify-center rounded-btn bg-brand-green px-3 py-2 text-sm font-bold text-brand-dark-blue transition-colors hover:bg-brand-green-alt focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
-            >
-              Hablar con un asesor
-            </Link>
-          </div>
-
-          {/* Área de mensajes — zona flexible que se contrae y hace scroll cuando
-              la altura es limitada (móvil landscape / viewports bajos).
-              role="log" + aria-live para anunciar respuestas nuevas. */}
+          {/* Cuerpo central UNIFICADO (orientación + conversación) — única región
+              flexible con scroll. En landscape de baja altura todo el contenido
+              central hace scroll; header y formulario permanecen fijos, y el CTA
+              "Hablar con un asesor" sigue accesible mediante scroll. */}
           <div
-            className="min-h-0 flex-1 space-y-3 overflow-y-auto p-3"
+            className="min-h-0 flex-1 overflow-y-auto"
             role="log"
             aria-live="polite"
-            aria-label="Conversación con el asistente"
+            aria-label="Orientación y conversación con el asistente"
           >
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            {/* Bloque de orientación */}
+            <div className="border-b border-gray-100 px-4 py-3">
+              <p className="text-sm font-semibold text-brand-dark-blue">
+                ¿Necesita orientación?
+              </p>
+              <p className="mt-1 text-sm text-gray-600">
+                Le ayudamos a identificar la solución de seguros más adecuada para su necesidad.
+              </p>
+              <Link
+                href="/contacto"
+                onClick={handleClosePanel}
+                className="mt-3 inline-flex min-h-[44px] w-full items-center justify-center rounded-btn bg-brand-green px-3 py-2 text-sm font-bold text-brand-dark-blue transition-colors hover:bg-brand-green-alt focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
               >
+                Hablar con un asesor
+              </Link>
+            </div>
+
+            {/* Conversación */}
+            <div className="space-y-3 p-3">
+              {messages.map((msg) => (
                 <div
-                  className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
-                    msg.role === 'user'
-                      ? 'bg-brand-blue text-white'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}
+                  key={msg.id}
+                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  {msg.content}
+                  <div
+                    className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
+                      msg.role === 'user'
+                        ? 'bg-brand-blue text-white'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}
+                  >
+                    {msg.content}
+                  </div>
                 </div>
-              </div>
-            ))}
-            {isLoading && (
-              <div className="flex justify-start" role="status">
-                <div className="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2">
-                  <Loader2 className="h-4 w-4 text-brand-blue motion-safe:animate-spin" aria-hidden="true" />
-                  <span className="text-xs italic text-gray-500">Escribiendo...</span>
+              ))}
+              {isLoading && (
+                <div className="flex justify-start" role="status">
+                  <div className="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2">
+                    <Loader2 className="h-4 w-4 text-brand-blue motion-safe:animate-spin" aria-hidden="true" />
+                    <span className="text-xs italic text-gray-500">Escribiendo...</span>
+                  </div>
                 </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
+              )}
+              <div ref={messagesEndRef} />
+            </div>
           </div>
 
           {/* Área de escritura — no se contrae. Caja evidente y bien delimitada:
@@ -304,7 +291,7 @@ export default function FloatingChatButton() {
         {isPanelOpen ? (
           <ChevronDown className="h-6 w-6" aria-hidden="true" />
         ) : (
-          <AIAvatarIcon className="h-[26px] w-[26px]" aria-hidden="true" />
+          <MessagesSquare className="h-[24px] w-[24px]" strokeWidth={1.75} aria-hidden="true" />
         )}
       </button>
     </div>

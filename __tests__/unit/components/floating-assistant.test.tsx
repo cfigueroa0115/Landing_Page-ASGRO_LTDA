@@ -35,6 +35,7 @@ vi.mock('lucide-react', () => {
     Send: Icon,
     Loader2: Icon,
     Headset: Icon,
+    MessagesSquare: Icon,
   };
 });
 
@@ -161,6 +162,25 @@ describe('FloatingChatButton — asistente de orientación', () => {
       name: /abrir asistente de orientación/i,
     });
     expect(trigger).toHaveAttribute('aria-controls');
+  });
+
+  it('estructura robusta: orientación + CTA + conversación en una región scrollable (role=log)', async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<FloatingChatButton />);
+
+    await user.click(
+      screen.getByRole('button', { name: /abrir asistente de orientación/i })
+    );
+
+    // La región log contiene tanto el bloque de orientación (CTA) como la conversación.
+    const log = screen.getByRole('log');
+    const cta = screen.getByRole('link', { name: /hablar con un asesor/i });
+    expect(log).toContainElement(cta);
+
+    // El input de escritura permanece disponible (fuera del log, siempre visible).
+    expect(
+      screen.getByLabelText(/mensaje para el asistente/i)
+    ).toBeInTheDocument();
   });
 
   it('al abrir, el foco entra al panel (botón Cerrar)', async () => {

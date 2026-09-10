@@ -1,7 +1,7 @@
 'use client';
 
 import { forwardRef } from 'react';
-import { motion, type HTMLMotionProps } from 'framer-motion';
+import { motion, useReducedMotion, type HTMLMotionProps } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ReactNode } from 'react';
@@ -62,15 +62,18 @@ const PremiumButton = forwardRef<HTMLButtonElement, PremiumButtonProps>(
     },
     ref
   ) => {
+    const prefersReducedMotion = useReducedMotion();
+
     return (
       <motion.button
         ref={ref}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
+        // Sin escalas hover/tap cuando el usuario pide reducir movimiento.
+        whileHover={prefersReducedMotion ? undefined : { scale: 1.02 }}
+        whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
         disabled={disabled || loading}
         className={cn(
           // Base styles
-          'relative inline-flex items-center justify-center gap-1 font-semibold',
+          'group relative inline-flex items-center justify-center gap-1 font-semibold',
           'rounded-btn transition-all duration-200',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2',
           'disabled:pointer-events-none disabled:opacity-50',
@@ -82,15 +85,15 @@ const PremiumButton = forwardRef<HTMLButtonElement, PremiumButtonProps>(
         )}
         {...props}
       >
-        {/* Shine effect overlay */}
+        {/* Shine sutil real (solo con movimiento permitido y al hover del botón) */}
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full hover:translate-x-full"
+          className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover:translate-x-full"
         />
 
-        {/* Loading spinner */}
+        {/* Loading spinner — feedback visible; gira solo con movimiento permitido */}
         {loading && (
-          <Loader2 className="h-[18px] w-[18px] animate-spin" aria-hidden="true" />
+          <Loader2 className="h-[18px] w-[18px] motion-safe:animate-spin" aria-hidden="true" />
         )}
 
         {/* Icon */}
