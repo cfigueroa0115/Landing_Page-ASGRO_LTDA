@@ -183,10 +183,12 @@ export default function FloatingChatButton() {
           style={{ maxHeight: 'min(500px, calc(100dvh - 96px - env(safe-area-inset-bottom, 0px)))' }}
         >
           {/* Encabezado — no se contrae */}
-          <div className="flex shrink-0 items-center justify-between rounded-t-card bg-brand-blue px-3 py-2 text-white">
+          <div className="flex shrink-0 items-center justify-between bg-gradient-to-r from-brand-blue to-brand-dark-blue px-3 py-2.5 text-white">
             <div className="flex items-center gap-2 pl-1">
-              <Headset className="h-5 w-5" aria-hidden="true" />
-              <span className="text-sm font-semibold">Orientación ASGRO</span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/15">
+                <Headset className="h-[18px] w-[18px]" aria-hidden="true" />
+              </span>
+              <span className="text-sm font-semibold tracking-tight">Orientación ASGRO</span>
             </div>
             <button
               ref={closeButtonRef}
@@ -252,10 +254,15 @@ export default function FloatingChatButton() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Entrada de texto — no se contrae */}
-          <form onSubmit={handleSubmit} className="shrink-0 border-t border-gray-200 p-3">
+          {/* Área de escritura — no se contrae. Caja evidente y bien delimitada:
+              contenedor gris claro + campo blanco con borde definido y padding. */}
+          <form onSubmit={handleSubmit} className="shrink-0 border-t border-gray-200 bg-gray-50 p-3">
+            <label htmlFor="asgro-assistant-input" className="sr-only">
+              Escriba su consulta para el asistente
+            </label>
             <div className="flex items-end gap-2">
               <textarea
+                id="asgro-assistant-input"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
@@ -263,19 +270,19 @@ export default function FloatingChatButton() {
                 rows={1}
                 maxLength={500}
                 disabled={isLoading}
-                className="flex-1 resize-none rounded-input border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 transition-colors duration-200 focus-visible:border-brand-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/20 disabled:cursor-not-allowed disabled:opacity-50"
+                className="min-h-[44px] flex-1 resize-none rounded-input border border-gray-300 bg-white px-3 py-2.5 text-sm text-brand-dark-blue shadow-sm placeholder:text-gray-500 transition-colors duration-200 focus-visible:border-brand-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/25 disabled:cursor-not-allowed disabled:opacity-50"
                 aria-label="Mensaje para el asistente"
               />
               <button
                 type="submit"
                 disabled={!inputValue.trim() || isLoading}
-                className="flex h-[40px] w-[40px] flex-shrink-0 items-center justify-center rounded-btn bg-brand-blue text-white transition-colors hover:bg-brand-blue/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-[44px] w-[44px] flex-shrink-0 items-center justify-center rounded-btn bg-brand-blue text-white shadow-sm transition-colors hover:bg-brand-blue/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="Enviar mensaje"
               >
                 {isLoading ? (
-                  <Loader2 className="h-4 w-4 motion-safe:animate-spin" aria-hidden="true" />
+                  <Loader2 className="h-[18px] w-[18px] motion-safe:animate-spin" aria-hidden="true" />
                 ) : (
-                  <Send className="h-4 w-4" aria-hidden="true" />
+                  <Send className="h-[18px] w-[18px]" aria-hidden="true" />
                 )}
               </button>
             </div>
@@ -283,7 +290,8 @@ export default function FloatingChatButton() {
         </div>
       )}
 
-      {/* Botón flotante compacto (52px desktop / 48px móvil) */}
+      {/* Botón flotante premium (48px móvil / 54px desktop). Gradiente azul
+          institucional + anillo sutil y sombra rica para percepción premium. */}
       <button
         ref={triggerRef}
         type="button"
@@ -291,12 +299,12 @@ export default function FloatingChatButton() {
         aria-label={isPanelOpen ? 'Cerrar asistente de orientación' : 'Abrir asistente de orientación de ASGRO'}
         aria-expanded={isPanelOpen}
         aria-controls={PANEL_ID}
-        className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-blue text-white shadow-lg shadow-brand-blue/25 transition-colors duration-200 hover:bg-brand-blue/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue motion-safe:transition-transform motion-safe:active:scale-95 motion-safe:hover:scale-105 md:h-[54px] md:w-[54px]"
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-brand-dark-blue text-white shadow-xl shadow-brand-dark-blue/30 ring-1 ring-white/15 transition-colors duration-200 hover:from-brand-blue hover:to-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue motion-safe:transition-transform motion-safe:active:scale-95 motion-safe:hover:scale-105 md:h-[54px] md:w-[54px]"
       >
         {isPanelOpen ? (
           <ChevronDown className="h-6 w-6" aria-hidden="true" />
         ) : (
-          <AIAvatarIcon className="h-7 w-7" aria-hidden="true" />
+          <AIAvatarIcon className="h-[26px] w-[26px]" aria-hidden="true" />
         )}
       </button>
     </div>

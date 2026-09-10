@@ -29,11 +29,11 @@ export interface PremiumButtonProps
 
 const variantStyles: Record<PremiumButtonVariant, string> = {
   primary:
-    'bg-gradient-to-r from-brand-green to-brand-green-alt text-white shadow-btn hover:shadow-elevated',
+    'bg-gradient-to-r from-brand-green to-brand-green-alt text-brand-dark-blue font-bold shadow-btn hover:shadow-elevated',
   secondary:
     'border-2 border-brand-blue bg-transparent text-brand-blue hover:bg-brand-blue hover:text-white',
   whatsapp:
-    'bg-[#25D366] text-white hover:bg-[#20bd5a] shadow-btn hover:shadow-elevated',
+    'bg-[#25D366] text-brand-dark-blue font-semibold hover:bg-[#20bd5a] shadow-btn hover:shadow-elevated',
   ai: 'bg-gradient-to-r from-brand-blue to-[#0366d6] text-white shadow-btn hover:shadow-elevated',
   ghost:
     'bg-transparent text-brand-dark-blue hover:bg-brand-light-gray',
