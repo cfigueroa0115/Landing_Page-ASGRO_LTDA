@@ -56,7 +56,7 @@ export default function InsurancePortfolioSection() {
     <section
       id="portafolio"
       aria-labelledby="portfolio-heading"
-      className="brand-surface scroll-mt-20 py-12 md:py-16"
+      className="brand-surface scroll-mt-[84px] py-12 md:py-16"
     >
       <div className="section-container">
         <SectionHeader
@@ -66,16 +66,16 @@ export default function InsurancePortfolioSection() {
           titleId="portfolio-heading"
         />
 
-        <div className="space-y-8">
+        <div className="space-y-[40px]">
           {INSURANCE_PORTFOLIO.map((group, groupIndex) => {
             const GroupIcon = ICON_MAP[group.groupIcon] ?? Users;
             return (
               <AnimatedSection key={group.id} delay={groupIndex * 100}>
                 <div>
-                  {/* Encabezado del grupo */}
+                  {/* Encabezado del grupo (círculo 40px, icono 22px) */}
                   <div className="mb-3 flex items-center gap-2">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-blue/10">
-                      <GroupIcon className="h-5 w-5 text-brand-blue" strokeWidth={1.75} aria-hidden="true" />
+                    <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-brand-blue/10">
+                      <GroupIcon className="h-[22px] w-[22px] text-brand-blue" strokeWidth={1.75} aria-hidden="true" />
                     </div>
                     <div>
                       <h3 className="text-h4 font-bold text-brand-dark-blue">
@@ -109,10 +109,10 @@ export default function InsurancePortfolioSection() {
         <AnimatedSection delay={200} className="mt-8 text-center">
           <Link
             href="/contacto"
-            className="inline-flex min-h-[48px] items-center gap-1 rounded-btn bg-brand-green px-5 py-2 text-base font-semibold text-white shadow-btn transition-all duration-200 hover:bg-brand-green-alt hover:shadow-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
+            className="inline-flex min-h-[48px] items-center gap-1 rounded-btn bg-brand-green px-[22px] text-base font-bold text-brand-dark-blue shadow-btn transition-all duration-200 hover:bg-brand-green-alt hover:shadow-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
           >
             Consultar una solución
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            <ArrowRight className="h-[18px] w-[18px]" aria-hidden="true" />
           </Link>
         </AnimatedSection>
       </div>

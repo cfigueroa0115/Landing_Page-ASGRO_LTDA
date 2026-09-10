@@ -30,8 +30,8 @@ export default function InsuranceCard({
         className
       )}
     >
-      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand-green/10 transition-colors duration-300 group-hover:bg-brand-green/20">
-        <Icon className="h-5 w-5 text-brand-blue" strokeWidth={1.75} aria-hidden="true" />
+      <div className="flex h-[44px] w-[44px] flex-shrink-0 items-center justify-center rounded-full bg-brand-green/10 transition-colors duration-300 group-hover:bg-brand-green/20">
+        <Icon className="h-[22px] w-[22px] text-brand-blue" strokeWidth={1.75} aria-hidden="true" />
       </div>
 
       <div className="min-w-0">

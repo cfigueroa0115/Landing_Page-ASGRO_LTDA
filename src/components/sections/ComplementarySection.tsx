@@ -61,7 +61,7 @@ export default function ComplementarySection() {
     <section
       id="capacidades"
       aria-labelledby="complementary-heading"
-      className="scroll-mt-20 bg-white py-12 md:py-16"
+      className="scroll-mt-[84px] bg-white py-12 md:py-16"
     >
       <div className="section-container">
         <SectionHeader
@@ -76,21 +76,21 @@ export default function ComplementarySection() {
             const Icon = cap.icon;
             return (
               <AnimatedSection key={cap.id} delay={index * 120}>
-                <article className="flex h-full flex-col rounded-card border border-gray-100 bg-brand-light-gray/60 p-5 transition-shadow duration-300 hover:shadow-card">
+                <article className="flex h-full flex-col rounded-card border border-gray-100 bg-brand-light-gray/60 p-[24px] transition-shadow duration-300 hover:shadow-card">
                   <div className="mb-3 flex items-center gap-2">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-blue/10">
-                      <Icon className="h-5 w-5 text-brand-blue" strokeWidth={1.75} aria-hidden="true" />
+                    <div className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-brand-blue/10">
+                      <Icon className="h-[22px] w-[22px] text-brand-blue" strokeWidth={1.75} aria-hidden="true" />
                     </div>
                     <h3 className="text-h4 font-bold text-brand-dark-blue">{cap.title}</h3>
                   </div>
 
                   <p className="text-body text-gray-600">{cap.description}</p>
 
-                  <ul className="mt-3 flex flex-wrap gap-1.5">
+                  <ul className="mt-3 flex flex-wrap gap-[6px]">
                     {cap.items.map((item) => (
                       <li
                         key={item}
-                        className="rounded-full bg-white px-2.5 py-1 text-small text-gray-700 ring-1 ring-gray-200"
+                        className="rounded-full bg-white px-[10px] py-1 text-small text-gray-700 ring-1 ring-gray-200"
                       >
                         {item}
                       </li>
@@ -103,7 +103,7 @@ export default function ComplementarySection() {
                       className="inline-flex min-h-[44px] items-center gap-1 text-brand-blue font-semibold transition-colors hover:text-brand-blue/80"
                     >
                       {cap.cta}
-                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                      <ArrowRight className="h-[18px] w-[18px]" aria-hidden="true" />
                     </Link>
                   </div>
                 </article>

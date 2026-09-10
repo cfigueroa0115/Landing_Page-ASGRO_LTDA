@@ -25,7 +25,7 @@ export default function HomeMethodologyCompact() {
   return (
     <section
       id="acompanamiento"
-      className="brand-surface scroll-mt-20 py-12 md:py-16"
+      className="brand-surface scroll-mt-[84px] py-12 md:py-16"
       aria-labelledby="home-methodology-heading"
     >
       <div className="section-container">

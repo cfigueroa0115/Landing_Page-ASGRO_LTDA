@@ -54,8 +54,8 @@ export default function ValueGeneratedSection() {
                   key={benefit.id}
                   className="flex items-start gap-2 rounded-card border border-gray-100 bg-white p-4 shadow-card transition-shadow duration-300 hover:shadow-card-hover"
                 >
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand-green/10">
-                    <Icon className="h-5 w-5 text-brand-blue" strokeWidth={1.75} aria-hidden="true" />
+                  <div className="flex h-[44px] w-[44px] flex-shrink-0 items-center justify-center rounded-full bg-brand-green/10">
+                    <Icon className="h-[22px] w-[22px] text-brand-blue" strokeWidth={1.75} aria-hidden="true" />
                   </div>
                   <div>
                     <h3 className="text-base font-semibold text-brand-dark-blue">

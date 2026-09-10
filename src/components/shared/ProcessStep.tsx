@@ -38,18 +38,19 @@ export default function ProcessStep({
       transition={{ duration: 0.4, delay: index * 0.1, ease: 'easeOut' }}
       className={cn('relative flex h-full flex-col items-center text-center', className)}
     >
-      {/* Conector hacia el siguiente paso (solo desktop) */}
+      {/* Conector hacia el siguiente paso (solo desktop). top-[24px] = centro
+          del círculo de 48px. */}
       {showConnector && (
         <span
           aria-hidden="true"
-          className="absolute left-[calc(50%+2rem)] top-6 hidden h-[2px] w-[calc(100%-4rem)] bg-gradient-to-r from-brand-green/50 to-brand-blue/20 lg:block"
+          className="absolute left-[calc(50%+2rem)] top-[24px] hidden h-[2px] w-[calc(100%-4rem)] bg-gradient-to-r from-brand-green/50 to-brand-blue/20 lg:block"
         />
       )}
 
-      {/* Número + ícono */}
-      <div className="relative z-10 mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-card ring-2 ring-brand-green/30">
-        <Icon className="h-6 w-6 text-brand-blue" strokeWidth={1.75} aria-hidden="true" />
-        <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-brand-green text-[11px] font-bold text-white">
+      {/* Número + ícono (círculo 48px, icono 24px, badge 20px) */}
+      <div className="relative z-10 mb-3 flex h-[48px] w-[48px] items-center justify-center rounded-full bg-white shadow-card ring-2 ring-brand-green/30">
+        <Icon className="h-[24px] w-[24px] text-brand-blue" strokeWidth={1.75} aria-hidden="true" />
+        <span className="absolute -right-1 -top-1 flex h-[20px] w-[20px] items-center justify-center rounded-full bg-brand-green text-[11px] font-bold text-white">
           {step}
         </span>
       </div>

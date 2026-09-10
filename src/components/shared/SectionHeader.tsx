@@ -45,7 +45,7 @@ export default function SectionHeader({
       )}
     >
       {eyebrow && (
-        <span className="brand-eyebrow mb-1.5 block">{eyebrow}</span>
+        <span className="brand-eyebrow mb-[6px] block">{eyebrow}</span>
       )}
 
       <h2

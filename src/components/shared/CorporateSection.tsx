@@ -25,7 +25,7 @@ export default function CorporateSection() {
     <section
       id="empresas"
       aria-labelledby="corporate-heading"
-      className="scroll-mt-20 bg-gradient-to-br from-brand-dark-blue via-brand-navy to-brand-dark-blue py-12 md:py-16"
+      className="scroll-mt-[84px] bg-gradient-to-br from-brand-dark-blue via-brand-navy to-brand-dark-blue py-12 md:py-16"
     >
       <div className="section-container">
         <div className="grid items-center gap-8 lg:grid-cols-2">
@@ -70,8 +70,8 @@ export default function CorporateSection() {
                   transition={{ duration: 0.4, delay: index * 0.1, ease: 'easeOut' }}
                   className="rounded-card border border-white/10 bg-white/5 p-4 backdrop-blur-sm transition-colors duration-300 hover:bg-white/10"
                 >
-                  <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-brand-green/20">
-                    <Icon className="h-5 w-5 text-brand-neon-green" strokeWidth={1.75} aria-hidden="true" />
+                  <div className="mb-2 flex h-[44px] w-[44px] items-center justify-center rounded-full bg-brand-green/20">
+                    <Icon className="h-[22px] w-[22px] text-brand-neon-green" strokeWidth={1.75} aria-hidden="true" />
                   </div>
                   <p className="text-base font-semibold text-white">{pillar.label}</p>
                   <p className="mt-0.5 text-small text-white/70">{pillar.description}</p>
