@@ -45,7 +45,15 @@ export default function SectionHeader({
       )}
     >
       {eyebrow && (
-        <span className="brand-eyebrow mb-[6px] block">{eyebrow}</span>
+        <span
+          className={cn(
+            'brand-eyebrow mb-[6px] block',
+            // Sobre fondo oscuro el azul no contrasta: usar neon-green (AAA).
+            tone === 'light' && 'text-brand-neon-green'
+          )}
+        >
+          {eyebrow}
+        </span>
       )}
 
       <h2

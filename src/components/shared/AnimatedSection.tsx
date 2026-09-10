@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import type { AnimatedSectionProps } from '@/types';
 
 /**
@@ -17,6 +17,8 @@ export default function AnimatedSection({
   direction = 'up',
   threshold = 0.2,
 }: AnimatedSectionProps) {
+  const prefersReducedMotion = useReducedMotion();
+
   // Convert delay from milliseconds to seconds for Framer Motion
   const delayInSeconds = delay / 1000;
 
@@ -49,6 +51,11 @@ export default function AnimatedSection({
         return { y: 0, opacity: 1 };
     }
   };
+
+  // Reduced motion: sin desplazamientos x/y, contenido visible de inmediato.
+  if (prefersReducedMotion) {
+    return <div className={className}>{children}</div>;
+  }
 
   return (
     <motion.div

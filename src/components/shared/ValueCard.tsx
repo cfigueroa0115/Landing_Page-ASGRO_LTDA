@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -24,9 +24,11 @@ export default function ValueCard({
   description,
   className,
 }: ValueCardProps) {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <motion.article
-      whileHover={{ y: -4 }}
+      whileHover={prefersReducedMotion ? undefined : { y: -4 }}
       transition={{ duration: 0.25, ease: 'easeOut' }}
       className={cn(
         'group relative flex h-full flex-col items-center rounded-card border border-gray-100 bg-white p-[28px] text-center shadow-card transition-shadow duration-300 hover:shadow-card-hover',
@@ -36,7 +38,7 @@ export default function ValueCard({
       {/* Acento curvo superior (sello ASGRO): filete 3px, inset explícito */}
       <span
         aria-hidden="true"
-        className="absolute inset-x-[48px] top-0 h-[3px] rounded-b-full bg-brand-green/70 transition-all duration-300 group-hover:inset-x-[36px]"
+        className="absolute inset-x-[48px] top-0 h-[3px] rounded-b-full bg-brand-green/70 motion-safe:transition-all motion-safe:duration-300 motion-safe:group-hover:inset-x-[36px]"
       />
 
       {/* Contenedor de icono 48px con icono 24px */}

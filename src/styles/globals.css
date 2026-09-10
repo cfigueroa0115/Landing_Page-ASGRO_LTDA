@@ -37,6 +37,14 @@
     overflow-x: hidden;
   }
 
+  /* Respetar la preferencia del sistema: sin scroll suave si el usuario pide
+   * reducir el movimiento. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
   body {
     @apply font-sans text-body text-brand-dark-blue bg-white antialiased;
     overflow-x: hidden;
@@ -99,9 +107,12 @@
    * blancas con acentos suaves. Paleta 80% blanco / 15% azul / 5% verde.
    * ───────────────────────────────────────────────────────────────────────── */
 
-  /* Etiqueta pequeña sobre los títulos de sección (eyebrow) */
+  /* Etiqueta pequeña sobre los títulos de sección (eyebrow).
+   * Sobre superficies claras usa text-brand-blue (#024EA3, ~7:1 sobre blanco →
+   * WCAG AA/AAA). El verde ASGRO queda reservado como acento gráfico (filetes,
+   * iconos). En fondos oscuros se sobreescribe con text-brand-neon-green. */
   .brand-eyebrow {
-    @apply inline-flex items-center gap-1 text-small font-semibold uppercase tracking-[0.12em] text-brand-green;
+    @apply inline-flex items-center gap-1 text-small font-semibold uppercase tracking-[0.12em] text-brand-blue;
   }
 
   /* Superficie de sección suave (alterna con el blanco puro) */

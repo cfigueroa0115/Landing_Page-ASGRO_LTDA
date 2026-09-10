@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -21,9 +21,11 @@ export default function InsuranceCard({
   description,
   className,
 }: InsuranceCardProps) {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <motion.div
-      whileHover={{ y: -3 }}
+      whileHover={prefersReducedMotion ? undefined : { y: -3 }}
       transition={{ duration: 0.2, ease: 'easeOut' }}
       className={cn(
         'group flex h-full items-start gap-2 rounded-card border border-gray-100 bg-white p-3 shadow-card transition-all duration-300 hover:shadow-card-hover hover:border-brand-green/40',

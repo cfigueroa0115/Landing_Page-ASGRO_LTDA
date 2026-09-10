@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Users, Home, Cog, Activity } from 'lucide-react';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 import PremiumButton from '@/components/shared/PremiumButton';
@@ -21,6 +21,8 @@ const CORPORATE_PILLARS = [
  * gestión del riesgo. Fondo azul institucional profundo con acento verde.
  */
 export default function CorporateSection() {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <section
       id="empresas"
@@ -44,12 +46,15 @@ export default function CorporateSection() {
             </p>
 
             <div className="mt-5 flex flex-wrap gap-2">
-              <Link href="/contacto">
+              {/* legacyBehavior + passHref: Link NO renderiza su propio <a>;
+                  delega el href al <a> que produce PremiumButton. Un solo
+                  elemento interactivo, con navegación client-side. */}
+              <Link href="/contacto" passHref legacyBehavior>
                 <PremiumButton variant="primary" size="lg">
                   Hablar con un asesor
                 </PremiumButton>
               </Link>
-              <Link href="/servicios/seguros-empresariales">
+              <Link href="/servicios/seguros-empresariales" passHref legacyBehavior>
                 <PremiumButton variant="outline" size="lg" className="border-white/60 text-white hover:bg-white/10">
                   Ver soluciones para empresas
                 </PremiumButton>
@@ -64,10 +69,14 @@ export default function CorporateSection() {
               return (
                 <motion.div
                   key={pillar.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+                  whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
                   viewport={{ once: true, amount: 0.3 }}
-                  transition={{ duration: 0.4, delay: index * 0.1, ease: 'easeOut' }}
+                  transition={
+                    prefersReducedMotion
+                      ? { duration: 0 }
+                      : { duration: 0.4, delay: index * 0.1, ease: 'easeOut' }
+                  }
                   className="rounded-card border border-white/10 bg-white/5 p-4 backdrop-blur-sm transition-colors duration-300 hover:bg-white/10"
                 >
                   <div className="mb-2 flex h-[44px] w-[44px] items-center justify-center rounded-full bg-brand-green/20">

@@ -59,8 +59,10 @@ export default function SectionCTA({
         )}
 
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+          {/* Enlaces internos: Link con legacyBehavior delega el href al <a>
+              de PremiumButton (un único elemento interactivo). */}
           {primaryAction && (
-            <Link href={primaryAction.href}>
+            <Link href={primaryAction.href} passHref legacyBehavior>
               <PremiumButton variant="primary" size="lg">
                 {primaryAction.label}
               </PremiumButton>
@@ -68,28 +70,26 @@ export default function SectionCTA({
           )}
 
           {secondaryAction && (
-            <Link href={secondaryAction.href}>
+            <Link href={secondaryAction.href} passHref legacyBehavior>
               <PremiumButton variant="outline" size="lg">
                 {secondaryAction.label}
               </PremiumButton>
             </Link>
           )}
 
+          {/* Enlace externo (WhatsApp): PremiumButton renderiza el <a> directo. */}
           {whatsappAction && whatsappUrl && (
-            <a
+            <PremiumButton
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Contactar por WhatsApp"
+              variant="whatsapp"
+              size="lg"
+              icon={<MessageCircle className="h-[18px] w-[18px]" />}
             >
-              <PremiumButton
-                variant="whatsapp"
-                size="lg"
-                icon={<MessageCircle className="h-[18px] w-[18px]" />}
-              >
-                WhatsApp
-              </PremiumButton>
-            </a>
+              WhatsApp
+            </PremiumButton>
           )}
         </div>
       </AnimatedSection>
