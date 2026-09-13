@@ -1,4 +1,5 @@
 import HeroSection from '@/components/sections/HeroSection';
+import QuickAccessSection from '@/components/sections/QuickAccessSection';
 import ValuePropositionSection from '@/components/sections/ValuePropositionSection';
 import InsurancePortfolioSection from '@/components/sections/InsurancePortfolioSection';
 import WhyChooseSection from '@/components/sections/WhyChooseSection';
@@ -14,6 +15,7 @@ import SectionCTA from '@/components/shared/SectionCTA';
  *
  * Arquitectura seguros-first:
  * 1. Hero — "Protegemos lo que mueve su futuro." (seguros ante todo)
+ * 1b. Accesos rápidos — Personas · Empresas · ARL · SST · Cumplimiento · Contacto
  * 2. Propuesta de valor — Personas · Patrimonio · Empresas
  * 3. Portafolio de Seguros — sección núcleo
  * 4. ¿Por qué elegir ASGRO? — 5 diferenciadores cualitativos
@@ -30,6 +32,7 @@ export default function Home() {
   return (
     <main id="main-content" className="min-h-screen">
       <HeroSection />
+      <QuickAccessSection />
       <ValuePropositionSection />
       <InsurancePortfolioSection />
       <WhyChooseSection />

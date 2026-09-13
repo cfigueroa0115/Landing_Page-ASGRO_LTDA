@@ -775,7 +775,96 @@ export const SITE_CONTENT = {
   /** Mensaje de fallback del agente IA */
   aiAgentFallback:
     'No encontré información específica sobre su consulta en nuestra base de conocimiento. Le recomiendo contactar a un asesor directamente por WhatsApp o a través de nuestro formulario de contacto para una atención personalizada.',
+
+  /** Nombre visible de la asesora virtual (asistente IA premium 5A) */
+  aiAssistantName: 'Asesora Virtual ASGRO',
+
+  /** Rol/subtítulo de la asesora virtual */
+  aiAssistantRole: 'En línea · le orienta ahora',
+
+  /** Título de orientación del asistente */
+  aiAssistantTitle: '¿Necesita orientación?',
+
+  /** Texto de orientación del asistente */
+  aiAssistantIntro:
+    'Le ayudamos a identificar la solución de seguros más adecuada para su necesidad.',
 } as const;
+
+// ============================================================================
+// ASSISTANT_QUICK_ACTIONS - Acciones rápidas del asistente virtual (5A)
+// Cada acción envía un mensaje al chat (prompt) o navega a una ruta (href).
+// ============================================================================
+
+export interface AssistantQuickAction {
+  label: string;
+  /** Si se define, la acción envía este texto al chat. */
+  prompt?: string;
+  /** Si se define, la acción navega a esta ruta en lugar de enviar mensaje. */
+  href?: string;
+}
+
+export const ASSISTANT_QUICK_ACTIONS: AssistantQuickAction[] = [
+  { label: 'Seguros para personas', prompt: 'Quiero información sobre seguros para personas.' },
+  { label: 'Seguros para empresas', prompt: 'Quiero información sobre seguros para empresas.' },
+  { label: 'ARL', prompt: 'Quiero información sobre ARL y riesgos laborales.' },
+  { label: 'SST', prompt: 'Quiero información sobre Seguridad y Salud en el Trabajo (SST).' },
+  { label: 'Póliza de cumplimiento', prompt: 'Quiero información sobre pólizas de cumplimiento.' },
+];
+
+// ============================================================================
+// QUICK_ACCESS_ITEMS - Accesos rápidos premium de la homepage (5A)
+// Enlaces a rutas existentes ya validadas (no se crean rutas nuevas).
+// ============================================================================
+
+export interface QuickAccessItem {
+  /** Etiqueta visible */
+  label: string;
+  /** Descripción breve de apoyo */
+  description: string;
+  /** Nombre del icono de lucide-react (se mapea en el componente) */
+  icon: string;
+  /** Ruta de destino (existente) */
+  href: string;
+}
+
+export const QUICK_ACCESS_ITEMS: QuickAccessItem[] = [
+  {
+    label: 'Personas',
+    description: 'Vida, salud, hogar y vehículo.',
+    icon: 'Users',
+    href: '/servicios',
+  },
+  {
+    label: 'Empresas',
+    description: 'Protección integral del negocio.',
+    icon: 'Building2',
+    href: '/servicios/seguros-empresariales',
+  },
+  {
+    label: 'ARL',
+    description: 'Gestión de riesgos laborales.',
+    icon: 'HardHat',
+    href: '/servicios/riesgos-laborales',
+  },
+  {
+    label: 'SST',
+    description: 'Seguridad y salud en el trabajo.',
+    icon: 'HeartPulse',
+    href: '/servicios/seguridad-salud-trabajo',
+  },
+  {
+    label: 'Cumplimiento',
+    description: 'Pólizas de cumplimiento.',
+    icon: 'FileCheck',
+    href: '/servicios/seguros-empresariales',
+  },
+  {
+    label: 'Contacto',
+    description: 'Hable con un asesor.',
+    icon: 'MessageCircle',
+    href: '/contacto',
+  },
+];
 
 // ============================================================================
 // SEO - Metadatos para SEO

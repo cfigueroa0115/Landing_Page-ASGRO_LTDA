@@ -2,25 +2,29 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import { ChevronDown, X, Send, Loader2, Headset, MessagesSquare } from 'lucide-react';
-import { SITE_CONTENT } from '@/lib/utils/constants';
+import { ChevronDown, X, Send, Loader2, MessagesSquare } from 'lucide-react';
+import { SITE_CONTENT, ASSISTANT_QUICK_ACTIONS } from '@/lib/utils/constants';
 import type { ChatMessage } from '@/types';
+import AdvisorAvatar from '@/components/shared/AdvisorAvatar';
 
 const PANEL_ID = 'asgro-assistant-panel';
 
 /**
- * FloatingChatButton — Asistente flotante de orientación de ASGRO (abajo-izq.).
+ * FloatingChatButton — Asesora Virtual ASGRO (asistente flotante, abajo-izq.).
  *
- * Comportamiento (Bloque 4B):
- * - Inicia CERRADO. Sin panel, tooltip, tarjeta ni mensaje automáticos.
- * - Sin temporizadores de autoapertura.
- * - Abre solo por clic/tap/teclado. No hay autoapertura de ningún tipo, por lo
- *   que no se requiere persistencia de "cerrado" (sin sessionStorage/cookies).
- * - Al abrir, el foco se mueve al botón Cerrar; al cerrar, vuelve al trigger.
- * - Popover NO modal: Escape cierra y devuelve el foco al botón. Sin focus trap.
- * - Respeta prefers-reduced-motion (sin animación pulsante permanente).
- * - Botón compacto y ejecutivo (52px desktop / 48px móvil).
- * - Encabezado de orientación + CTA "Hablar con un asesor" (/contacto) + chat IA.
+ * Refinamiento premium (Bloque 5A):
+ * - Avatar femenino profesional (SVG inline), nombre visible "Asesora Virtual
+ *   ASGRO" y estado "En línea".
+ * - Header, área de conversación e input con jerarquía visual premium.
+ * - Acciones rápidas (chips) que precargan consultas frecuentes en el chat.
+ * - CTA destacado "Hablar con un asesor" (/contacto).
+ *
+ * Se conserva TODO lo aprobado en 4B/4H:
+ * - Inicia CERRADO, sin autoapertura ni temporizadores.
+ * - Al abrir, el foco pasa al botón Cerrar; al cerrar, vuelve al trigger.
+ * - Popover NO modal: Escape cierra y devuelve el foco. Sin focus trap.
+ * - Respeta prefers-reduced-motion (animaciones con motion-safe).
+ * - Contrato de /api/chat intacto: POST { message, sessionId? }.
  */
 export default function FloatingChatButton() {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
@@ -154,6 +158,10 @@ export default function FloatingChatButton() {
     }
   };
 
+  // Solo se muestran las acciones rápidas antes de que el usuario escriba
+  // (mientras únicamente exista el mensaje de bienvenida).
+  const showQuickActions = messages.length <= 1 && !isLoading;
+
   return (
     <div className="fixed left-[16px] bottom-[calc(20px+env(safe-area-inset-bottom,0px))] z-[9998] md:left-[24px] md:bottom-[calc(28px+env(safe-area-inset-bottom,0px))]">
       {/* Panel de orientación + chat (popover no modal) */}
@@ -162,67 +170,95 @@ export default function FloatingChatButton() {
           id={PANEL_ID}
           role="dialog"
           aria-label="Asistente de orientación de ASGRO"
-          className="absolute bottom-[64px] left-0 flex w-[300px] flex-col overflow-hidden rounded-card border border-gray-200 bg-white shadow-elevated motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-300 sm:w-[320px]"
-          style={{ maxHeight: 'min(500px, calc(100dvh - 96px - env(safe-area-inset-bottom, 0px)))' }}
+          className="absolute bottom-[68px] left-0 flex w-[320px] flex-col overflow-hidden rounded-modal border border-white/10 bg-white shadow-premium-hover motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-300 sm:w-[352px]"
+          style={{ maxHeight: 'min(560px, calc(100dvh - 96px - env(safe-area-inset-bottom, 0px)))' }}
         >
-          {/* Encabezado — no se contrae (py explícito 10px por escala custom) */}
-          <div className="flex shrink-0 items-center justify-between bg-gradient-to-r from-brand-blue to-brand-dark-blue px-3 py-[10px] text-white">
-            <div className="flex items-center gap-2 pl-1">
-              <span className="flex h-[32px] w-[32px] items-center justify-center rounded-full bg-white/10 ring-1 ring-white/15">
-                <Headset className="h-[18px] w-[18px]" aria-hidden="true" />
-              </span>
-              <span className="text-sm font-semibold tracking-tight">Orientación ASGRO</span>
+          {/* Encabezado premium — avatar de asesora + nombre + estado. No se contrae. */}
+          <div className="surface-dark-premium relative flex shrink-0 items-center justify-between px-4 py-3 text-white">
+            <div className="flex items-center gap-3">
+              <AdvisorAvatar className="h-[40px] w-[40px]" />
+              <div className="leading-tight">
+                <p className="text-sm font-semibold tracking-tight">
+                  {SITE_CONTENT.aiAssistantName}
+                </p>
+                <p className="mt-[2px] inline-flex items-center gap-[6px] text-caption text-white/70">
+                  <span className="inline-block h-[8px] w-[8px] rounded-full bg-brand-neon-green" aria-hidden="true" />
+                  {SITE_CONTENT.aiAssistantRole}
+                </p>
+              </div>
             </div>
             <button
               ref={closeButtonRef}
               type="button"
               onClick={handleClosePanel}
-              className="flex h-[44px] w-[44px] items-center justify-center rounded-full transition-colors hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              className="flex h-[44px] w-[44px] items-center justify-center rounded-full transition-colors hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               aria-label="Cerrar asistente"
             >
               <X className="h-[18px] w-[18px]" aria-hidden="true" />
             </button>
           </div>
 
-          {/* Cuerpo central UNIFICADO (orientación + conversación) — única región
-              flexible con scroll. En landscape de baja altura todo el contenido
-              central hace scroll; header y formulario permanecen fijos, y el CTA
-              "Hablar con un asesor" sigue accesible mediante scroll. */}
+          {/* Cuerpo central UNIFICADO (orientación + acciones + conversación) —
+              única región flexible con scroll. Header e input permanecen fijos. */}
           <div
-            className="min-h-0 flex-1 overflow-y-auto"
+            className="min-h-0 flex-1 overflow-y-auto bg-brand-light-gray/50"
             role="log"
             aria-live="polite"
             aria-label="Orientación y conversación con el asistente"
           >
-            {/* Bloque de orientación */}
-            <div className="border-b border-gray-100 px-4 py-3">
+            {/* Bloque de orientación + CTA destacado */}
+            <div className="border-b border-gray-100 bg-white px-4 py-3">
               <p className="text-sm font-semibold text-brand-dark-blue">
-                ¿Necesita orientación?
+                {SITE_CONTENT.aiAssistantTitle}
               </p>
               <p className="mt-1 text-sm text-gray-600">
-                Le ayudamos a identificar la solución de seguros más adecuada para su necesidad.
+                {SITE_CONTENT.aiAssistantIntro}
               </p>
               <Link
                 href="/contacto"
                 onClick={handleClosePanel}
-                className="mt-3 inline-flex min-h-[44px] w-full items-center justify-center rounded-btn bg-brand-green px-3 py-2 text-sm font-bold text-brand-dark-blue transition-colors hover:bg-brand-green-alt focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
+                className="mt-3 inline-flex min-h-[44px] w-full items-center justify-center rounded-btn bg-brand-green px-3 py-2 text-sm font-bold text-brand-dark-blue shadow-btn transition-colors hover:bg-brand-green-alt focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
               >
                 Hablar con un asesor
               </Link>
             </div>
 
+            {/* Acciones rápidas (chips) — precargan consultas frecuentes */}
+            {showQuickActions && (
+              <div className="px-4 py-3">
+                <p className="mb-2 text-caption font-semibold uppercase tracking-[0.08em] text-gray-500">
+                  Consultas frecuentes
+                </p>
+                <div className="flex flex-wrap gap-[6px]">
+                  {ASSISTANT_QUICK_ACTIONS.map((action) => (
+                    <button
+                      key={action.label}
+                      type="button"
+                      onClick={() => action.prompt && handleSendMessage(action.prompt)}
+                      className="inline-flex min-h-[36px] items-center rounded-full border border-brand-blue/30 bg-white px-3 py-1 text-caption font-medium text-brand-blue transition-colors hover:bg-brand-blue/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
+                    >
+                      {action.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Conversación */}
-            <div className="space-y-3 p-3">
+            <div className="space-y-3 px-4 py-3">
               {messages.map((msg) => (
                 <div
                   key={msg.id}
-                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  className={`flex items-end gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
+                  {msg.role === 'assistant' && (
+                    <AdvisorAvatar className="h-[26px] w-[26px] flex-shrink-0" aria-hidden="true" />
+                  )}
                   <div
-                    className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
+                    className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm shadow-sm ${
                       msg.role === 'user'
-                        ? 'bg-brand-blue text-white'
-                        : 'bg-gray-100 text-gray-800'
+                        ? 'rounded-br-sm bg-brand-blue text-white'
+                        : 'rounded-bl-sm bg-white text-gray-800 ring-1 ring-gray-100'
                     }`}
                   >
                     {msg.content}
@@ -230,8 +266,9 @@ export default function FloatingChatButton() {
                 </div>
               ))}
               {isLoading && (
-                <div className="flex justify-start" role="status">
-                  <div className="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2">
+                <div className="flex items-end gap-2" role="status">
+                  <AdvisorAvatar className="h-[26px] w-[26px] flex-shrink-0" aria-hidden="true" />
+                  <div className="flex items-center gap-2 rounded-2xl rounded-bl-sm bg-white px-3 py-2 ring-1 ring-gray-100">
                     <Loader2 className="h-[16px] w-[16px] text-brand-blue motion-safe:animate-spin" aria-hidden="true" />
                     <span className="text-xs italic text-gray-500">Escribiendo...</span>
                   </div>
@@ -241,9 +278,8 @@ export default function FloatingChatButton() {
             </div>
           </div>
 
-          {/* Área de escritura — no se contrae. Caja evidente y bien delimitada:
-              contenedor gris claro + campo blanco con borde definido y padding. */}
-          <form onSubmit={handleSubmit} className="shrink-0 border-t border-gray-200 bg-gray-50 p-3">
+          {/* Área de escritura — no se contrae. Caja evidente y bien delimitada. */}
+          <form onSubmit={handleSubmit} className="shrink-0 border-t border-gray-200 bg-white p-3">
             <label htmlFor="asgro-assistant-input" className="sr-only">
               Escriba su consulta para el asistente
             </label>

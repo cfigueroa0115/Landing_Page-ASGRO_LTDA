@@ -4,7 +4,7 @@ import '@/styles/globals.css';
 import HeaderWithMobileNav from '@/components/layout/HeaderWithMobileNav';
 import Footer from '@/components/layout/Footer';
 import SkipNav from '@/components/layout/SkipNav';
-import WhatsAppButton from '@/components/shared/WhatsAppButton';
+import FloatingWhatsApp from '@/components/shared/FloatingWhatsApp';
 import FloatingChatButton from '@/components/shared/FloatingChatButton';
 
 const inter = Inter({
@@ -191,10 +191,10 @@ export default function RootLayout({
         {children}
         <Footer />
 
-        {/* Global floating elements — visible on ALL pages: solo WhatsApp + Chat IA */}
-        {whatsappNumber && (
-          <WhatsAppButton phoneNumber={whatsappNumber} variant="floating" />
-        )}
+        {/* Global floating elements — visible on ALL pages: solo WhatsApp + Chat IA.
+            WhatsApp abajo-derecha (z-9999), asistente abajo-izquierda (z-9998):
+            no se solapan. */}
+        {whatsappNumber && <FloatingWhatsApp phoneNumber={whatsappNumber} />}
         <FloatingChatButton />
       </body>
     </html>

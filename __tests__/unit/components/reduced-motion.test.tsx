@@ -63,6 +63,13 @@ vi.mock('lucide-react', () => {
     ClipboardList: Icon,
     Handshake: Icon,
     LifeBuoy: Icon,
+    // HeroSection (composición temática 5A)
+    Car: Icon,
+    Building2: Icon,
+    HardHat: Icon,
+    HeartPulse: Icon,
+    // QuickAccessSection (5A)
+    FileCheck: Icon,
   };
 });
 
