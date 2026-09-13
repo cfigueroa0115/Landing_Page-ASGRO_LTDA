@@ -26,6 +26,12 @@ vi.mock('next/link', () => ({
     React.createElement('a', { href, ...props }, children),
 }));
 
+// next/image como <img> simple (el avatar de la asesora usa next/image)
+vi.mock('next/image', () => ({
+  default: ({ fill, priority, ...props }: any) =>
+    React.createElement('img', props),
+}));
+
 // lucide-react como spans
 vi.mock('lucide-react', () => {
   const Icon = (props: any) => <span data-testid="icon" aria-hidden="true" {...props} />;

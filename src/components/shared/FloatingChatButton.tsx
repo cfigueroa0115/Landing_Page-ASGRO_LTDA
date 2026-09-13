@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import { ChevronDown, X, Send, Loader2, MessagesSquare } from 'lucide-react';
+import { ChevronDown, X, Send, Loader2 } from 'lucide-react';
 import { SITE_CONTENT, ASSISTANT_QUICK_ACTIONS } from '@/lib/utils/constants';
 import type { ChatMessage } from '@/types';
 import AdvisorAvatar from '@/components/shared/AdvisorAvatar';
@@ -313,8 +313,9 @@ export default function FloatingChatButton() {
         </div>
       )}
 
-      {/* Botón flotante premium (48px móvil / 54px desktop). Gradiente azul
-          institucional + anillo sutil y sombra rica para percepción premium. */}
+      {/* Botón flotante premium (54px móvil / 60px desktop). Cerrado: muestra el
+          retrato de la Asesora Virtual ASGRO (agente IA del proyecto). Abierto:
+          chevron para contraer. Punto verde de presencia "en línea". */}
       <button
         ref={triggerRef}
         type="button"
@@ -322,12 +323,23 @@ export default function FloatingChatButton() {
         aria-label={isPanelOpen ? 'Cerrar asistente de orientación' : 'Abrir asistente de orientación de ASGRO'}
         aria-expanded={isPanelOpen}
         aria-controls={PANEL_ID}
-        className="flex h-[48px] w-[48px] items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-brand-dark-blue text-white shadow-xl shadow-brand-dark-blue/30 ring-1 ring-white/15 transition-colors duration-200 hover:from-brand-blue hover:to-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue motion-safe:transition-transform motion-safe:active:scale-95 motion-safe:hover:scale-105 md:h-[54px] md:w-[54px]"
+        className={
+          isPanelOpen
+            ? 'flex h-[54px] w-[54px] items-center justify-center rounded-full bg-gradient-to-br from-brand-blue to-brand-dark-blue text-white shadow-xl shadow-brand-dark-blue/30 ring-1 ring-white/15 transition-colors duration-200 hover:from-brand-blue hover:to-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue motion-safe:transition-transform motion-safe:active:scale-95 motion-safe:hover:scale-105 md:h-[60px] md:w-[60px]'
+            : 'relative flex h-[54px] w-[54px] items-center justify-center rounded-full bg-white shadow-xl shadow-brand-dark-blue/30 ring-2 ring-white transition-transform duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue motion-safe:active:scale-95 motion-safe:hover:scale-105 md:h-[60px] md:w-[60px]'
+        }
       >
         {isPanelOpen ? (
           <ChevronDown className="h-[24px] w-[24px]" aria-hidden="true" />
         ) : (
-          <MessagesSquare className="h-[24px] w-[24px]" strokeWidth={1.75} aria-hidden="true" />
+          <>
+            <AdvisorAvatar className="h-full w-full ring-0" />
+            {/* Punto de presencia "en línea" */}
+            <span
+              aria-hidden="true"
+              className="absolute bottom-0 right-0 h-[14px] w-[14px] rounded-full border-2 border-white bg-brand-neon-green"
+            />
+          </>
         )}
       </button>
     </div>
