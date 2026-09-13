@@ -29,7 +29,7 @@ export default function AdvisorAvatar({
     <span
       aria-hidden={decorative ? true : undefined}
       className={cn(
-        'relative inline-block flex-shrink-0 overflow-hidden rounded-full bg-brand-dark-blue ring-2 ring-white/70',
+        'relative inline-block flex-shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-brand-blue/15 to-brand-dark-blue/10 ring-2 ring-white/70',
         className
       )}
     >
@@ -37,8 +37,8 @@ export default function AdvisorAvatar({
         src={ADVISOR_IMAGE}
         alt={decorative ? '' : 'Asesora Virtual ASGRO'}
         fill
-        sizes="54px"
-        className="object-cover object-top"
+        sizes="60px"
+        className="object-contain"
         priority={false}
       />
     </span>
