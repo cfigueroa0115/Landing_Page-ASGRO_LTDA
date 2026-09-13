@@ -12,7 +12,8 @@
     "test:coverage": "vitest run --coverage",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:seed": "npx tsx src/lib/db/seed.ts"
+    "db:seed": "npx tsx src/lib/db/seed.ts",
+    "db:seed:kb-v2": "npx tsx src/lib/db/seed-kb-v2.ts"
   },
   "dependencies": {
     "@aws-sdk/client-ssm": "3.1128.0",

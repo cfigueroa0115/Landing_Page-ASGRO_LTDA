@@ -11,6 +11,7 @@ import {
   integer,
   boolean,
   timestamp,
+  index,
 } from 'drizzle-orm/pg-core';
 
 // ============================================================================
@@ -143,3 +144,61 @@ export const siteSettings = pgTable('site_settings', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
+
+// ============================================================================
+// Tabla: knowledge_base_v2 (Bloque 5B.1 — KB V2 gobernada)
+// ----------------------------------------------------------------------------
+// Tabla ADITIVA. Convive con `knowledge_base` (legacy). No la reemplaza ni la
+// modifica. La transición se realizará en 5B.2, solo tras validar la V2.
+//
+// Gobernanza: cada unidad de conocimiento es atómica (una sola idea) y lleva
+// metadatos de trazabilidad, aprobación, vigencia y versión. La `key` estable
+// (no el UUID) es el identificador legible del contenido corporativo.
+//
+// Índices preparados para 5B.2 (category, subcategory, isApproved, isActive,
+// priority). Sin pgvector, sin embeddings, sin FTS en este bloque.
+// ============================================================================
+
+export const knowledgeBaseV2 = pgTable(
+  'knowledge_base_v2',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    // Clave estable legible (p.ej. "personas-hogar-orientacion-general").
+    // Nunca depender del UUID para identificar contenido corporativo.
+    key: varchar('key', { length: 160 }).unique().notNull(),
+    // Tema/título corto humano de la unidad de conocimiento.
+    topic: varchar('topic', { length: 200 }).notNull(),
+    // Taxonomía (validada en la capa de aplicación / Zod).
+    category: varchar('category', { length: 40 }).notNull(),
+    subcategory: varchar('subcategory', { length: 60 }).notNull(),
+    content: text('content').notNull(),
+    // Etiquetas separadas por comas (mismo formato que legacy para continuidad).
+    tags: text('tags').notNull(),
+    // Trazabilidad de origen.
+    source: varchar('source', { length: 200 }).notNull(),
+    sourceType: varchar('source_type', { length: 30 }).notNull(),
+    authority: varchar('authority', { length: 20 }).notNull(),
+    // Vigencia. effectiveTo NULL = sin fecha de expiración.
+    effectiveFrom: timestamp('effective_from').defaultNow().notNull(),
+    effectiveTo: timestamp('effective_to'),
+    // Versionado. Inicia en 1; futuras ediciones deben incrementarlo.
+    version: integer('version').default(1).notNull(),
+    // Prioridad para ranking futuro (0 = neutro).
+    priority: integer('priority').default(0).notNull(),
+    // Gobernanza de elegibilidad.
+    isApproved: boolean('is_approved').default(false).notNull(),
+    isActive: boolean('is_active').default(true).notNull(),
+    // Auditoría de revisión.
+    reviewedAt: timestamp('reviewed_at'),
+    reviewedBy: varchar('reviewed_by', { length: 120 }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    categoryIdx: index('kb_v2_category_idx').on(table.category),
+    subcategoryIdx: index('kb_v2_subcategory_idx').on(table.subcategory),
+    approvedIdx: index('kb_v2_is_approved_idx').on(table.isApproved),
+    activeIdx: index('kb_v2_is_active_idx').on(table.isActive),
+    priorityIdx: index('kb_v2_priority_idx').on(table.priority),
+  })
+);
