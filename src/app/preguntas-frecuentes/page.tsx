@@ -14,6 +14,8 @@ export default function PreguntasFrecuentesPage() {
   return (
     <>
       <Breadcrumbs
+        backHref="/"
+        backLabel="Volver al inicio"
         items={[{ label: 'Preguntas Frecuentes', href: '/preguntas-frecuentes' }]}
       />
       <PageHero

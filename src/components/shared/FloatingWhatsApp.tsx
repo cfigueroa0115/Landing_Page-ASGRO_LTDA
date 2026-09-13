@@ -151,20 +151,27 @@ export default function FloatingWhatsApp({ phoneNumber }: FloatingWhatsAppProps)
         </div>
       )}
 
-      {/* Botón flotante (48px móvil / 54px desktop). Verde WhatsApp premium. */}
+      {/* Launcher: círculo en móvil (~50px), píldora [icono] WhatsApp en
+          desktop (~54px). Verde #25D366 + texto azul oscuro. Sombra profunda y
+          ring sutil para ser inconfundible sobre fondo claro u oscuro. */}
       <button
         ref={triggerRef}
         type="button"
         onClick={isOpen ? close : open}
         aria-label={isOpen ? 'Cerrar WhatsApp de ASGRO' : 'Abrir WhatsApp de ASGRO'}
+        title={isOpen ? undefined : 'Hablar con ASGRO'}
         aria-expanded={isOpen}
         aria-controls={PANEL_ID}
-        className="flex h-[48px] w-[48px] items-center justify-center rounded-full bg-[#25D366] text-brand-dark-blue shadow-xl shadow-[#075E54]/30 ring-1 ring-white/25 transition-colors duration-200 hover:bg-[#20bd5a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#075E54] motion-safe:transition-transform motion-safe:active:scale-95 motion-safe:hover:scale-105 md:h-[54px] md:w-[54px]"
+        className="flex h-[50px] w-[50px] items-center justify-center gap-[10px] rounded-full bg-[#25D366] text-brand-dark-blue shadow-2xl shadow-[#075E54]/40 ring-1 ring-black/5 transition-colors duration-200 hover:bg-[#20bd5a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#075E54] motion-safe:transition-transform motion-safe:active:scale-95 motion-safe:hover:scale-[1.03] md:h-[54px] md:w-auto md:rounded-full md:px-[18px]"
       >
         {isOpen ? (
           <X className="h-[24px] w-[24px]" aria-hidden="true" />
         ) : (
-          <FaWhatsapp className="h-[26px] w-[26px]" aria-hidden="true" />
+          <>
+            <FaWhatsapp className="h-[24px] w-[24px] flex-shrink-0" aria-hidden="true" />
+            {/* Etiqueta solo en desktop (píldora) */}
+            <span className="hidden text-[0.95rem] font-bold md:inline">WhatsApp</span>
+          </>
         )}
       </button>
     </div>

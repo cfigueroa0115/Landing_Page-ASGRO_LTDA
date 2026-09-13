@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import PremiumIconBadge from '@/components/shared/PremiumIconBadge';
 
 export interface ProcessStepProps {
   step: number;
@@ -44,22 +45,24 @@ export default function ProcessStep({
       }
       className={cn('relative flex h-full flex-col items-center text-center', className)}
     >
-      {/* Conector hacia el siguiente paso (solo desktop). top-[24px] = centro
-          del círculo de 48px. */}
+      {/* Conector hacia el siguiente paso (solo desktop). top-[27px] = centro
+          del badge de 54px. Degradado azul claro → verde. */}
       {showConnector && (
         <span
           aria-hidden="true"
-          className="absolute left-[calc(50%+2rem)] top-[24px] hidden h-[2px] w-[calc(100%-4rem)] bg-gradient-to-r from-brand-green/50 to-brand-blue/20 lg:block"
+          className="absolute left-[calc(50%+2rem)] top-[27px] hidden h-[2px] w-[calc(100%-4rem)] bg-gradient-to-r from-brand-blue/25 to-brand-green/55 lg:block"
         />
       )}
 
-      {/* Número + ícono (círculo 48px, icono 24px, badge 20px) */}
-      <div className="relative z-10 mb-3 flex h-[48px] w-[48px] items-center justify-center rounded-full bg-white shadow-card ring-2 ring-brand-green/30">
-        <Icon className="h-[24px] w-[24px] text-brand-blue" strokeWidth={1.75} aria-hidden="true" />
-        <span className="absolute -right-1 -top-1 flex h-[20px] w-[20px] items-center justify-center rounded-full bg-brand-green text-[11px] font-bold text-brand-dark-blue">
-          {step}
-        </span>
-      </div>
+      {/* Badge premium con número integrado (círculo blanco premium + halo verde
+          tenue + sombra + ring; badge numérico verde pequeño). */}
+      <PremiumIconBadge
+        icon={Icon}
+        size="feature"
+        tone="blue"
+        number={step}
+        className="relative z-10 mb-3 bg-white shadow-card ring-brand-green/25"
+      />
 
       <h3 className="text-base font-bold text-brand-dark-blue md:text-lg">{title}</h3>
       <p className="mt-1 max-w-[240px] text-small text-gray-600 leading-relaxed">

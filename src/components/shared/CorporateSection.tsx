@@ -6,6 +6,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { Users, Home, Cog, Activity } from 'lucide-react';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 import PremiumButton from '@/components/shared/PremiumButton';
+import PremiumIconBadge from '@/components/shared/PremiumIconBadge';
 
 /** Cuatro dimensiones de protección empresarial (cualitativas, sin cifras). */
 const CORPORATE_PILLARS = [
@@ -102,9 +103,7 @@ export default function CorporateSection() {
                   }
                   className="rounded-card border border-white/10 bg-white/5 p-[20px] backdrop-blur-sm transition-colors duration-300 hover:bg-white/10"
                 >
-                  <div className="mb-2 flex h-[44px] w-[44px] items-center justify-center rounded-full bg-brand-green/20">
-                    <Icon className="h-[22px] w-[22px] text-brand-neon-green" strokeWidth={1.75} aria-hidden="true" />
-                  </div>
+                  <PremiumIconBadge icon={Icon} size="md" tone="light" className="mb-2" />
                   <p className="text-base font-semibold text-white">{pillar.label}</p>
                   <p className="mt-0.5 text-small text-white/70">{pillar.description}</p>
                 </motion.div>

@@ -15,6 +15,8 @@ export default function CotizarPage() {
   return (
     <>
       <Breadcrumbs
+        backHref="/"
+        backLabel="Volver al inicio"
         items={[{ label: 'Cotizar', href: '/cotizar' }]}
       />
       <PageHero

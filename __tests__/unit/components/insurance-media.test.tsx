@@ -166,6 +166,12 @@ describe('5A.6 — Hero fallback real', () => {
     const heroAfter = imgs(container).find((i) => (i.getAttribute('src') || '').includes('SeguroIntegral'));
     expect(heroAfter).toBeUndefined();
   });
+
+  it('5A.7 — ya no usa borde blanco duro (border-white/12) en el marco de la imagen', () => {
+    const { container } = render(<HeroMedia />);
+    // El borde blanco duro del marco (border border-white/12) fue eliminado.
+    expect(container.innerHTML).not.toContain('border-white/12');
+  });
 });
 
 describe('5A.4 — Empresas usa SegurosEmpresas', () => {

@@ -76,6 +76,8 @@ export default function RiesgosLaboralesPage() {
   return (
     <>
       <Breadcrumbs
+        backHref="/servicios"
+        backLabel="Volver a Servicios"
         items={[
           { label: 'Servicios', href: '/servicios' },
           { label: 'Riesgos Laborales', href: '/servicios/riesgos-laborales' },

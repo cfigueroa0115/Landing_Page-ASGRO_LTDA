@@ -19,6 +19,7 @@ import { UserCheck, SearchCheck, CalendarClock, Layers } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 import SectionHeader from '@/components/shared/SectionHeader';
+import PremiumIconBadge from '@/components/shared/PremiumIconBadge';
 import { TRUST_PILLARS, SITE_CONTENT } from '@/lib/utils/constants';
 
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -54,14 +55,8 @@ export default function TrustSection() {
                   key={pillar.id}
                   className="flex flex-col items-center px-2 text-center"
                 >
-                  {/* Círculo 48px, icono 24px */}
-                  <div className="mb-3 flex h-[48px] w-[48px] items-center justify-center rounded-full bg-brand-green/10 ring-1 ring-brand-green/20">
-                    <Icon
-                      className="h-[24px] w-[24px] text-brand-blue"
-                      strokeWidth={1.75}
-                      aria-hidden="true"
-                    />
-                  </div>
+                  {/* Badge de icono premium (feature) */}
+                  <PremiumIconBadge icon={Icon} size="feature" tone="blue" className="mb-3" />
                   <h3 className="text-base font-semibold text-brand-dark-blue">
                     {pillar.title}
                   </h3>

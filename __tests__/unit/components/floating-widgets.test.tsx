@@ -439,3 +439,33 @@ describe('5A.3 — Voz: control de lectura con touch target >=44px', () => {
 });
 
 
+
+// ═══════════════════════════════════════════════════════════════════
+// BLOQUE 5A.7 — launcher WhatsApp premium (píldora con texto)
+// ═══════════════════════════════════════════════════════════════════
+
+describe('5A.7 — WhatsApp launcher premium', () => {
+  it('el launcher incluye el texto "WhatsApp" (visible en desktop) y verde + azul oscuro', () => {
+    render(<FloatingWhatsApp phoneNumber="573001234567" />);
+    const trigger = screen.getByRole('button', { name: /abrir whatsapp de asgro/i });
+    // La etiqueta de texto existe (oculta en móvil vía clase, presente en DOM).
+    expect(trigger.textContent).toMatch(/whatsapp/i);
+    expect(trigger.className).toContain('text-brand-dark-blue');
+    expect(trigger.getAttribute('title')).toMatch(/hablar con asgro/i);
+  });
+
+  it('al pulsar el launcher abre el mini-panel (no navega a wa.me directamente)', async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<FloatingWhatsApp phoneNumber="573001234567" />);
+    await user.click(screen.getByRole('button', { name: /abrir whatsapp de asgro/i }));
+    expect(
+      screen.getByRole('dialog', { name: /escribir mensaje de whatsapp/i })
+    ).toBeInTheDocument();
+  });
+
+  it('no se renderiza (ni enlace falso) cuando no hay número', () => {
+    const { container } = render(<FloatingWhatsApp phoneNumber="" />);
+    expect(container.firstChild).toBeNull();
+    expect(container.querySelector('a[href^="https://wa.me"]')).toBeNull();
+  });
+});

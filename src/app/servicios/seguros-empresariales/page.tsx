@@ -76,6 +76,8 @@ export default function SegurosEmpresarialesPage() {
   return (
     <>
       <Breadcrumbs
+        backHref="/servicios"
+        backLabel="Volver a Servicios"
         items={[
           { label: 'Servicios', href: '/servicios' },
           { label: 'Seguros Empresariales', href: '/servicios/seguros-empresariales' },

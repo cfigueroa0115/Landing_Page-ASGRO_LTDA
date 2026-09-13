@@ -76,6 +76,8 @@ export default function SeguridadSaludTrabajoPage() {
   return (
     <>
       <Breadcrumbs
+        backHref="/servicios"
+        backLabel="Volver a Servicios"
         items={[
           { label: 'Servicios', href: '/servicios' },
           { label: 'Seguridad y Salud en el Trabajo', href: '/servicios/seguridad-salud-trabajo' },

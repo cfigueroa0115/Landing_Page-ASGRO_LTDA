@@ -88,6 +88,8 @@ export default function MetodologiaPage() {
   return (
     <>
       <Breadcrumbs
+        backHref="/"
+        backLabel="Volver al inicio"
         items={[{ label: 'Metodología', href: '/metodologia' }]}
       />
       <PageHero

@@ -15,6 +15,8 @@ export default function ContactoPage() {
   return (
     <>
       <Breadcrumbs
+        backHref="/"
+        backLabel="Volver al inicio"
         items={[{ label: 'Contacto', href: '/contacto' }]}
       />
       <PageHero

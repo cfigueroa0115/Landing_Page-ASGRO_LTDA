@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import PremiumIconBadge from '@/components/shared/PremiumIconBadge';
 
 export interface InsuranceCardProps {
   icon: LucideIcon;
@@ -32,9 +33,7 @@ export default function InsuranceCard({
         className
       )}
     >
-      <div className="flex h-[44px] w-[44px] flex-shrink-0 items-center justify-center rounded-full bg-brand-green/10 transition-colors duration-300 group-hover:bg-brand-green/20">
-        <Icon className="h-[22px] w-[22px] text-brand-blue" strokeWidth={1.75} aria-hidden="true" />
-      </div>
+      <PremiumIconBadge icon={Icon} size="md" tone="blue" />
 
       <div className="min-w-0">
         <h4 className="text-base font-semibold text-brand-dark-blue">{name}</h4>

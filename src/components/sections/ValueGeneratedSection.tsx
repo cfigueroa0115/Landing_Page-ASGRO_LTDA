@@ -19,6 +19,7 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 import SectionHeader from '@/components/shared/SectionHeader';
+import PremiumIconBadge from '@/components/shared/PremiumIconBadge';
 import { BENEFITS_DATA, SITE_CONTENT } from '@/lib/utils/constants';
 
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -54,9 +55,7 @@ export default function ValueGeneratedSection() {
                   key={benefit.id}
                   className="flex items-start gap-2 rounded-card border border-gray-100 bg-white p-4 shadow-card transition-shadow duration-300 hover:shadow-card-hover"
                 >
-                  <div className="flex h-[44px] w-[44px] flex-shrink-0 items-center justify-center rounded-full bg-brand-green/10">
-                    <Icon className="h-[22px] w-[22px] text-brand-blue" strokeWidth={1.75} aria-hidden="true" />
-                  </div>
+                  <PremiumIconBadge icon={Icon} size="md" tone="blue" />
                   <div>
                     <h3 className="text-base font-semibold text-brand-dark-blue">
                       {benefit.title}

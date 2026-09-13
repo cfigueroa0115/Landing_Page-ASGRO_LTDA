@@ -76,6 +76,8 @@ export default function BienestarProteccionPage() {
   return (
     <>
       <Breadcrumbs
+        backHref="/servicios"
+        backLabel="Volver a Servicios"
         items={[
           { label: 'Servicios', href: '/servicios' },
           { label: 'Bienestar y Protección', href: '/servicios/bienestar-proteccion' },

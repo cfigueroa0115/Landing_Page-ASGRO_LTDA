@@ -54,6 +54,8 @@ export default function ServiciosPage() {
   return (
     <>
       <Breadcrumbs
+        backHref="/"
+        backLabel="Volver al inicio"
         items={[{ label: 'Servicios', href: '/servicios' }]}
       />
       <PageHero

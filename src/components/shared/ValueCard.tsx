@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import PremiumIconBadge from '@/components/shared/PremiumIconBadge';
 
 export interface ValueCardProps {
   icon: LucideIcon;
@@ -41,10 +42,8 @@ export default function ValueCard({
         className="absolute inset-x-[48px] top-0 h-[3px] rounded-b-full bg-brand-green/70 motion-safe:transition-all motion-safe:duration-300 motion-safe:group-hover:inset-x-[36px]"
       />
 
-      {/* Contenedor de icono 48px con icono 24px */}
-      <div className="mb-3 flex h-[48px] w-[48px] items-center justify-center rounded-full bg-gradient-to-br from-brand-green/15 to-brand-blue/10 ring-1 ring-brand-green/20">
-        <Icon className="h-[24px] w-[24px] text-brand-blue" strokeWidth={1.75} aria-hidden="true" />
-      </div>
+      {/* Badge de icono premium (feature) */}
+      <PremiumIconBadge icon={Icon} size="feature" tone="blue" className="mb-3" />
 
       <h3 className="text-lg font-bold text-brand-dark-blue">{title}</h3>
 

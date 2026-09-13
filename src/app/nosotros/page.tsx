@@ -17,6 +17,8 @@ export default function NosotrosPage() {
   return (
     <>
       <Breadcrumbs
+        backHref="/"
+        backLabel="Volver al inicio"
         items={[{ label: 'Nosotros', href: '/nosotros' }]}
       />
       <PageHero

@@ -55,6 +55,8 @@ export default function ResultadosPage() {
   return (
     <>
       <Breadcrumbs
+        backHref="/"
+        backLabel="Volver al inicio"
         items={[{ label: 'Resultados', href: '/resultados' }]}
       />
       <PageHero
