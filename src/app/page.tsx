@@ -2,6 +2,7 @@ import HeroSection from '@/components/sections/HeroSection';
 import QuickAccessSection from '@/components/sections/QuickAccessSection';
 import ValuePropositionSection from '@/components/sections/ValuePropositionSection';
 import InsurancePortfolioSection from '@/components/sections/InsurancePortfolioSection';
+import InsuranceShowcaseSection from '@/components/sections/InsuranceShowcaseSection';
 import WhyChooseSection from '@/components/sections/WhyChooseSection';
 import TrustSection from '@/components/sections/TrustSection';
 import HomeMethodologyCompact from '@/components/home/HomeMethodologyCompact';
@@ -35,6 +36,7 @@ export default function Home() {
       <QuickAccessSection />
       <ValuePropositionSection />
       <InsurancePortfolioSection />
+      <InsuranceShowcaseSection />
       <WhyChooseSection />
       <TrustSection />
       <HomeMethodologyCompact />

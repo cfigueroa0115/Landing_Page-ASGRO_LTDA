@@ -18,10 +18,10 @@
  */
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ShieldCheck } from 'lucide-react';
 import { SITE_CONTENT } from '@/lib/utils/constants';
-import HeroInsuranceVisual from '@/components/sections/HeroInsuranceVisual';
 
 export default function HeroSection() {
   const prefersReducedMotion = useReducedMotion();
@@ -145,17 +145,70 @@ export default function HeroSection() {
             </motion.div>
           </motion.div>
 
-          {/* Columna visual — composición editorial aseguradora (NO la asesora).
-              Compacta en móvil, plena en desktop. Sin bloque de 6 accesos: la
-              navegación por frentes vive en el Quick Access dock inferior. */}
+          {/* Columna visual — imagen editorial de protección integral (NO la
+              asesora). Fotografía protagonista + overlay azul + glow sutil +
+              capa tecnológica secundaria + 1 microcard. Compacta en móvil. */}
           <motion.div
             className="relative w-full"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
           >
-            <motion.div variants={itemVariants}>
-              <HeroInsuranceVisual />
+            <motion.div
+              variants={itemVariants}
+              className="relative mx-auto w-full max-w-[560px]"
+            >
+              {/* Glow ambiental de marca detrás de la imagen */}
+              <div
+                aria-hidden="true"
+                className="glow-blue pointer-events-none absolute -right-6 -top-8 h-[220px] w-[220px] rounded-full"
+              />
+              <div
+                aria-hidden="true"
+                className="glow-green pointer-events-none absolute -bottom-8 -left-6 h-[180px] w-[180px] rounded-full"
+              />
+
+              {/* Marco premium con la fotografía */}
+              <div className="relative overflow-hidden rounded-modal border border-white/12 shadow-premium-hover">
+                {/* Capa tecnológica secundaria (muy sutil) */}
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 z-[1] opacity-30"
+                  style={{
+                    backgroundImage: 'url(/images/risk-network.svg)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }}
+                />
+                {/* Imagen editorial principal (LCP) */}
+                <div className="relative h-[240px] w-full sm:h-[320px] lg:h-[420px]">
+                  <Image
+                    src="/images/SeguroIntegral.png"
+                    alt="Protección integral para personas, patrimonio y empresas"
+                    fill
+                    priority
+                    sizes="(max-width: 1024px) 92vw, 560px"
+                    className="object-cover"
+                    style={{ objectPosition: 'center' }}
+                  />
+                  {/* Overlay azul ASGRO discreto para integrar con la marca */}
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-0 bg-gradient-to-tr from-brand-dark-blue/55 via-brand-dark-blue/10 to-transparent"
+                  />
+                </div>
+
+                {/* Microcard informativa (una sola) */}
+                <div className="absolute bottom-[16px] left-[16px] z-[2] flex items-center gap-2 rounded-card border border-white/15 bg-brand-dark-blue/70 px-[12px] py-[8px] backdrop-blur-md">
+                  <span className="flex h-[34px] w-[34px] items-center justify-center rounded-full bg-brand-green/20 ring-1 ring-brand-green/30">
+                    <ShieldCheck className="h-[18px] w-[18px] text-brand-neon-green" strokeWidth={1.75} aria-hidden="true" />
+                  </span>
+                  <span className="leading-tight">
+                    <span className="block text-caption font-semibold text-white">Protección integral</span>
+                    <span className="block text-[0.7rem] text-white/60">Personas · Patrimonio · Empresas</span>
+                  </span>
+                </div>
+              </div>
             </motion.div>
           </motion.div>
         </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Users, Home, Cog, Activity } from 'lucide-react';
 import AnimatedSection from '@/components/shared/AnimatedSection';
@@ -62,8 +63,30 @@ export default function CorporateSection() {
             </div>
           </AnimatedSection>
 
-          {/* Dimensiones de protección */}
-          <div className="grid grid-cols-2 gap-3">
+          {/* Imagen editorial B2B + dimensiones de protección */}
+          <div>
+            {/* Banner editorial de empresas (below-the-fold → sin priority) */}
+            <div className="relative mb-3 overflow-hidden rounded-modal border border-white/12 shadow-premium-hover">
+              <div className="relative aspect-[16/9] w-full">
+                <Image
+                  src="/images/SegurosEmpresas.webp"
+                  alt="Protección integral para empresas"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover"
+                  style={{ objectPosition: 'center' }}
+                />
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 bg-gradient-to-t from-brand-dark-blue/80 via-brand-dark-blue/20 to-transparent"
+                />
+                <span className="absolute bottom-[14px] left-[14px] inline-flex items-center rounded-full bg-brand-green/90 px-[12px] py-[6px] text-caption font-bold text-brand-dark-blue">
+                  Continuidad y patrimonio empresarial
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
             {CORPORATE_PILLARS.map((pillar, index) => {
               const Icon = pillar.icon;
               return (
@@ -87,6 +110,7 @@ export default function CorporateSection() {
                 </motion.div>
               );
             })}
+            </div>
           </div>
         </div>
       </div>
