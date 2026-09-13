@@ -55,7 +55,7 @@ export default function ValueGeneratedSection() {
                   key={benefit.id}
                   className="flex items-start gap-2 rounded-card border border-gray-100 bg-white p-4 shadow-card transition-shadow duration-300 hover:shadow-card-hover"
                 >
-                  <PremiumIconBadge icon={Icon} size="md" tone="blue" />
+                  <PremiumIconBadge icon={Icon} variant="feature" size="md" />
                   <div>
                     <h3 className="text-base font-semibold text-brand-dark-blue">
                       {benefit.title}

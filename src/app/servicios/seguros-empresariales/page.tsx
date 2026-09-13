@@ -107,7 +107,7 @@ export default function SegurosEmpresarialesPage() {
             {insuranceServices.map((service) => (
               <PremiumCard
                 key={service.title}
-                icon={<PremiumIconBadge icon={service.iconComponent} size="feature" tone="blue" />}
+                icon={<PremiumIconBadge icon={service.iconComponent} variant="feature" />}
                 title={service.title}
                 description={service.description}
                 bullets={service.bullets}

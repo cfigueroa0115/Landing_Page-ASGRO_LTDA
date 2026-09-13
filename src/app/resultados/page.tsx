@@ -85,7 +85,7 @@ export default function ResultadosPage() {
             {metrics.map((metric) => (
               <AnimatedSection key={metric.label}>
                 <div className="flex items-start gap-3 bg-brand-light-gray rounded-card p-[16px] md:p-[20px] border border-gray-100">
-                  <PremiumIconBadge icon={metric.icon} size="feature" tone="blue" />
+                  <PremiumIconBadge icon={metric.icon} variant="metric" />
 
                   <div className="flex-1">
                     <div className="flex items-baseline gap-2 mb-0.5">

@@ -57,9 +57,7 @@ export default function NosotrosPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-white rounded-card p-4 shadow-card border border-gray-100">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="flex h-[48px] w-[48px] items-center justify-center rounded-full bg-gradient-to-br from-brand-green/20 to-brand-blue/10">
-                    <Target className="h-[24px] w-[24px] text-brand-green" />
-                  </div>
+                  <PremiumIconBadge icon={Target} variant="feature" size="md" />
                   <h3 className="text-xl font-bold text-brand-dark-blue">Misión</h3>
                 </div>
                 <p className="text-body text-gray-600">
@@ -71,9 +69,7 @@ export default function NosotrosPage() {
 
               <div className="bg-white rounded-card p-4 shadow-card border border-gray-100">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="flex h-[48px] w-[48px] items-center justify-center rounded-full bg-gradient-to-br from-brand-green/20 to-brand-blue/10">
-                    <Lightbulb className="h-[24px] w-[24px] text-brand-green" />
-                  </div>
+                  <PremiumIconBadge icon={Lightbulb} variant="feature" size="md" />
                   <h3 className="text-xl font-bold text-brand-dark-blue">Visión</h3>
                 </div>
                 <p className="text-body text-gray-600">
@@ -97,22 +93,22 @@ export default function NosotrosPage() {
           </AnimatedSection>
           <EqualHeightGrid columns={{ sm: 2, md: 2, lg: 4 }}>
             <PremiumCard
-              icon={<PremiumIconBadge icon={Shield} size="feature" tone="blue" />}
+              icon={<PremiumIconBadge icon={Shield} variant="feature" />}
               title="Compromiso"
               description="Actuamos con responsabilidad y dedicación en cada gestión, priorizando las necesidades de nuestros clientes."
             />
             <PremiumCard
-              icon={<PremiumIconBadge icon={Scale} size="feature" tone="blue" />}
+              icon={<PremiumIconBadge icon={Scale} variant="feature" />}
               title="Transparencia"
               description="Operamos con honestidad y claridad en todos nuestros procesos, generando relaciones de confianza."
             />
             <PremiumCard
-              icon={<PremiumIconBadge icon={Heart} size="feature" tone="blue" />}
+              icon={<PremiumIconBadge icon={Heart} variant="feature" />}
               title="Integridad"
               description="Nuestras acciones se rigen por principios éticos que garantizan un servicio confiable y profesional."
             />
             <PremiumCard
-              icon={<PremiumIconBadge icon={Award} size="feature" tone="blue" />}
+              icon={<PremiumIconBadge icon={Award} variant="feature" />}
               title="Excelencia"
               description="Buscamos la mejora continua en nuestros servicios para superar las expectativas y generar valor real."
             />
@@ -130,25 +126,25 @@ export default function NosotrosPage() {
           </AnimatedSection>
           <EqualHeightGrid columns={{ sm: 1, md: 2, lg: 4 }}>
             <PremiumCard
-              icon={<PremiumIconBadge icon={Shield} size="feature" tone="blue" />}
+              icon={<PremiumIconBadge icon={Shield} variant="feature" />}
               title="Seguros"
               description="Soluciones para personas, patrimonio y empresas: vida, salud, hogar, automóviles y coberturas empresariales."
               bullets={['Personas', 'Patrimonio', 'Empresas']}
             />
             <PremiumCard
-              icon={<PremiumIconBadge icon={Building2} size="feature" tone="blue" />}
+              icon={<PremiumIconBadge icon={Building2} variant="feature" />}
               title="Seguros Empresariales"
               description="Pólizas a la medida: multirriesgo, responsabilidad civil, cumplimiento, manejo y vida grupo."
               bullets={['Multirriesgo', 'Responsabilidad civil', 'Cumplimiento']}
             />
             <PremiumCard
-              icon={<PremiumIconBadge icon={Shield} size="feature" tone="blue" />}
+              icon={<PremiumIconBadge icon={Shield} variant="feature" />}
               title="ARL y Riesgos Laborales"
               description="Acompañamiento en ARL: afiliaciones, traslados, clasificación de riesgo y gestión de eventos laborales."
               bullets={['Afiliación y traslado', 'Gestión de accidentes', 'Enfermedad laboral']}
             />
             <PremiumCard
-              icon={<PremiumIconBadge icon={Users} size="feature" tone="blue" />}
+              icon={<PremiumIconBadge icon={Users} variant="feature" />}
               title="Seguridad y Salud en el Trabajo"
               description="Diseño, implementación y seguimiento del SG-SST conforme a la normatividad colombiana vigente."
               bullets={['SG-SST', 'Auditorías', 'Investigación de accidentes']}

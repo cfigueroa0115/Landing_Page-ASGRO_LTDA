@@ -75,7 +75,7 @@ export default function InsurancePortfolioSection() {
                 <div>
                   {/* Encabezado del grupo — badge premium */}
                   <div className="mb-3 flex items-center gap-2">
-                    <PremiumIconBadge icon={GroupIcon} size="md" tone="blue" />
+                    <PremiumIconBadge icon={GroupIcon} variant="feature" size="md" />
                     <div>
                       <h3 className="text-h4 font-bold text-brand-dark-blue">
                         {group.groupTitle}

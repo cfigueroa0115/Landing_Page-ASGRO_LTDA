@@ -43,7 +43,7 @@ export default function ValueCard({
       />
 
       {/* Badge de icono premium (feature) */}
-      <PremiumIconBadge icon={Icon} size="feature" tone="blue" className="mb-3" />
+      <PremiumIconBadge icon={Icon} variant="feature" className="mb-3" />
 
       <h3 className="text-lg font-bold text-brand-dark-blue">{title}</h3>
 

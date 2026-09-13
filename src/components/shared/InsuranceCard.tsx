@@ -33,7 +33,7 @@ export default function InsuranceCard({
         className
       )}
     >
-      <PremiumIconBadge icon={Icon} size="md" tone="blue" />
+      <PremiumIconBadge icon={Icon} variant="navigation" />
 
       <div className="min-w-0">
         <h4 className="text-base font-semibold text-brand-dark-blue">{name}</h4>

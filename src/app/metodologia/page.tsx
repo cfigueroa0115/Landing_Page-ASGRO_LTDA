@@ -116,8 +116,9 @@ export default function MetodologiaPage() {
 
           {/* Timeline items */}
           <div className="relative max-w-[800px] mx-auto">
-            {/* Vertical line - hidden on mobile. left-[27px] = centro del badge de 54px */}
-            <div className="hidden md:block absolute left-[27px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-brand-green via-brand-blue to-brand-dark-blue" />
+            {/* Vertical line - hidden on mobile. left-[27px] = centro del badge de 54px.
+                Gradiente azul → verde, opacidad baja (sin glow permanente). */}
+            <div className="hidden md:block absolute left-[27px] top-0 bottom-0 w-[2px] rounded-full bg-gradient-to-b from-brand-blue/40 via-brand-blue/25 to-brand-green/40" />
 
             <div className="space-y-5 md:space-y-6">
               {phases.map((phase) => (
@@ -127,10 +128,9 @@ export default function MetodologiaPage() {
                     <div className="relative z-10 flex-shrink-0 flex items-start">
                       <PremiumIconBadge
                         icon={phase.icon}
-                        size="feature"
-                        tone="blue"
+                        variant="process"
                         number={phase.number}
-                        className="bg-white shadow-lg ring-brand-green/25"
+                        className="shadow-lg"
                       />
                     </div>
 

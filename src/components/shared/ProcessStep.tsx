@@ -60,10 +60,9 @@ export default function ProcessStep({
       <span className="sr-only">Paso {step}</span>
       <PremiumIconBadge
         icon={Icon}
-        size="feature"
-        tone="blue"
+        variant="process"
         number={step}
-        className="relative z-10 mb-3 bg-white shadow-card ring-brand-green/25"
+        className="relative z-10 mb-3"
       />
 
       <h3 className="text-base font-bold text-brand-dark-blue md:text-lg">{title}</h3>

@@ -107,7 +107,7 @@ export default function RiesgosLaboralesPage() {
             {serviceAreas.map((area) => (
               <PremiumCard
                 key={area.title}
-                icon={<PremiumIconBadge icon={area.iconComponent} size="feature" tone="blue" />}
+                icon={<PremiumIconBadge icon={area.iconComponent} variant="feature" />}
                 title={area.title}
                 description={area.description}
                 bullets={area.bullets}

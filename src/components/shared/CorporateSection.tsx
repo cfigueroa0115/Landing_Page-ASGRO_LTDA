@@ -103,7 +103,7 @@ export default function CorporateSection() {
                   }
                   className="rounded-card border border-white/10 bg-white/5 p-[20px] backdrop-blur-sm transition-colors duration-300 hover:bg-white/10"
                 >
-                  <PremiumIconBadge icon={Icon} size="md" tone="light" className="mb-2" />
+                  <PremiumIconBadge icon={Icon} variant="feature" size="md" tone="dark" className="mb-2" />
                   <p className="text-base font-semibold text-white">{pillar.label}</p>
                   <p className="mt-0.5 text-small text-white/70">{pillar.description}</p>
                 </motion.div>

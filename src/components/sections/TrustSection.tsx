@@ -56,7 +56,7 @@ export default function TrustSection() {
                   className="flex flex-col items-center px-2 text-center"
                 >
                   {/* Badge de icono premium (feature) */}
-                  <PremiumIconBadge icon={Icon} size="feature" tone="blue" className="mb-3" />
+                  <PremiumIconBadge icon={Icon} variant="feature" className="mb-3" />
                   <h3 className="text-base font-semibold text-brand-dark-blue">
                     {pillar.title}
                   </h3>

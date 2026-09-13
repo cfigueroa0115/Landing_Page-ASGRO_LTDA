@@ -79,7 +79,7 @@ export default function ComplementarySection() {
               <AnimatedSection key={cap.id} delay={index * 120}>
                 <article className="flex h-full flex-col rounded-card border border-gray-100 bg-brand-light-gray/60 p-[24px] transition-shadow duration-300 hover:shadow-card">
                   <div className="mb-3 flex items-center gap-2">
-                    <PremiumIconBadge icon={Icon} size="md" tone="blue" />
+                    <PremiumIconBadge icon={Icon} variant="feature" size="md" />
                     <h3 className="text-h4 font-bold text-brand-dark-blue">{cap.title}</h3>
                   </div>
 

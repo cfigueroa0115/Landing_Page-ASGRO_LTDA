@@ -62,7 +62,7 @@ export default function QuickAccessSection() {
                     href={item.href}
                     className="group flex h-full min-h-[76px] flex-col items-center justify-center gap-[6px] rounded-card border border-transparent p-2 text-center transition-colors duration-300 hover:border-brand-blue/20 hover:bg-brand-light-gray focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue lg:flex-row lg:justify-start lg:gap-3 lg:text-left"
                   >
-                    <PremiumIconBadge icon={Icon} size="sm" tone="blue" />
+                    <PremiumIconBadge icon={Icon} variant="navigation" />
                     <span className="flex flex-col">
                       <span className="text-small font-semibold text-brand-dark-blue">
                         {item.label}

@@ -71,7 +71,7 @@ export default function ServiciosPage() {
             {services.map((service) => (
               <PremiumCard
                 key={service.href}
-                icon={<PremiumIconBadge icon={service.iconComponent} size="feature" tone="blue" />}
+                icon={<PremiumIconBadge icon={service.iconComponent} variant="feature" />}
                 title={service.title}
                 description={service.description}
                 bullets={service.bullets}
