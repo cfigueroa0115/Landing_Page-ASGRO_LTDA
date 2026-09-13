@@ -611,13 +611,15 @@ export interface NavLink {
   href: string;
 }
 
-// Navegación seguros-first. Las etiquetas ARL y SST apuntan a los micrositios
-// de servicios existentes; "Seguros" y "Empresas" al hub de servicios y a la home.
+// Navegación seguros-first (6C). Arquitectura clara:
+// - Seguros = hub general de soluciones → /servicios
+// - Empresas = experiencia B2B propia → /servicios/seguros-empresariales
+// - ARL y SST = micrositios de servicios. Fuente ÚNICA para Header y MobileNav.
 export const NAV_LINKS: NavLink[] = [
   { id: 'nav-inicio', label: 'Inicio', href: '/' },
   { id: 'nav-nosotros', label: 'Nosotros', href: '/nosotros' },
-  { id: 'nav-seguros', label: 'Seguros', href: '/servicios/seguros-empresariales' },
-  { id: 'nav-empresas', label: 'Empresas', href: '/#empresas' },
+  { id: 'nav-seguros', label: 'Seguros', href: '/servicios' },
+  { id: 'nav-empresas', label: 'Empresas', href: '/servicios/seguros-empresariales' },
   { id: 'nav-arl', label: 'ARL', href: '/servicios/riesgos-laborales' },
   { id: 'nav-sst', label: 'SST', href: '/servicios/seguridad-salud-trabajo' },
   { id: 'nav-contacto', label: 'Contacto', href: '/contacto' },
@@ -858,7 +860,7 @@ export const QUICK_ACCESS_ITEMS: QuickAccessItem[] = [
     label: 'Cumplimiento',
     description: 'Pólizas de cumplimiento.',
     icon: 'FileCheck',
-    href: '/servicios/seguros-empresariales',
+    href: '/servicios/seguros-empresariales#cumplimiento',
   },
   {
     label: 'Contacto',

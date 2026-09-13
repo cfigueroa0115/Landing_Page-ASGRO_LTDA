@@ -53,12 +53,16 @@ export default function Header({ onMobileMenuOpen, isMobileMenuOpen = false }: H
   }, []);
 
   /**
-   * Determines if a nav link is active based on the current pathname.
-   * For "/" (home), only exact match. For others, starts-with matching.
+   * Estado activo del Header (6C) — matching explícito para que SOLO un enlace
+   * principal quede activo:
+   * - "Seguros" (/servicios) usa coincidencia EXACTA (es el hub), de modo que las
+   *   páginas hijas (Empresas, ARL, SST) NO marquen también "Seguros".
+   * - Las hijas usan startsWith de su propia ruta.
    */
   function isActive(href: string): boolean {
     if (href === '/') return pathname === '/';
-    return pathname.startsWith(href);
+    if (href === '/servicios') return pathname === '/servicios';
+    return pathname === href || pathname.startsWith(`${href}/`);
   }
 
   return (

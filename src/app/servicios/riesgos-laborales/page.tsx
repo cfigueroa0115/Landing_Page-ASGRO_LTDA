@@ -78,10 +78,10 @@ export default function RiesgosLaboralesPage() {
     <>
       <Breadcrumbs
         backHref="/servicios"
-        backLabel="Volver a Servicios"
+        backLabel="Volver a Seguros"
         items={[
-          { label: 'Servicios', href: '/servicios' },
-          { label: 'Riesgos Laborales', href: '/servicios/riesgos-laborales' },
+          { label: 'Seguros', href: '/servicios' },
+          { label: 'ARL', href: '/servicios/riesgos-laborales' },
         ]}
       />
       <PageHero

@@ -78,10 +78,10 @@ export default function SeguridadSaludTrabajoPage() {
     <>
       <Breadcrumbs
         backHref="/servicios"
-        backLabel="Volver a Servicios"
+        backLabel="Volver a Seguros"
         items={[
-          { label: 'Servicios', href: '/servicios' },
-          { label: 'Seguridad y Salud en el Trabajo', href: '/servicios/seguridad-salud-trabajo' },
+          { label: 'Seguros', href: '/servicios' },
+          { label: 'SST', href: '/servicios/seguridad-salud-trabajo' },
         ]}
       />
       <PageHero

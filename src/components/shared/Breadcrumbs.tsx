@@ -47,14 +47,21 @@ export default function Breadcrumbs({
   ];
 
   const backClass =
-    'inline-flex items-center gap-[6px] rounded-btn px-[10px] text-[0.9rem] font-semibold text-brand-blue transition-colors min-h-[44px] mr-[12px] hover:text-brand-green-alt focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue';
+    'inline-flex items-center gap-[6px] rounded-btn px-[10px] text-[0.9rem] font-semibold text-brand-blue transition-colors min-h-[44px] hover:text-brand-green-alt focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue';
 
   return (
     <nav
       aria-label="Breadcrumb"
-      className={cn('section-container py-1', className)}
+      className={cn(
+        // Compensa el Header fijo (76px) para que la barra sea visible y no
+        // quede oculta debajo. No se toca el padding-top del RootLayout.
+        'mt-[76px] border-b border-gray-200/70 bg-white',
+        className
+      )}
     >
-      <div className="flex flex-wrap items-center">
+      {/* Barra contextual compacta dentro del contenedor de sección. En móvil,
+          el control Volver va arriba y el breadcrumb debajo (sin overflow). */}
+      <div className="section-container flex flex-col gap-[4px] py-[8px] sm:flex-row sm:flex-wrap sm:items-center sm:gap-[12px]">
         {backHref ? (
           <Link href={backHref} className={backClass} aria-label={backLabel}>
             <ArrowLeft className="h-[18px] w-[18px]" aria-hidden="true" />

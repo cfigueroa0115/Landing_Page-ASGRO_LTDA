@@ -78,10 +78,10 @@ export default function SegurosEmpresarialesPage() {
     <>
       <Breadcrumbs
         backHref="/servicios"
-        backLabel="Volver a Servicios"
+        backLabel="Volver a Seguros"
         items={[
-          { label: 'Servicios', href: '/servicios' },
-          { label: 'Seguros Empresariales', href: '/servicios/seguros-empresariales' },
+          { label: 'Seguros', href: '/servicios' },
+          { label: 'Empresas', href: '/servicios/seguros-empresariales' },
         ]}
       />
       <PageHero
@@ -104,15 +104,25 @@ export default function SegurosEmpresarialesPage() {
             </div>
           </AnimatedSection>
           <EqualHeightGrid columns={{ sm: 1, md: 2, lg: 4 }}>
-            {insuranceServices.map((service) => (
-              <PremiumCard
-                key={service.title}
-                icon={<PremiumIconBadge icon={service.iconComponent} variant="feature" />}
-                title={service.title}
-                description={service.description}
-                bullets={service.bullets}
-              />
-            ))}
+            {insuranceServices.map((service) => {
+              // Deep link estable a la cobertura de Cumplimiento (desde el dock
+              // de accesos rápidos). scroll-mt evita que el Header fijo la tape.
+              const isCumplimiento = service.title === 'Cumplimiento';
+              return (
+                <div
+                  key={service.title}
+                  id={isCumplimiento ? 'cumplimiento' : undefined}
+                  className={isCumplimiento ? 'scroll-mt-[96px]' : undefined}
+                >
+                  <PremiumCard
+                    icon={<PremiumIconBadge icon={service.iconComponent} variant="feature" />}
+                    title={service.title}
+                    description={service.description}
+                    bullets={service.bullets}
+                  />
+                </div>
+              );
+            })}
           </EqualHeightGrid>
         </div>
       </section>

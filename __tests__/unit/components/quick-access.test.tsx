@@ -58,7 +58,8 @@ describe('5A.1 — QuickAccessSection (dock)', () => {
       [/empresas/i, '/servicios/seguros-empresariales'],
       [/arl/i, '/servicios/riesgos-laborales'],
       [/sst/i, '/servicios/seguridad-salud-trabajo'],
-      [/cumplimiento/i, '/servicios/seguros-empresariales'],
+      // 6C: Cumplimiento hace deep-link a la cobertura dentro del micrositio B2B.
+      [/cumplimiento/i, '/servicios/seguros-empresariales#cumplimiento'],
       [/contacto/i, '/contacto'],
     ];
 

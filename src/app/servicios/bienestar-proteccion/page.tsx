@@ -78,9 +78,9 @@ export default function BienestarProteccionPage() {
     <>
       <Breadcrumbs
         backHref="/servicios"
-        backLabel="Volver a Servicios"
+        backLabel="Volver a Seguros"
         items={[
-          { label: 'Servicios', href: '/servicios' },
+          { label: 'Seguros', href: '/servicios' },
           { label: 'Bienestar y Protección', href: '/servicios/bienestar-proteccion' },
         ]}
       />

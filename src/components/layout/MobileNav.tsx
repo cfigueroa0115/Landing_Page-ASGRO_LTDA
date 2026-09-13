@@ -101,7 +101,10 @@ export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
 
   function isActive(href: string): boolean {
     if (href === '/') return pathname === '/';
-    return pathname.startsWith(href);
+    // "Seguros" (/servicios) es el hub: coincidencia exacta para que las hijas
+    // (Empresas, ARL, SST) no marquen también "Seguros". (Alineado con Header, 6C.)
+    if (href === '/servicios') return pathname === '/servicios';
+    return pathname === href || pathname.startsWith(`${href}/`);
   }
 
   return (

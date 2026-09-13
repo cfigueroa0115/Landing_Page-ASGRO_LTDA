@@ -57,7 +57,7 @@ export default function ServiciosPage() {
       <Breadcrumbs
         backHref="/"
         backLabel="Volver al inicio"
-        items={[{ label: 'Servicios', href: '/servicios' }]}
+        items={[{ label: 'Seguros', href: '/servicios' }]}
       />
       <PageHero
         title="Soluciones para proteger lo que importa"
