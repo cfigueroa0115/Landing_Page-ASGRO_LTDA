@@ -4,6 +4,7 @@ import PageHero from '@/components/shared/PageHero';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import SectionCTA from '@/components/shared/SectionCTA';
 import PremiumCard from '@/components/shared/PremiumCard';
+import PremiumIconBadge from '@/components/shared/PremiumIconBadge';
 import EqualHeightGrid from '@/components/shared/EqualHeightGrid';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 
@@ -15,56 +16,56 @@ export const metadata: Metadata = {
 
 const serviceAreas = [
   {
-    icon: <UserPlus className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: UserPlus,
     title: 'Afiliación ARL',
     description:
       'Gestión completa del proceso de afiliación a la Administradora de Riesgos Laborales, asegurando la cobertura de todos sus trabajadores.',
     bullets: ['Asesoría en selección de ARL', 'Trámite de afiliación', 'Documentación requerida'],
   },
   {
-    icon: <ArrowRightLeft className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: ArrowRightLeft,
     title: 'Traslado de ARL',
     description:
       'Acompañamiento en el proceso de traslado entre administradoras de riesgos laborales, garantizando continuidad en la cobertura.',
     bullets: ['Evaluación de conveniencia', 'Gestión del trámite', 'Seguimiento post-traslado'],
   },
   {
-    icon: <Shield className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: Shield,
     title: 'Clasificación de Riesgo',
     description:
       'Análisis y acompañamiento en la correcta clasificación del nivel de riesgo de su actividad económica según la normatividad vigente.',
     bullets: ['Análisis de actividad económica', 'Verificación de clase de riesgo', 'Gestión ante la ARL'],
   },
   {
-    icon: <AlertTriangle className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: AlertTriangle,
     title: 'Gestión de Accidentes Laborales',
     description:
       'Acompañamiento integral ante la ocurrencia de accidentes de trabajo: reporte, investigación y seguimiento del caso.',
     bullets: ['Reporte oportuno', 'Investigación del evento', 'Seguimiento de prestaciones'],
   },
   {
-    icon: <Stethoscope className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: Stethoscope,
     title: 'Enfermedad Laboral',
     description:
       'Gestión de casos de enfermedad laboral: identificación, calificación de origen, seguimiento y rehabilitación.',
     bullets: ['Identificación temprana', 'Calificación de origen', 'Plan de rehabilitación'],
   },
   {
-    icon: <Users className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: Users,
     title: 'Acompañamiento Integral',
     description:
       'Asesoría continua en la relación empresa-ARL para optimizar los servicios de prevención y atención.',
     bullets: ['Relación empresa-ARL', 'Optimización de servicios', 'Prevención activa'],
   },
   {
-    icon: <ClipboardList className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: ClipboardList,
     title: 'Gestión de Casos',
     description:
       'Seguimiento personalizado de cada caso laboral abierto, asegurando el cumplimiento de plazos y la correcta atención al trabajador.',
     bullets: ['Seguimiento personalizado', 'Cumplimiento de plazos', 'Atención al trabajador'],
   },
   {
-    icon: <FileCheck className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: FileCheck,
     title: 'Cumplimiento Normativo',
     description:
       'Verificación del cumplimiento de obligaciones legales en materia de riesgos laborales según la legislación colombiana.',
@@ -106,7 +107,7 @@ export default function RiesgosLaboralesPage() {
             {serviceAreas.map((area) => (
               <PremiumCard
                 key={area.title}
-                icon={area.icon}
+                icon={<PremiumIconBadge icon={area.iconComponent} size="feature" tone="blue" />}
                 title={area.title}
                 description={area.description}
                 bullets={area.bullets}

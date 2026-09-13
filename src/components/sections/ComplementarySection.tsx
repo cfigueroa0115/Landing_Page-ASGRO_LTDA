@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { ClipboardCheck, HardHat, ArrowRight } from 'lucide-react';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 import SectionHeader from '@/components/shared/SectionHeader';
+import PremiumIconBadge from '@/components/shared/PremiumIconBadge';
 
 interface CapabilityBlock {
   id: string;
@@ -61,7 +62,7 @@ export default function ComplementarySection() {
     <section
       id="capacidades"
       aria-labelledby="complementary-heading"
-      className="scroll-mt-[84px] bg-white py-12 md:py-16"
+      className="scroll-mt-[84px] bg-white py-[56px] md:py-[72px]"
     >
       <div className="section-container">
         <SectionHeader
@@ -78,9 +79,7 @@ export default function ComplementarySection() {
               <AnimatedSection key={cap.id} delay={index * 120}>
                 <article className="flex h-full flex-col rounded-card border border-gray-100 bg-brand-light-gray/60 p-[24px] transition-shadow duration-300 hover:shadow-card">
                   <div className="mb-3 flex items-center gap-2">
-                    <div className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-brand-blue/10">
-                      <Icon className="h-[22px] w-[22px] text-brand-blue" strokeWidth={1.75} aria-hidden="true" />
-                    </div>
+                    <PremiumIconBadge icon={Icon} size="md" tone="blue" />
                     <h3 className="text-h4 font-bold text-brand-dark-blue">{cap.title}</h3>
                   </div>
 

@@ -4,6 +4,7 @@ import PageHero from '@/components/shared/PageHero';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import SectionCTA from '@/components/shared/SectionCTA';
 import PremiumCard from '@/components/shared/PremiumCard';
+import PremiumIconBadge from '@/components/shared/PremiumIconBadge';
 import EqualHeightGrid from '@/components/shared/EqualHeightGrid';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 
@@ -15,56 +16,56 @@ export const metadata: Metadata = {
 
 const protectionServices = [
   {
-    icon: <Heart className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: Heart,
     title: 'Vida Grupo',
     description:
       'Seguros de vida grupal que brindan respaldo económico a los beneficiarios de sus trabajadores ante eventos de fallecimiento o incapacidad total y permanente.',
     bullets: ['Cobertura por fallecimiento', 'Incapacidad total y permanente', 'Beneficiarios protegidos'],
   },
   {
-    icon: <ShieldPlus className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: ShieldPlus,
     title: 'Accidentes Personales',
     description:
       'Pólizas de accidentes personales que cubren eventos inesperados dentro y fuera del ámbito laboral, complementando la cobertura de la ARL.',
     bullets: ['Cobertura 24 horas', 'Gastos médicos', 'Indemnización por evento'],
   },
   {
-    icon: <Stethoscope className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: Stethoscope,
     title: 'Salud',
     description:
       'Planes de salud complementarios y medicina prepagada que amplían el acceso de sus trabajadores a servicios de salud de calidad.',
     bullets: ['Medicina prepagada', 'Planes complementarios', 'Red de especialistas'],
   },
   {
-    icon: <Cross className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: Cross,
     title: 'Exequiales',
     description:
       'Planes exequiales que brindan tranquilidad a sus trabajadores y sus familias ante la pérdida de un ser querido, cubriendo todos los servicios funerarios.',
     bullets: ['Cobertura familiar', 'Servicios integrales', 'Traslados a nivel nacional'],
   },
   {
-    icon: <Users className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: Users,
     title: 'Protección Familiar',
     description:
       'Extensión de coberturas al grupo familiar de sus trabajadores, fortaleciendo el sentido de pertenencia y la tranquilidad del equipo.',
     bullets: ['Cónyuge e hijos', 'Padres del trabajador', 'Planes flexibles'],
   },
   {
-    icon: <Smile className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: Smile,
     title: 'Bienestar Laboral',
     description:
       'Programas diseñados para mejorar la calidad de vida de sus trabajadores: actividades de integración, salud mental y equilibrio vida-trabajo.',
     bullets: ['Programas de integración', 'Salud mental y emocional', 'Equilibrio vida-trabajo'],
   },
   {
-    icon: <HeartHandshake className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: HeartHandshake,
     title: 'Beneficios Corporativos',
     description:
       'Diseño de portafolios de beneficios que complementan la compensación salarial y fortalecen la propuesta de valor al empleado.',
     bullets: ['Portafolio de beneficios', 'Compensación flexible', 'Propuesta de valor al empleado'],
   },
   {
-    icon: <Flower2 className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: Flower2,
     title: 'Calidad de Vida',
     description:
       'Acompañamiento en la implementación de estrategias que promuevan un ambiente laboral saludable y la prevención del estrés.',
@@ -106,7 +107,7 @@ export default function BienestarProteccionPage() {
             {protectionServices.map((service) => (
               <PremiumCard
                 key={service.title}
-                icon={service.icon}
+                icon={<PremiumIconBadge icon={service.iconComponent} size="feature" tone="blue" />}
                 title={service.title}
                 description={service.description}
                 bullets={service.bullets}

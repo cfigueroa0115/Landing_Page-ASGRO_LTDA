@@ -5,6 +5,7 @@ import PageHero from '@/components/shared/PageHero';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import SectionCTA from '@/components/shared/SectionCTA';
 import PremiumCard from '@/components/shared/PremiumCard';
+import PremiumIconBadge from '@/components/shared/PremiumIconBadge';
 import EqualHeightGrid from '@/components/shared/EqualHeightGrid';
 import PremiumButton from '@/components/shared/PremiumButton';
 
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
 // Orden intencional: SEGUROS primero (eje principal), luego ARL, SST, bienestar.
 const services = [
   {
-    icon: <Building2 className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: Building2,
     title: 'Soluciones de Seguros',
     description:
       'Seguros para personas, patrimonio y empresas: vida, salud, hogar, automóviles, multirriesgo, responsabilidad civil, cumplimiento y más.',
@@ -25,7 +26,7 @@ const services = [
     href: '/servicios/seguros-empresariales',
   },
   {
-    icon: <Shield className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: Shield,
     title: 'ARL y Riesgos Laborales',
     description:
       'Acompañamiento en ARL: afiliación, traslado, clasificación de riesgo, gestión de accidentes y enfermedad laboral.',
@@ -33,7 +34,7 @@ const services = [
     href: '/servicios/riesgos-laborales',
   },
   {
-    icon: <HardHat className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: HardHat,
     title: 'Seguridad y Salud en el Trabajo',
     description:
       'Diseño, implementación y seguimiento del SG-SST conforme a la normatividad colombiana vigente.',
@@ -41,7 +42,7 @@ const services = [
     href: '/servicios/seguridad-salud-trabajo',
   },
   {
-    icon: <Heart className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: Heart,
     title: 'Bienestar y Prevención',
     description:
       'Programas de bienestar laboral y prevención que fortalecen la cultura organizacional y el cuidado de las personas.',
@@ -70,7 +71,7 @@ export default function ServiciosPage() {
             {services.map((service) => (
               <PremiumCard
                 key={service.href}
-                icon={service.icon}
+                icon={<PremiumIconBadge icon={service.iconComponent} size="feature" tone="blue" />}
                 title={service.title}
                 description={service.description}
                 bullets={service.bullets}

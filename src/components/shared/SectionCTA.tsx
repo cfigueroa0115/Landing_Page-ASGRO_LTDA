@@ -43,7 +43,7 @@ export default function SectionCTA({
   return (
     <section
       className={cn(
-        'py-12 md:py-16 bg-gradient-to-br from-brand-dark-blue via-brand-navy to-brand-dark-blue',
+        'py-[56px] md:py-[72px] bg-gradient-to-br from-brand-dark-blue via-brand-navy to-brand-dark-blue',
         className
       )}
     >

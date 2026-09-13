@@ -20,6 +20,7 @@ import {
   MessageCircle,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import PremiumIconBadge from '@/components/shared/PremiumIconBadge';
 import { QUICK_ACCESS_ITEMS } from '@/lib/utils/constants';
 
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -61,9 +62,7 @@ export default function QuickAccessSection() {
                     href={item.href}
                     className="group flex h-full min-h-[76px] flex-col items-center justify-center gap-[6px] rounded-card border border-transparent p-2 text-center transition-colors duration-300 hover:border-brand-blue/20 hover:bg-brand-light-gray focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue lg:flex-row lg:justify-start lg:gap-3 lg:text-left"
                   >
-                    <span className="flex h-[40px] w-[40px] flex-shrink-0 items-center justify-center rounded-full bg-brand-blue/10 text-brand-blue ring-1 ring-brand-blue/15 transition-colors duration-300 group-hover:bg-brand-blue group-hover:text-white">
-                      <Icon className="h-[20px] w-[20px]" strokeWidth={1.75} aria-hidden="true" />
-                    </span>
+                    <PremiumIconBadge icon={Icon} size="sm" tone="blue" />
                     <span className="flex flex-col">
                       <span className="text-small font-semibold text-brand-dark-blue">
                         {item.label}

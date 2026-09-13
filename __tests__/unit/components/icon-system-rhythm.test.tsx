@@ -1,0 +1,116 @@
+import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import React from 'react';
+import fs from 'node:fs';
+import path from 'node:path';
+
+/**
+ * BLOQUE 5A.8 — sistema de iconos editorial unificado, ritmo vertical y a11y.
+ */
+
+vi.mock('next/link', () => ({
+  default: ({ children, href, ...props }: any) =>
+    React.createElement('a', { href, ...props }, children),
+}));
+
+vi.mock('framer-motion', () => ({
+  motion: new Proxy(
+    {},
+    {
+      get:
+        (_t, tag: string) =>
+        ({ children, ...props }: any) => {
+          const { whileHover: _wh, whileInView: _w, initial: _i, animate: _a, transition: _tr, viewport: _vp, ...rest } = props;
+          return React.createElement(tag, rest, children);
+        },
+    }
+  ),
+  useReducedMotion: () => false,
+}));
+
+vi.mock('lucide-react', () => {
+  const Icon = (props: any) => <span data-testid="icon" aria-hidden="true" {...props} />;
+  return { Check: Icon, Search: Icon };
+});
+
+import PremiumIconBadge from '@/components/shared/PremiumIconBadge';
+import ProcessStep from '@/components/shared/ProcessStep';
+import { Search } from 'lucide-react';
+
+// ─── PremiumIconBadge como sistema único ────────────────────────────────────
+describe('5A.8 — PremiumIconBadge sizes', () => {
+  it('size sm renderiza el contenedor 40px y es aria-hidden', () => {
+    const { container } = render(<PremiumIconBadge icon={Search} size="sm" />);
+    const badge = container.querySelector('span[aria-hidden="true"]');
+    expect(badge?.className).toContain('h-[40px]');
+  });
+});
+
+// ─── ProcessStep a11y "Paso N" ──────────────────────────────────────────────
+describe('5A.8 — ProcessStep expone "Paso N" a lectores de pantalla', () => {
+  it('incluye el texto sr-only "Paso 2"', () => {
+    render(<ProcessStep step={2} icon={Search} title="Analizar" description="x" />);
+    expect(screen.getByText('Paso 2')).toBeInTheDocument();
+  });
+});
+
+// ─── Migración de iconografía (verificación por código fuente) ───────────────
+function read(rel: string) {
+  return fs.readFileSync(path.join(process.cwd(), rel), 'utf8');
+}
+
+describe('5A.8 — componentes editoriales usan PremiumIconBadge', () => {
+  const files = [
+    'src/components/sections/QuickAccessSection.tsx',
+    'src/components/sections/InsurancePortfolioSection.tsx',
+    'src/components/sections/ComplementarySection.tsx',
+    'src/components/shared/ValueCard.tsx',
+    'src/components/shared/InsuranceCard.tsx',
+    'src/components/sections/TrustSection.tsx',
+    'src/components/sections/ValueGeneratedSection.tsx',
+    'src/components/shared/CorporateSection.tsx',
+  ];
+  for (const f of files) {
+    it(`${f} importa/usa PremiumIconBadge`, () => {
+      expect(read(f)).toContain('PremiumIconBadge');
+    });
+  }
+});
+
+describe('5A.8 — PremiumCard: reduced-motion e icono sin doble contenedor', () => {
+  it('usa useReducedMotion y no aplica el gradient container antiguo', () => {
+    const src = read('src/components/shared/PremiumCard.tsx');
+    expect(src).toContain('useReducedMotion');
+    expect(src).not.toContain('from-brand-green/20 to-brand-blue/10');
+  });
+});
+
+// ─── Ritmo vertical: sin py-12/md:py-16 problemáticos en las secciones home ──
+describe('5A.8 — ritmo vertical normalizado (sin py-12/md:py-16)', () => {
+  const sections = [
+    'src/components/sections/ValuePropositionSection.tsx',
+    'src/components/sections/InsurancePortfolioSection.tsx',
+    'src/components/sections/WhyChooseSection.tsx',
+    'src/components/sections/TrustSection.tsx',
+    'src/components/sections/ValueGeneratedSection.tsx',
+    'src/components/sections/ComplementarySection.tsx',
+    'src/components/home/HomeMethodologyCompact.tsx',
+  ];
+  for (const f of sections) {
+    it(`${f} no usa "py-12 md:py-16"`, () => {
+      expect(read(f)).not.toContain('py-12 md:py-16');
+    });
+  }
+});
+
+// ─── WhatsApp panel: spacing interno explícito ──────────────────────────────
+describe('5A.8 — WhatsApp panel usa spacing explícito', () => {
+  it('el mini-panel no usa px-4/py-3/p-4/px-3 en su interior', () => {
+    const src = read('src/components/shared/FloatingWhatsApp.tsx');
+    expect(src).toContain('px-[16px] py-[12px]');
+    expect(src).toContain('p-[16px]');
+    // No deben quedar las utilities de escala custom en el panel.
+    expect(src).not.toContain('bg-brand-light-gray/60 p-4');
+    expect(src).not.toContain('bg-[#075E54] px-4 py-3');
+  });
+});

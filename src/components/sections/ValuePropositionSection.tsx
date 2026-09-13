@@ -25,7 +25,7 @@ export default function ValuePropositionSection() {
     <section
       id="propuesta-valor"
       aria-labelledby="value-heading"
-      className="scroll-mt-[84px] bg-white py-12 md:py-16"
+      className="scroll-mt-[84px] bg-white py-[56px] md:py-[72px]"
     >
       <div className="section-container">
         <SectionHeader

@@ -31,6 +31,7 @@ import type { LucideIcon } from 'lucide-react';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 import SectionHeader from '@/components/shared/SectionHeader';
 import InsuranceCard from '@/components/shared/InsuranceCard';
+import PremiumIconBadge from '@/components/shared/PremiumIconBadge';
 import { INSURANCE_PORTFOLIO, SITE_CONTENT } from '@/lib/utils/constants';
 
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -56,7 +57,7 @@ export default function InsurancePortfolioSection() {
     <section
       id="portafolio"
       aria-labelledby="portfolio-heading"
-      className="brand-surface scroll-mt-[84px] py-12 md:py-16"
+      className="brand-surface scroll-mt-[84px] py-[56px] md:py-[72px]"
     >
       <div className="section-container">
         <SectionHeader
@@ -72,11 +73,9 @@ export default function InsurancePortfolioSection() {
             return (
               <AnimatedSection key={group.id} delay={groupIndex * 100}>
                 <div>
-                  {/* Encabezado del grupo (círculo 40px, icono 22px) */}
+                  {/* Encabezado del grupo — badge premium */}
                   <div className="mb-3 flex items-center gap-2">
-                    <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-brand-blue/10">
-                      <GroupIcon className="h-[22px] w-[22px] text-brand-blue" strokeWidth={1.75} aria-hidden="true" />
-                    </div>
+                    <PremiumIconBadge icon={GroupIcon} size="md" tone="blue" />
                     <div>
                       <h3 className="text-h4 font-bold text-brand-dark-blue">
                         {group.groupTitle}

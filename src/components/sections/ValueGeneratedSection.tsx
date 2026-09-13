@@ -36,7 +36,7 @@ export default function ValueGeneratedSection() {
     <section
       id="valor"
       aria-labelledby="value-generated-heading"
-      className="brand-surface py-12 md:py-16"
+      className="brand-surface py-[56px] md:py-[72px]"
     >
       <div className="section-container">
         <SectionHeader

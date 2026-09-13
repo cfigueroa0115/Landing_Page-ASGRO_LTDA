@@ -28,7 +28,7 @@ export default function WhyChooseSection() {
     <section
       id="por-que-asgro"
       aria-labelledby="why-choose-heading"
-      className="bg-white py-12 md:py-16"
+      className="bg-white py-[56px] md:py-[72px]"
     >
       <div className="section-container">
         <SectionHeader

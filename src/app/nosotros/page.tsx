@@ -4,6 +4,7 @@ import PageHero from '@/components/shared/PageHero';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import SectionCTA from '@/components/shared/SectionCTA';
 import PremiumCard from '@/components/shared/PremiumCard';
+import PremiumIconBadge from '@/components/shared/PremiumIconBadge';
 import EqualHeightGrid from '@/components/shared/EqualHeightGrid';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 
@@ -96,22 +97,22 @@ export default function NosotrosPage() {
           </AnimatedSection>
           <EqualHeightGrid columns={{ sm: 2, md: 2, lg: 4 }}>
             <PremiumCard
-              icon={<Shield className="h-[24px] w-[24px] text-brand-green" />}
+              icon={<PremiumIconBadge icon={Shield} size="feature" tone="blue" />}
               title="Compromiso"
               description="Actuamos con responsabilidad y dedicación en cada gestión, priorizando las necesidades de nuestros clientes."
             />
             <PremiumCard
-              icon={<Scale className="h-[24px] w-[24px] text-brand-green" />}
+              icon={<PremiumIconBadge icon={Scale} size="feature" tone="blue" />}
               title="Transparencia"
               description="Operamos con honestidad y claridad en todos nuestros procesos, generando relaciones de confianza."
             />
             <PremiumCard
-              icon={<Heart className="h-[24px] w-[24px] text-brand-green" />}
+              icon={<PremiumIconBadge icon={Heart} size="feature" tone="blue" />}
               title="Integridad"
               description="Nuestras acciones se rigen por principios éticos que garantizan un servicio confiable y profesional."
             />
             <PremiumCard
-              icon={<Award className="h-[24px] w-[24px] text-brand-green" />}
+              icon={<PremiumIconBadge icon={Award} size="feature" tone="blue" />}
               title="Excelencia"
               description="Buscamos la mejora continua en nuestros servicios para superar las expectativas y generar valor real."
             />
@@ -129,25 +130,25 @@ export default function NosotrosPage() {
           </AnimatedSection>
           <EqualHeightGrid columns={{ sm: 1, md: 2, lg: 4 }}>
             <PremiumCard
-              icon={<Shield className="h-[24px] w-[24px] text-brand-green" />}
+              icon={<PremiumIconBadge icon={Shield} size="feature" tone="blue" />}
               title="Seguros"
               description="Soluciones para personas, patrimonio y empresas: vida, salud, hogar, automóviles y coberturas empresariales."
               bullets={['Personas', 'Patrimonio', 'Empresas']}
             />
             <PremiumCard
-              icon={<Building2 className="h-[24px] w-[24px] text-brand-green" />}
+              icon={<PremiumIconBadge icon={Building2} size="feature" tone="blue" />}
               title="Seguros Empresariales"
               description="Pólizas a la medida: multirriesgo, responsabilidad civil, cumplimiento, manejo y vida grupo."
               bullets={['Multirriesgo', 'Responsabilidad civil', 'Cumplimiento']}
             />
             <PremiumCard
-              icon={<Shield className="h-[24px] w-[24px] text-brand-green" />}
+              icon={<PremiumIconBadge icon={Shield} size="feature" tone="blue" />}
               title="ARL y Riesgos Laborales"
               description="Acompañamiento en ARL: afiliaciones, traslados, clasificación de riesgo y gestión de eventos laborales."
               bullets={['Afiliación y traslado', 'Gestión de accidentes', 'Enfermedad laboral']}
             />
             <PremiumCard
-              icon={<Users className="h-[24px] w-[24px] text-brand-green" />}
+              icon={<PremiumIconBadge icon={Users} size="feature" tone="blue" />}
               title="Seguridad y Salud en el Trabajo"
               description="Diseño, implementación y seguimiento del SG-SST conforme a la normatividad colombiana vigente."
               bullets={['SG-SST', 'Auditorías', 'Investigación de accidentes']}

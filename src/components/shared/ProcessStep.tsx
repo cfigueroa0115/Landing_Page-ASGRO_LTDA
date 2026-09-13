@@ -56,6 +56,8 @@ export default function ProcessStep({
 
       {/* Badge premium con número integrado (círculo blanco premium + halo verde
           tenue + sombra + ring; badge numérico verde pequeño). */}
+      {/* Número del paso para lectores de pantalla (el badge es aria-hidden). */}
+      <span className="sr-only">Paso {step}</span>
       <PremiumIconBadge
         icon={Icon}
         size="feature"

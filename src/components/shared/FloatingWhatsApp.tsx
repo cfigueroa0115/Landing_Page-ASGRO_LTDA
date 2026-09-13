@@ -89,8 +89,8 @@ export default function FloatingWhatsApp({ phoneNumber }: FloatingWhatsAppProps)
           aria-label="Escribir mensaje de WhatsApp a ASGRO"
           className="absolute bottom-[68px] right-0 flex w-[300px] flex-col overflow-hidden rounded-modal border border-white/10 bg-white shadow-premium-hover motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-300 sm:w-[328px]"
         >
-          {/* Header con branding ASGRO */}
-          <div className="flex shrink-0 items-center justify-between bg-[#075E54] px-4 py-3 text-white">
+          {/* Header con branding ASGRO — spacing explícito (16px H / 12px V) */}
+          <div className="flex shrink-0 items-center justify-between bg-[#075E54] px-[16px] py-[12px] text-white">
             <div className="flex items-center gap-3">
               <span className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-[#25D366]">
                 <FaWhatsapp className="h-[22px] w-[22px]" aria-hidden="true" />
@@ -114,8 +114,8 @@ export default function FloatingWhatsApp({ phoneNumber }: FloatingWhatsAppProps)
             </button>
           </div>
 
-          {/* Cuerpo: mensaje editable */}
-          <div className="bg-brand-light-gray/60 p-4">
+          {/* Cuerpo: mensaje editable — spacing explícito (16px) */}
+          <div className="bg-brand-light-gray/60 p-[16px]">
             <p className="text-sm text-gray-700">
               Escriba su mensaje y lo abriremos en WhatsApp para enviarlo a un asesor.
             </p>
@@ -129,7 +129,7 @@ export default function FloatingWhatsApp({ phoneNumber }: FloatingWhatsAppProps)
               rows={3}
               maxLength={500}
               placeholder="Escriba su mensaje..."
-              className="mt-3 w-full resize-none rounded-input border border-gray-300 bg-white px-3 py-[10px] text-sm text-brand-dark-blue shadow-sm placeholder:text-gray-500 transition-colors duration-200 focus-visible:border-[#075E54] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366]/30"
+              className="mt-[12px] w-full resize-none rounded-input border border-gray-300 bg-white px-[12px] py-[10px] text-sm text-brand-dark-blue shadow-sm placeholder:text-gray-500 transition-colors duration-200 focus-visible:border-[#075E54] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366]/30"
             />
 
             {/* Botón enviar → abre wa.me con el mensaje codificado */}
@@ -139,7 +139,7 @@ export default function FloatingWhatsApp({ phoneNumber }: FloatingWhatsAppProps)
               rel="noopener noreferrer"
               onClick={close}
               aria-label="Enviar mensaje por WhatsApp"
-              className={`mt-3 inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-btn bg-[#25D366] px-4 text-sm font-bold text-brand-dark-blue shadow-btn transition-colors hover:bg-[#20bd5a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#075E54] ${
+              className={`mt-[12px] inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-btn bg-[#25D366] px-[16px] text-sm font-bold text-brand-dark-blue shadow-btn transition-colors hover:bg-[#20bd5a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#075E54] ${
                 message.trim() ? '' : 'pointer-events-none opacity-50'
               }`}
               aria-disabled={message.trim() ? undefined : true}

@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ReactNode } from 'react';
@@ -8,6 +8,11 @@ import type { ReactNode } from 'react';
 export type PremiumCardVariant = 'default' | 'elevated' | 'glass';
 
 export interface PremiumCardProps {
+  /**
+   * Icono editorial ya renderizado. Sistema único: pasar un <PremiumIconBadge
+   * icon={X} size="feature" /> desde el call site. Se renderiza tal cual (sin
+   * contenedor/gradient extra) para evitar doble colorización.
+   */
   icon?: ReactNode;
   title: string;
   description?: string;
@@ -32,9 +37,11 @@ export default function PremiumCard({
   className,
   variant = 'default',
 }: PremiumCardProps) {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <motion.div
-      whileHover={{ y: -4 }}
+      whileHover={prefersReducedMotion ? undefined : { y: -4 }}
       transition={{ duration: 0.2, ease: 'easeOut' }}
       className={cn(
         'group relative flex h-full flex-col justify-between rounded-card p-3 transition-shadow duration-300',
@@ -51,12 +58,9 @@ export default function PremiumCard({
 
       {/* Content section */}
       <div className="flex flex-1 flex-col">
-        {/* Icon */}
-        {icon && (
-          <div className="mb-2 flex h-[56px] w-[56px] items-center justify-center rounded-full bg-gradient-to-br from-brand-green/20 to-brand-blue/10">
-            {icon}
-          </div>
-        )}
+        {/* Icono editorial premium ya renderizado (PremiumIconBadge). Sin
+            contenedor/gradient extra: evita doble colorización. */}
+        {icon && <div className="mb-2">{icon}</div>}
 
         {/* Title */}
         <h3 className="text-lg font-bold text-brand-dark-blue line-clamp-2">

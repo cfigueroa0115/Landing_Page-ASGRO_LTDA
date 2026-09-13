@@ -34,7 +34,7 @@ export default function TrustSection() {
     <section
       id="confianza"
       aria-labelledby="trust-heading"
-      className="brand-surface scroll-mt-[84px] py-12 md:py-16"
+      className="brand-surface scroll-mt-[84px] py-[56px] md:py-[72px]"
     >
       <div className="section-container">
         <SectionHeader
