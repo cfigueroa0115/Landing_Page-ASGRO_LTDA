@@ -29,8 +29,7 @@ async function seedKbV2() {
 
   console.log('🌱 Seed de knowledge_base_v2 (safe corpus)...\n');
 
-  let inserted = 0;
-  let updated = 0;
+  let processed = 0;
 
   for (const entry of SAFE_CORPUS_V2) {
     // Validar cada entrada contra la taxonomía y las reglas de 5B.1.
@@ -97,19 +96,20 @@ async function seedKbV2() {
           reviewedBy: entry.reviewedBy,
           updatedAt: sql`now()`,
         },
-      })
-      .returning({ id: knowledgeBaseV2.id });
+      });
 
-    if (result.length > 0) inserted += 1;
-    else updated += 1;
+    processed += 1;
   }
 
   const approved = SAFE_CORPUS_V2.filter((e) => e.isApproved).length;
   const pending = SAFE_CORPUS_V2.length - approved;
 
-  console.log(`✅ Corpus procesado: ${SAFE_CORPUS_V2.length} entradas`);
-  console.log(`   aprobadas: ${approved} · pendientes: ${pending}`);
-  console.log(`   upserts (insert/update): ${inserted}/${updated}`);
+  // Nota: cada fila se aplica mediante upsert (insert-or-update) idempotente.
+  // No distinguimos insert de update para evitar estadísticas engañosas: el
+  // conteo devuelto por RETURNING con onConflictDoUpdate no diferencia ambos
+  // casos de forma confiable entre versiones de PostgreSQL.
+  console.log(`✅ ${processed} entradas procesadas mediante upsert`);
+  console.log(`   ${approved} aprobadas · ${pending} pendiente(s)`);
 
   await pool.end();
   console.log('\n🎉 Seed de knowledge_base_v2 completado.');

@@ -29,8 +29,24 @@ const FORBIDDEN_PATTERNS: RegExp[] = [
 ];
 
 describe('Safe corpus V2 — estructura', () => {
-  it('tiene al menos 15 entradas', () => {
-    expect(SAFE_CORPUS_V2.length).toBeGreaterThanOrEqual(15);
+  it('tiene exactamente 24 entradas', () => {
+    expect(SAFE_CORPUS_V2).toHaveLength(24);
+  });
+
+  it('conteo exacto de aprobadas (23) y pendientes (1)', () => {
+    const approved = SAFE_CORPUS_V2.filter((e) => e.isApproved).length;
+    const pending = SAFE_CORPUS_V2.length - approved;
+    expect(approved).toBe(23);
+    expect(pending).toBe(1);
+  });
+
+  it('conteo exacto por categoría', () => {
+    const byCategory = (category: string) =>
+      SAFE_CORPUS_V2.filter((e) => e.category === category).length;
+    expect(byCategory('personas')).toBe(7);
+    expect(byCategory('empresas')).toBe(7);
+    expect(byCategory('capacidades')).toBe(4);
+    expect(byCategory('transversal')).toBe(6);
   });
 
   it('no hay keys duplicadas', () => {

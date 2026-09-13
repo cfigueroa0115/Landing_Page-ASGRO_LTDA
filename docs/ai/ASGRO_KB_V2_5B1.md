@@ -18,8 +18,8 @@
 - Se implementa una **capa de gobernanza** (validación Zod + regla de
   elegibilidad) y un **repository desacoplado**, ninguno conectado todavía al
   chat.
-- Se crea un **safe corpus** de 20 unidades atómicas, reformuladas fielmente
-  desde el sitio actual: 19 aprobadas y 1 pendiente de aprobación.
+- Se crea un **safe corpus** de 24 unidades atómicas, reformuladas fielmente
+  desde el sitio actual: 23 aprobadas y 1 pendiente de aprobación.
 - Se añaden **tests de gobernanza, corpus y seguridad de contenido** que
   impiden que regresen los claims peligrosos detectados en 5B.0.
 
@@ -86,6 +86,14 @@ Conjuntos **cerrados**; cualquier valor fuera de la lista se rechaza.
 
 Se exponen type guards (`isKbCategory`, etc.) y la lista de autoridades
 permitidas en 5B.1 (`KB_5B1_ALLOWED_AUTHORITIES`).
+
+> **Nota de diseño (para 5B.2):** hoy `category` y `subcategory` son conjuntos
+> cerrados **independientes**; el esquema no restringe qué subcategorías pueden
+> aparecer bajo cada categoría (la coherencia la aporta el corpus, no el tipo).
+> 5B.1.1 **no** rediseña la taxonomía. En 5B.2, el intent router deberá mantener
+> una **matriz explícita de intención → dominio (category/subcategory)** que
+> preserve la coherencia del enrutamiento; esa matriz es el lugar natural para
+> validar combinaciones válidas, no este microbloque.
 
 ---
 
@@ -167,9 +175,10 @@ coberturas, tarifas, tiempos ni beneficios.
 | `transversal-siniestros-orientacion-general` | transversal | siniestros | website:/servicios/seguros-empresariales | orientative | ✅ |
 | `transversal-alcance-asesora-virtual` | transversal | institucional_asgro | institutional:asesora-virtual-scope | informational | ✅ |
 
-> La tabla lista 24 filas de referencia por legibilidad, pero el corpus efectivo
-> consolida las áreas en **20 entradas** atómicas en código. El conteo autoritativo
-> proviene de `SAFE_CORPUS_V2.length` y de los tests (§9).
+> La tabla lista las **24 entradas** atómicas del corpus, una fila por entrada.
+> No hay consolidación: el código NO agrupa ni reduce entradas. El conteo
+> autoritativo proviene de `SAFE_CORPUS_V2.length` (= 24) y está fijado por los
+> tests de conteo exacto (§9).
 
 ### 6.2 Por categoría
 
@@ -178,7 +187,8 @@ coberturas, tarifas, tiempos ni beneficios.
 - **capacidades:** 4 (aprobadas).
 - **transversal:** 6 (aprobadas).
 
-- **Aprobadas:** 19.
+- **Total:** 24.
+- **Aprobadas:** 23.
 - **Pendientes de aprobación:** 1 (`personas-arrendamiento-orientacion-general`).
 
 ### 6.3 Fuentes utilizadas
@@ -232,6 +242,11 @@ Seed independiente: `src/lib/db/seed-kb-v2.ts`
 (`npm run db:seed:kb-v2`). Es upsert idempotente por `key`, valida cada entrada
 con `knowledgeBaseV2SeedSchema5B1` y **no toca** legacy ni tablas de chat.
 
+El reporte del seed (5B.1.1) informa de forma honesta: "N entradas procesadas
+mediante upsert" más el desglose aprobadas/pendientes. **No** distingue insert de
+update, porque `RETURNING` con `onConflictDoUpdate` no diferencia ambos casos de
+forma confiable; mostrar esa estadística sería engañoso.
+
 ---
 
 ## 8. Estrategia de versionado
@@ -250,23 +265,26 @@ con `knowledgeBaseV2SeedSchema5B1` y **no toca** legacy ni tablas de chat.
 
 ## 9. Tests
 
-Nuevos (33 casos, en `__tests__/unit/lib/`):
+Nuevos (en `__tests__/unit/lib/`):
 - **`kb-v2-governance.test.ts`** — regla de elegibilidad (approved/active/
   expired/effectiveTo null/exactamente-ahora), validación Zod (key, taxonomía,
   content, source, version, priority, approved requiere source, prohibición de
   contractual en 5B.1) y type guards de taxonomía.
-- **`kb-v2-corpus.test.ts`** — estructura (≥15 entradas, keys únicas, taxonomía
-  válida, cada entrada valida contra el schema 5B.1), gobernanza (aprobadas con
-  source y content, ninguna contractual, pendientes marcadas e inactivas,
-  reviewedBy en aprobadas) y **seguridad de contenido anti-regresión 5B.0** (sin
-  SMMLV, 0.522, 6.960, "48 horas", "mismo día", superlativos, tarifas, primas,
-  porcentajes, garantías/indemnizaciones).
+- **`kb-v2-corpus.test.ts`** — **conteo exacto** (24 entradas, 23 aprobadas,
+  1 pendiente; personas 7 / empresas 7 / capacidades 4 / transversal 6), keys
+  únicas, taxonomía válida, cada entrada valida contra el schema 5B.1,
+  gobernanza (aprobadas con source y content, ninguna contractual, pendientes
+  marcadas e inactivas, reviewedBy en aprobadas) y **seguridad de contenido
+  anti-regresión 5B.0** (sin SMMLV, 0.522, 6.960, "48 horas", "mismo día",
+  superlativos, tarifas, primas, porcentajes, garantías/indemnizaciones).
 
 El test de seguridad **detectó un claim en la propia redacción inicial** ("no
 fija primas ni tarifas") y forzó su reformulación a "no define valores ni
-condiciones económicas", validando que el guardrail funciona.
+condiciones económicas", validando que el guardrail funciona. Los tests de
+conteo exacto (5B.1.1) evitan que documentación y corpus se desincronicen.
 
-Total suite: **338 tests / 26 files** (305 previos + 33 nuevos). Build: exit 0.
+Total suite: **340 tests / 26 files** (305 previos + 35 nuevos: gobernanza 20,
+corpus 15). Build: exit 0.
 
 ---
 
