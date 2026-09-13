@@ -146,7 +146,7 @@ Objetivo: ser la base del retrieval de 5B.2.
 Reformulación fiel, sin Internet, sin inventar productos, aseguradoras,
 coberturas, tarifas, tiempos ni beneficios.
 
-### 6.1 Entradas creadas (20 total)
+### 6.1 Entradas creadas (24 total)
 
 | key | category | subcategory | source | authority | approved |
 |-----|----------|-------------|--------|-----------|----------|
@@ -261,6 +261,17 @@ forma confiable; mostrar esa estadística sería engañoso.
 - `reviewedBy` no inventa nombres: se usa `"ASGRO-web-approved-source"` para
   reformulaciones fieles de la web, o `null` cuando requiere revisión manual.
 
+**Propagación de `version` en el upsert (5B.1.1a):** el seed incluye `version`
+en el `set` de `onConflictDoUpdate`, de modo que un corpus con `version` mayor
+actualiza realmente la columna al re-ejecutar el seed. `key` **no** se reasigna
+en el UPDATE (es el target del conflicto).
+
+**`reviewedAt` (limitación conocida):** hoy `reviewedAt` se **refresca a `now`**
+durante el seed de una entrada aprobada; no conserva un historial de revisiones
+por versión. El versionado histórico completo (tabla de historial, quién/cuándo
+por versión) queda como **hardening de gobernanza para 5B.4**. Este bloque **no**
+crea tabla de historial.
+
 ---
 
 ## 9. Tests
@@ -283,8 +294,14 @@ fija primas ni tarifas") y forzó su reformulación a "no define valores ni
 condiciones económicas", validando que el guardrail funciona. Los tests de
 conteo exacto (5B.1.1) evitan que documentación y corpus se desincronicen.
 
-Total suite: **340 tests / 26 files** (305 previos + 35 nuevos: gobernanza 20,
-corpus 15). Build: exit 0.
+- **`kb-v2-seed-payload.test.ts`** (5B.1.1a) — builders puros del upsert:
+  `buildInsertValues`/`buildUpdateSet`/`computeReviewedAt`. Verifican que el
+  UPDATE **propaga `version`** (para que un corpus v2 actualice la columna), que
+  `key` **no** se reasigna en el UPDATE (es el target del conflicto) y que
+  `reviewedAt` se refresca a `now` solo en entradas aprobadas.
+
+Total suite: **350 tests / 27 files** (305 previos + 45 nuevos: gobernanza 20,
+corpus 15, seed-payload 10). Build: exit 0.
 
 ---
 

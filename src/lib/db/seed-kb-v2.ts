@@ -12,10 +12,73 @@
 
 import { drizzle } from 'drizzle-orm/neon-serverless';
 import { Pool } from '@neondatabase/serverless';
-import { sql } from 'drizzle-orm';
+import { sql, type SQL } from 'drizzle-orm';
 import { knowledgeBaseV2 } from './schema';
-import { SAFE_CORPUS_V2 } from '@/lib/ai/knowledge/corpus';
+import { SAFE_CORPUS_V2, type CorpusEntry } from '@/lib/ai/knowledge/corpus';
 import { knowledgeBaseV2SeedSchema5B1 } from '@/lib/ai/knowledge/validation';
+
+// ----------------------------------------------------------------------------
+// Builders puros del payload de upsert (testeable sin base de datos).
+// ----------------------------------------------------------------------------
+
+/**
+ * Calcula `reviewedAt` para una entrada del corpus. Se refresca a `now` cuando
+ * la entrada está aprobada; null en caso contrario.
+ *
+ * NOTA (gobernanza): en 5B.1.1a `reviewedAt` se refresca durante el seed de una
+ * entrada aprobada. Esto NO conserva un historial de revisiones. El versionado
+ * histórico completo (tabla de historial, quién/cuándo por versión) queda como
+ * hardening de gobernanza para 5B.4. Aquí NO se crea tabla history.
+ */
+export function computeReviewedAt(entry: CorpusEntry, now: Date): Date | null {
+  return entry.isApproved ? now : null;
+}
+
+/** Valores para INSERT (incluye version). */
+export function buildInsertValues(entry: CorpusEntry, now: Date) {
+  return {
+    key: entry.key,
+    topic: entry.topic,
+    category: entry.category,
+    subcategory: entry.subcategory,
+    content: entry.content,
+    tags: entry.tags,
+    source: entry.source,
+    sourceType: entry.sourceType,
+    authority: entry.authority,
+    version: entry.version,
+    priority: entry.priority,
+    isApproved: entry.isApproved,
+    isActive: entry.isActive,
+    reviewedAt: computeReviewedAt(entry, now),
+    reviewedBy: entry.reviewedBy,
+  };
+}
+
+/**
+ * Set para onConflictDoUpdate. Incluye `version` para que un corpus con version
+ * mayor actualice realmente la columna. NO incluye `key` (es el target del
+ * conflicto y no debe reasignarse).
+ */
+export function buildUpdateSet(entry: CorpusEntry, now: Date, updatedAt: SQL) {
+  return {
+    topic: entry.topic,
+    category: entry.category,
+    subcategory: entry.subcategory,
+    content: entry.content,
+    tags: entry.tags,
+    source: entry.source,
+    sourceType: entry.sourceType,
+    authority: entry.authority,
+    version: entry.version,
+    priority: entry.priority,
+    isApproved: entry.isApproved,
+    isActive: entry.isActive,
+    reviewedAt: computeReviewedAt(entry, now),
+    reviewedBy: entry.reviewedBy,
+    updatedAt,
+  };
+}
 
 async function seedKbV2() {
   const databaseUrl = process.env.DATABASE_URL;
@@ -57,45 +120,13 @@ async function seedKbV2() {
     }
 
     const now = new Date();
-    const reviewedAt = entry.isApproved ? now : null;
 
-    const result = await db
+    await db
       .insert(knowledgeBaseV2)
-      .values({
-        key: entry.key,
-        topic: entry.topic,
-        category: entry.category,
-        subcategory: entry.subcategory,
-        content: entry.content,
-        tags: entry.tags,
-        source: entry.source,
-        sourceType: entry.sourceType,
-        authority: entry.authority,
-        version: entry.version,
-        priority: entry.priority,
-        isApproved: entry.isApproved,
-        isActive: entry.isActive,
-        reviewedAt,
-        reviewedBy: entry.reviewedBy,
-      })
+      .values(buildInsertValues(entry, now))
       .onConflictDoUpdate({
         target: knowledgeBaseV2.key,
-        set: {
-          topic: entry.topic,
-          category: entry.category,
-          subcategory: entry.subcategory,
-          content: entry.content,
-          tags: entry.tags,
-          source: entry.source,
-          sourceType: entry.sourceType,
-          authority: entry.authority,
-          priority: entry.priority,
-          isApproved: entry.isApproved,
-          isActive: entry.isActive,
-          reviewedAt,
-          reviewedBy: entry.reviewedBy,
-          updatedAt: sql`now()`,
-        },
+        set: buildUpdateSet(entry, now, sql`now()`),
       });
 
     processed += 1;
@@ -115,7 +146,16 @@ async function seedKbV2() {
   console.log('\n🎉 Seed de knowledge_base_v2 completado.');
 }
 
-seedKbV2().catch((err) => {
-  console.error('❌ Error en seed-kb-v2:', err);
-  process.exit(1);
-});
+// Ejecutar solo cuando el script se corre directamente (tsx), no al importarlo
+// (p. ej. desde tests que consumen los builders puros). Evita abrir conexión.
+const isDirectRun =
+  typeof process !== 'undefined' &&
+  Array.isArray(process.argv) &&
+  /seed-kb-v2(\.[tj]s)?$/.test(process.argv[1] ?? '');
+
+if (isDirectRun) {
+  seedKbV2().catch((err) => {
+    console.error('❌ Error en seed-kb-v2:', err);
+    process.exit(1);
+  });
+}
