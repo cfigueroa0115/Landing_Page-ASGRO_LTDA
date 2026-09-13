@@ -124,6 +124,14 @@ describe('Reduced motion', () => {
     ).toBeInTheDocument();
   });
 
+  it('6A — Hero: el CTA "Solicitar asesoría" NO cambia (sigue verde brand-green)', () => {
+    render(<HeroSection />);
+    const cta = screen.getByRole('link', { name: /solicitar asesoría/i });
+    // El cambio de 6A aplica solo al Header; el Hero conserva su verde.
+    expect(cta.className).toContain('bg-brand-green');
+    expect(cta.className).not.toContain('bg-brand-dark-blue');
+  });
+
   it('Hero: no duplica navegación (5A.3) — solo los 2 CTAs, sin bloque HERO_ACCESS', () => {
     const { container } = render(<HeroSection />);
     // Antes existían 6 accesos + 2 CTAs. Ahora el Hero solo tiene los 2 CTAs;

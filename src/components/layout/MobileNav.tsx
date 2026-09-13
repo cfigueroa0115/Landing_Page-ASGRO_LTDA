@@ -181,7 +181,7 @@ export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
                   <Link
                     href="/contacto"
                     onClick={onClose}
-                    className="flex w-full min-h-[48px] items-center justify-center rounded-btn bg-brand-green px-[16px] py-[12px] text-lg font-bold text-brand-dark-blue transition-colors hover:bg-brand-green-alt"
+                    className="flex w-full min-h-[48px] items-center justify-center rounded-btn bg-white/95 px-[16px] py-[12px] text-lg font-bold text-brand-dark-blue transition-colors hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green"
                   >
                     Solicitar asesoría
                   </Link>

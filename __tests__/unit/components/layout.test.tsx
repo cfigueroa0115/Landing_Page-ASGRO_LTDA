@@ -124,6 +124,25 @@ describe('Header', () => {
     expect(cta).toHaveAttribute('href', '/contacto');
   });
 
+  // ─── 6A — jerarquía de CTA del Header ────────────────────────────────────
+  it('6A — "Solicitar asesoría" usa azul oscuro + texto blanco + hover azul + focus verde', () => {
+    render(<Header />);
+    const cta = screen.getByRole('link', { name: 'Solicitar asesoría' });
+    expect(cta.className).toContain('bg-brand-dark-blue');
+    expect(cta.className).toContain('text-white');
+    expect(cta.className).toContain('hover:bg-brand-blue');
+    expect(cta.className).toContain('focus-visible:outline-brand-green');
+    // Ya no es verde.
+    expect(cta.className).not.toContain('bg-brand-green');
+  });
+
+  it('6A — WhatsApp del Header conserva el verde oficial #25D366', () => {
+    render(<Header />);
+    const wa = screen.getByRole('link', { name: 'Contactar por WhatsApp' });
+    expect(wa.className).toContain('bg-[#25D366]');
+    expect(wa.className).toContain('text-brand-dark-blue');
+  });
+
   it('renderiza el botón de WhatsApp cuando la env var está configurada', () => {
     render(<Header />);
 

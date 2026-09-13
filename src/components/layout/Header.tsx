@@ -10,7 +10,8 @@
  *   sin recargar). Filete de acento azul→verde como sello de marca.
  * - Links: azul oscuro (#011930) sobre blanco (AA holgado). Activo = color
  *   azul + peso semibold + filete verde (no depende solo del color).
- * - CTA "Solicitar asesoría": verde corporativo con texto azul oscuro (AA ~8:1).
+ * - CTA "Solicitar asesoría" (6A): azul oscuro ASGRO + texto blanco (hover
+ *   brand-blue), diferenciado del WhatsApp verde. Hero mantiene su CTA verde.
  * - Nav completo desde min-[1120px]; por debajo, hamburguesa (MobileNav). Nunca
  *   coexisten. Botón WhatsApp del header desde min-[1120px]; el flotante siempre.
  */
@@ -137,13 +138,14 @@ export default function Header({ onMobileMenuOpen, isMobileMenuOpen = false }: H
             </a>
           )}
 
-          {/* Solicitar asesoría — CTA principal. Verde corporativo con texto
-              azul oscuro para garantizar contraste AA (~8:1) sin cambiar el color.
-              Proporción refinada (4E.2): altura fija, padding equilibrado,
-              tipografía sm con peso semibold para verse elegante y no pesado. */}
+          {/* Solicitar asesoría — CTA comercial en identidad AZUL OSCURO (6A)
+              para diferenciarlo del WhatsApp verde y evitar que compitan.
+              Normal: brand-dark-blue + texto blanco + sombra azul discreta.
+              Hover: brand-blue. Focus: ring verde (AA). Microdesplazamiento solo
+              con movimiento permitido (motion-safe). */}
           <Link
             href="/contacto"
-            className="hidden h-[44px] items-center justify-center whitespace-nowrap rounded-btn bg-brand-green px-[18px] text-sm font-semibold leading-none text-brand-dark-blue shadow-btn transition-all hover:bg-brand-green-alt hover:shadow-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue sm:inline-flex active:scale-95"
+            className="hidden h-[44px] items-center justify-center whitespace-nowrap rounded-btn bg-brand-dark-blue px-[18px] text-sm font-semibold leading-none text-white shadow-[0_2px_8px_rgba(1,25,48,0.25)] transition-all hover:bg-brand-blue hover:shadow-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green sm:inline-flex motion-safe:active:scale-[0.98]"
           >
             Solicitar asesoría
           </Link>
