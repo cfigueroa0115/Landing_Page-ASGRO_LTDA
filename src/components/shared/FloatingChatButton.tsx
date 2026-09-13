@@ -2,10 +2,12 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import { ChevronDown, X, Send, Loader2 } from 'lucide-react';
+import { ChevronDown, X, Send, Loader2, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
 import { SITE_CONTENT, ASSISTANT_QUICK_ACTIONS } from '@/lib/utils/constants';
 import type { ChatMessage } from '@/types';
 import AdvisorAvatar from '@/components/shared/AdvisorAvatar';
+import { useFloatingUI } from '@/components/shared/FloatingUIProvider';
+import { useVoiceAssistant } from '@/lib/hooks/useVoiceAssistant';
 
 const PANEL_ID = 'asgro-assistant-panel';
 
@@ -35,6 +37,18 @@ export default function FloatingChatButton() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Coordinación entre elementos flotantes (asistente/WhatsApp/menú móvil).
+  const { openWidget, isMobileNavOpen, openFloating, closeFloating } = useFloatingUI();
+
+  // Voz opcional (lectura de respuestas) — opt-in, sin autolectura.
+  const [voiceReplies, setVoiceReplies] = useState(false);
+  const voiceRepliesRef = useRef(false);
+  voiceRepliesRef.current = voiceReplies;
+  const voice = useVoiceAssistant({
+    lang: 'es-CO',
+    onTranscript: (text) => setInputValue(text),
+  });
 
   // Auto-scroll de mensajes (solo dentro del panel; no afecta la página).
   // Sin transición suave si el usuario pidió reducir movimiento.
@@ -71,13 +85,28 @@ export default function FloatingChatButton() {
 
   const handleOpenPanel = useCallback(() => {
     setIsPanelOpen(true);
-  }, []);
+    // Registrar en el contexto → cierra WhatsApp si estuviera abierto.
+    openFloating('assistant');
+  }, [openFloating]);
 
   const handleClosePanel = useCallback(() => {
     setIsPanelOpen(false);
+    voice.stopListening();
+    voice.stopSpeaking();
+    closeFloating();
     // Devolver el foco al botón que abrió el panel (popover no modal).
     triggerRef.current?.focus();
-  }, []);
+  }, [closeFloating, voice]);
+
+  // Coordinación: si se abre otro widget (WhatsApp) o el menú móvil, cerrar.
+  useEffect(() => {
+    if (!isPanelOpen) return;
+    if (isMobileNavOpen || (openWidget !== null && openWidget !== 'assistant')) {
+      setIsPanelOpen(false);
+      voice.stopListening();
+      voice.stopSpeaking();
+    }
+  }, [openWidget, isMobileNavOpen, isPanelOpen, voice]);
 
   // Cerrar con Escape cuando el panel está abierto.
   useEffect(() => {
@@ -131,6 +160,10 @@ export default function FloatingChatButton() {
         };
 
         setMessages((prev) => [...prev, assistantMessage]);
+        // Lectura por voz SOLO si el usuario la activó explícitamente.
+        if (voiceRepliesRef.current) {
+          voice.speak(data.response);
+        }
       } catch {
         const errorMessage: ChatMessage = {
           id: `error-${Date.now()}`,
@@ -143,7 +176,7 @@ export default function FloatingChatButton() {
         setIsLoading(false);
       }
     },
-    [isLoading, sessionId]
+    [isLoading, sessionId, voice]
   );
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -161,6 +194,9 @@ export default function FloatingChatButton() {
   // Solo se muestran las acciones rápidas antes de que el usuario escriba
   // (mientras únicamente exista el mensaje de bienvenida).
   const showQuickActions = messages.length <= 1 && !isLoading;
+
+  // Ocultar el widget mientras el menú móvil está abierto (evita superposición).
+  if (isMobileNavOpen) return null;
 
   return (
     <div className="fixed left-[16px] bottom-[calc(20px+env(safe-area-inset-bottom,0px))] z-[9998] md:left-[24px] md:bottom-[calc(28px+env(safe-area-inset-bottom,0px))]">
@@ -229,13 +265,13 @@ export default function FloatingChatButton() {
                 <p className="mb-2 text-caption font-semibold uppercase tracking-[0.08em] text-gray-500">
                   Consultas frecuentes
                 </p>
-                <div className="flex flex-wrap gap-[6px]">
+                <div className="flex flex-wrap gap-[8px]">
                   {ASSISTANT_QUICK_ACTIONS.map((action) => (
                     <button
                       key={action.label}
                       type="button"
                       onClick={() => action.prompt && handleSendMessage(action.prompt)}
-                      className="inline-flex min-h-[36px] items-center rounded-full border border-brand-blue/30 bg-white px-3 py-1 text-caption font-medium text-brand-blue transition-colors hover:bg-brand-blue/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
+                      className="inline-flex min-h-[44px] items-center rounded-full border border-brand-blue/30 bg-white px-[14px] py-1 text-small font-medium text-brand-blue transition-colors hover:bg-brand-blue/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
                     >
                       {action.label}
                     </button>
@@ -280,10 +316,76 @@ export default function FloatingChatButton() {
 
           {/* Área de escritura — no se contrae. Caja evidente y bien delimitada. */}
           <form onSubmit={handleSubmit} className="shrink-0 border-t border-gray-200 bg-white p-3">
+            {/* Controles de voz (solo si el navegador soporta la API; opt-in).
+                Nunca autoactiva el micrófono ni autolee respuestas. */}
+            {(voice.supported || voice.ttsSupported) && (
+              <div className="mb-2 flex items-center gap-2">
+                {voice.ttsSupported && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (voiceReplies) {
+                        voice.stopSpeaking();
+                        setVoiceReplies(false);
+                      } else {
+                        setVoiceReplies(true);
+                      }
+                    }}
+                    aria-pressed={voiceReplies}
+                    className={`inline-flex min-h-[36px] items-center gap-[6px] rounded-full border px-3 text-caption font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue ${
+                      voiceReplies
+                        ? 'border-brand-blue/30 bg-brand-blue/5 text-brand-blue'
+                        : 'border-gray-200 bg-white text-gray-500'
+                    }`}
+                    aria-label={voiceReplies ? 'Desactivar lectura por voz' : 'Activar lectura por voz'}
+                  >
+                    {voiceReplies ? (
+                      <Volume2 className="h-[16px] w-[16px]" aria-hidden="true" />
+                    ) : (
+                      <VolumeX className="h-[16px] w-[16px]" aria-hidden="true" />
+                    )}
+                    {voiceReplies ? 'Voz activa' : 'Voz inactiva'}
+                  </button>
+                )}
+                {voice.isSpeaking && (
+                  <span className="inline-flex items-center gap-[6px] text-caption text-brand-blue" role="status">
+                    <span className="inline-block h-[8px] w-[8px] rounded-full bg-brand-blue motion-safe:animate-pulse" aria-hidden="true" />
+                    Reproduciendo respuesta…
+                  </span>
+                )}
+                {voice.isListening && (
+                  <span className="inline-flex items-center gap-[6px] text-caption text-brand-green-alt" role="status">
+                    <span className="inline-block h-[8px] w-[8px] rounded-full bg-brand-green motion-safe:animate-pulse" aria-hidden="true" />
+                    Escuchando…
+                  </span>
+                )}
+              </div>
+            )}
             <label htmlFor="asgro-assistant-input" className="sr-only">
               Escriba su consulta para el asistente
             </label>
             <div className="flex items-end gap-2">
+              {/* Micrófono (dictado) — acción explícita; oculto si no hay soporte. */}
+              {voice.supported && (
+                <button
+                  type="button"
+                  onClick={() => (voice.isListening ? voice.stopListening() : voice.startListening())}
+                  disabled={isLoading}
+                  aria-pressed={voice.isListening}
+                  aria-label={voice.isListening ? 'Detener dictado por voz' : 'Dictar consulta por voz'}
+                  className={`flex h-[44px] w-[44px] flex-shrink-0 items-center justify-center rounded-btn shadow-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:cursor-not-allowed disabled:opacity-40 ${
+                    voice.isListening
+                      ? 'bg-brand-green text-brand-dark-blue'
+                      : 'bg-brand-light-gray text-brand-blue hover:bg-brand-blue/10'
+                  }`}
+                >
+                  {voice.isListening ? (
+                    <MicOff className="h-[18px] w-[18px]" aria-hidden="true" />
+                  ) : (
+                    <Mic className="h-[18px] w-[18px]" aria-hidden="true" />
+                  )}
+                </button>
+              )}
               <textarea
                 id="asgro-assistant-input"
                 value={inputValue}

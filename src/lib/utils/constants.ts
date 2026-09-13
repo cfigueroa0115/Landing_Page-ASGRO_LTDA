@@ -768,9 +768,9 @@ export const SITE_CONTENT = {
   aiAgentSubtitle:
     'Consulte información sobre seguros, ARL, SST y riesgos laborales en tiempo real.',
 
-  /** Mensaje de bienvenida del agente IA */
+  /** Mensaje de bienvenida del agente IA (Asesora Virtual ASGRO) */
   aiAgentWelcome:
-    '¡Hola! Soy el asistente virtual de ASGRO Agencia de Seguros. Puedo ayudarle con preguntas sobre seguros para personas y empresas, y soluciones complementarias de gestión de riesgos. ¿En qué puedo asistirle?',
+    'Hola, soy la asesora virtual de ASGRO. Puedo orientarle sobre seguros para personas, patrimonio, empresas, cumplimiento, ARL y SST. ¿Qué necesita proteger?',
 
   /** Mensaje de fallback del agente IA */
   aiAgentFallback:
@@ -780,7 +780,7 @@ export const SITE_CONTENT = {
   aiAssistantName: 'Asesora Virtual ASGRO',
 
   /** Rol/subtítulo de la asesora virtual */
-  aiAssistantRole: 'En línea · le orienta ahora',
+  aiAssistantRole: 'Orientación en seguros · En línea',
 
   /** Título de orientación del asistente */
   aiAssistantTitle: '¿Necesita orientación?',
@@ -806,6 +806,8 @@ export interface AssistantQuickAction {
 export const ASSISTANT_QUICK_ACTIONS: AssistantQuickAction[] = [
   { label: 'Seguros para personas', prompt: 'Quiero información sobre seguros para personas.' },
   { label: 'Seguros para empresas', prompt: 'Quiero información sobre seguros para empresas.' },
+  { label: 'Automóvil', prompt: 'Quiero información sobre seguros de automóvil.' },
+  { label: 'Hogar', prompt: 'Quiero información sobre seguros de hogar.' },
   { label: 'ARL', prompt: 'Quiero información sobre ARL y riesgos laborales.' },
   { label: 'SST', prompt: 'Quiero información sobre Seguridad y Salud en el Trabajo (SST).' },
   { label: 'Póliza de cumplimiento', prompt: 'Quiero información sobre pólizas de cumplimiento.' },

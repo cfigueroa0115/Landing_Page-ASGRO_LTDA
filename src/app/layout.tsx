@@ -6,6 +6,7 @@ import Footer from '@/components/layout/Footer';
 import SkipNav from '@/components/layout/SkipNav';
 import FloatingWhatsApp from '@/components/shared/FloatingWhatsApp';
 import FloatingChatButton from '@/components/shared/FloatingChatButton';
+import { FloatingUIProvider } from '@/components/shared/FloatingUIProvider';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -186,16 +187,18 @@ export default function RootLayout({
         <JsonLdSchemas />
       </head>
       <body className={inter.className}>
-        <SkipNav />
-        <HeaderWithMobileNav />
-        {children}
-        <Footer />
+        <FloatingUIProvider>
+          <SkipNav />
+          <HeaderWithMobileNav />
+          {children}
+          <Footer />
 
-        {/* Global floating elements — visible on ALL pages: solo WhatsApp + Chat IA.
-            WhatsApp abajo-derecha (z-9999), asistente abajo-izquierda (z-9998):
-            no se solapan. */}
-        {whatsappNumber && <FloatingWhatsApp phoneNumber={whatsappNumber} />}
-        <FloatingChatButton />
+          {/* Elementos flotantes globales — visibles en TODAS las páginas.
+              Coordinados por FloatingUIProvider: solo uno abierto a la vez y se
+              ocultan cuando el menú móvil está abierto (para no superponerse). */}
+          {whatsappNumber && <FloatingWhatsApp phoneNumber={whatsappNumber} />}
+          <FloatingChatButton />
+        </FloatingUIProvider>
       </body>
     </html>
   );

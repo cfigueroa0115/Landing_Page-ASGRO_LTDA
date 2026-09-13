@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" fill="none" opacity="0.5" aria-hidden="true">
+  <!-- Capa tecnológica de red de riesgo/protección (ASGRO). Nodos y conexiones
+       en tonos claros para superponer sobre fondo azul oscuro. Adaptado del
+       patrón de red neuronal de UrbanThread AI, recoloreado a la marca. -->
+  <g fill="#9BE564">
+    <circle cx="80" cy="90" r="2.5"/>
+    <circle cx="220" cy="60" r="2"/>
+    <circle cx="360" cy="110" r="3"/>
+    <circle cx="500" cy="70" r="2"/>
+    <circle cx="140" cy="220" r="2.5"/>
+    <circle cx="300" cy="250" r="3"/>
+    <circle cx="450" cy="210" r="2"/>
+    <circle cx="90" cy="360" r="2.5"/>
+    <circle cx="250" cy="380" r="3"/>
+    <circle cx="420" cy="350" r="2.5"/>
+    <circle cx="540" cy="330" r="2"/>
+    <circle cx="160" cy="500" r="2.5"/>
+    <circle cx="330" cy="520" r="3"/>
+    <circle cx="490" cy="490" r="2"/>
+  </g>
+  <g stroke="#CBD5E1" stroke-width="0.7" opacity="0.55">
+    <line x1="80" y1="90" x2="220" y2="60"/>
+    <line x1="220" y1="60" x2="360" y2="110"/>
+    <line x1="360" y1="110" x2="500" y2="70"/>
+    <line x1="80" y1="90" x2="140" y2="220"/>
+    <line x1="220" y1="60" x2="300" y2="250"/>
+    <line x1="360" y1="110" x2="450" y2="210"/>
+    <line x1="140" y1="220" x2="300" y2="250"/>
+    <line x1="300" y1="250" x2="450" y2="210"/>
+    <line x1="140" y1="220" x2="90" y2="360"/>
+    <line x1="300" y1="250" x2="250" y2="380"/>
+    <line x1="450" y1="210" x2="420" y2="350"/>
+    <line x1="90" y1="360" x2="250" y2="380"/>
+    <line x1="250" y1="380" x2="420" y2="350"/>
+    <line x1="420" y1="350" x2="540" y2="330"/>
+    <line x1="90" y1="360" x2="160" y2="500"/>
+    <line x1="250" y1="380" x2="330" y2="520"/>
+    <line x1="420" y1="350" x2="490" y2="490"/>
+    <line x1="160" y1="500" x2="330" y2="520"/>
+    <line x1="330" y1="520" x2="490" y2="490"/>
+  </g>
+  <g stroke="#024EA3" stroke-width="0.5" opacity="0.5">
+    <line x1="80" y1="90" x2="300" y2="250"/>
+    <line x1="360" y1="110" x2="540" y2="330"/>
+    <line x1="140" y1="220" x2="330" y2="520"/>
+    <line x1="300" y1="250" x2="490" y2="490"/>
+  </g>
+</svg>

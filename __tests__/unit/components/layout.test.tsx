@@ -27,6 +27,7 @@ vi.mock('framer-motion', () => ({
   },
   AnimatePresence: ({ children }: React.PropsWithChildren) =>
     React.createElement(React.Fragment, null, children),
+  useReducedMotion: () => false,
 }));
 
 // Mock brand-assets module

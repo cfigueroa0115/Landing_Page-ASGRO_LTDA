@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { X } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { generateWhatsAppUrl, getDefaultWhatsAppMessage } from '@/lib/utils/whatsapp';
+import { useFloatingUI } from '@/components/shared/FloatingUIProvider';
 
 const PANEL_ID = 'asgro-whatsapp-panel';
 
@@ -32,16 +33,32 @@ export default function FloatingWhatsApp({ phoneNumber }: FloatingWhatsAppProps)
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
-  const open = useCallback(() => setIsOpen(true), []);
+  // Coordinación entre elementos flotantes (asistente/WhatsApp/menú móvil).
+  const { openWidget, isMobileNavOpen, openFloating, closeFloating } = useFloatingUI();
+
+  const open = useCallback(() => {
+    setIsOpen(true);
+    // Registrar en el contexto → cierra el asistente si estuviera abierto.
+    openFloating('whatsapp');
+  }, [openFloating]);
   const close = useCallback(() => {
     setIsOpen(false);
+    closeFloating();
     triggerRef.current?.focus();
-  }, []);
+  }, [closeFloating]);
 
   // Al abrir, foco al botón Cerrar.
   useEffect(() => {
     if (isOpen) closeButtonRef.current?.focus();
   }, [isOpen]);
+
+  // Coordinación: si se abre otro widget (asistente) o el menú móvil, cerrar.
+  useEffect(() => {
+    if (!isOpen) return;
+    if (isMobileNavOpen || (openWidget !== null && openWidget !== 'whatsapp')) {
+      setIsOpen(false);
+    }
+  }, [openWidget, isMobileNavOpen, isOpen]);
 
   // Escape cierra.
   useEffect(() => {
@@ -58,6 +75,9 @@ export default function FloatingWhatsApp({ phoneNumber }: FloatingWhatsAppProps)
   if (!phoneNumber || !previewUrl) {
     return null;
   }
+
+  // Ocultar el widget mientras el menú móvil está abierto (evita superposición).
+  if (isMobileNavOpen) return null;
 
   return (
     <div className="fixed right-[16px] bottom-[calc(20px+env(safe-area-inset-bottom,0px))] z-[9999] md:right-[24px] md:bottom-[calc(28px+env(safe-area-inset-bottom,0px))]">
