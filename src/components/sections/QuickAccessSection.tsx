@@ -47,7 +47,7 @@ export default function QuickAccessSection() {
           whileInView={prefersReducedMotion ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.4, ease: 'easeOut' }}
-          className="relative z-10 -mt-6 rounded-modal border border-gray-200/80 bg-white p-3 shadow-premium md:-mt-8 md:p-4"
+          className="relative z-10 -mt-[28px] rounded-modal border border-gray-200/80 bg-white p-3 shadow-premium md:-mt-[32px] md:p-[16px]"
         >
           <h2 id="quick-access-heading" className="sr-only">
             Accesos rápidos

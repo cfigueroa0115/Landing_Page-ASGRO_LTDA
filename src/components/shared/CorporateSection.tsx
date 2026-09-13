@@ -28,10 +28,10 @@ export default function CorporateSection() {
     <section
       id="empresas"
       aria-labelledby="corporate-heading"
-      className="scroll-mt-[84px] bg-gradient-to-br from-brand-dark-blue via-brand-navy to-brand-dark-blue py-12 md:py-16"
+      className="scroll-mt-[84px] bg-gradient-to-br from-brand-dark-blue via-brand-navy to-brand-dark-blue py-[48px] md:py-[72px]"
     >
       <div className="section-container">
-        <div className="grid items-center gap-8 lg:grid-cols-2">
+        <div className="grid items-center gap-[40px] lg:grid-cols-2">
           {/* Texto */}
           <AnimatedSection direction="left">
             <span className="brand-eyebrow mb-2 block text-brand-neon-green">
@@ -100,7 +100,7 @@ export default function CorporateSection() {
                       ? { duration: 0 }
                       : { duration: 0.4, delay: index * 0.1, ease: 'easeOut' }
                   }
-                  className="rounded-card border border-white/10 bg-white/5 p-4 backdrop-blur-sm transition-colors duration-300 hover:bg-white/10"
+                  className="rounded-card border border-white/10 bg-white/5 p-[20px] backdrop-blur-sm transition-colors duration-300 hover:bg-white/10"
                 >
                   <div className="mb-2 flex h-[44px] w-[44px] items-center justify-center rounded-full bg-brand-green/20">
                     <Icon className="h-[22px] w-[22px] text-brand-neon-green" strokeWidth={1.75} aria-hidden="true" />

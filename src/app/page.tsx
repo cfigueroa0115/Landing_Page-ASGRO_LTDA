@@ -18,7 +18,8 @@ import SectionCTA from '@/components/shared/SectionCTA';
  * 1. Hero — "Protegemos lo que mueve su futuro." (seguros ante todo)
  * 1b. Accesos rápidos — Personas · Empresas · ARL · SST · Cumplimiento · Contacto
  * 2. Propuesta de valor — Personas · Patrimonio · Empresas
- * 3. Portafolio de Seguros — sección núcleo
+ * 2b. Vitrina editorial — Personas · Hogar · Vehículo (protección visual/emocional)
+ * 3. Portafolio de Seguros — sección núcleo (profundidad técnica)
  * 4. ¿Por qué elegir ASGRO? — 5 diferenciadores cualitativos
  * 5. Confianza y respaldo — rol de aliado/intermediario (4 pilares)
  * 6. Modelo de acompañamiento — 4 etapas
@@ -35,8 +36,8 @@ export default function Home() {
       <HeroSection />
       <QuickAccessSection />
       <ValuePropositionSection />
-      <InsurancePortfolioSection />
       <InsuranceShowcaseSection />
+      <InsurancePortfolioSection />
       <WhyChooseSection />
       <TrustSection />
       <HomeMethodologyCompact />

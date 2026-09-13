@@ -1,12 +1,16 @@
 'use client';
 
 /**
- * InsuranceShowcaseSection — Vitrina editorial de protección (Bloque 5A.4).
+ * InsuranceShowcaseSection — Vitrina editorial de protección (Bloque 5A.5).
  *
- * Aporta fotografía real a la home para equilibrar la iconografía: una
- * composición editorial de Personas (dos imágenes superpuestas) junto a media
- * cards premium de Hogar/Patrimonio y Vehículo. Complementa —no reemplaza— el
- * portafolio técnico. Enlaces reales; sin interactive nesting; reduced-motion.
+ * Bento editorial premium: Personas como pieza principal (dos imágenes
+ * superpuestas) junto a Hogar y Vehículo como piezas complementarias. Las dos
+ * columnas terminan aproximadamente alineadas en desktop; en móvil se apilan
+ * Personas → Hogar → Vehículo. Complementa —no reemplaza— el portafolio técnico.
+ * Enlaces reales, sin interactive nesting, reduced-motion.
+ *
+ * Spacing con valores explícitos (la escala custom hace py-12=96px, gap-6=48px):
+ * sección ~64/80px, gaps 24-28px, separación imagen/texto ~20px.
  */
 
 import Image from 'next/image';
@@ -19,7 +23,7 @@ export default function InsuranceShowcaseSection() {
     <section
       id="proteccion-visual"
       aria-labelledby="showcase-heading"
-      className="scroll-mt-[84px] bg-white py-12 md:py-16"
+      className="scroll-mt-[84px] bg-white py-[48px] md:py-[72px]"
     >
       <div className="section-container">
         <SectionHeader
@@ -29,80 +33,86 @@ export default function InsuranceShowcaseSection() {
           titleId="showcase-heading"
         />
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        {/* Bento: Personas (principal) + Hogar/Vehículo (complementarias) */}
+        <div className="grid gap-[24px] lg:grid-cols-[1.1fr_0.9fr]">
           {/* Personas — composición editorial con dos imágenes */}
-          <AnimatedSection>
-            <div className="relative">
-              {/* Imagen principal */}
-              <div className="relative overflow-hidden rounded-modal border border-gray-200/80 shadow-premium">
-                <div className="relative aspect-[4/3] w-full">
+          <AnimatedSection className="flex flex-col">
+            <div className="relative flex-1">
+              {/* Imagen principal — 4:3 móvil, algo más alto en desktop */}
+              <div className="relative h-full overflow-hidden rounded-modal border border-gray-200/80 shadow-premium">
+                <div className="relative aspect-[4/3] w-full lg:aspect-auto lg:h-full lg:min-h-[420px]">
                   <Image
                     src="/images/SegurosPersonas3.webp"
                     alt="Familia protegida por un seguro de personas de ASGRO"
                     fill
-                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    sizes="(max-width: 1024px) 100vw, 55vw"
                     className="object-cover"
                     style={{ objectPosition: 'center' }}
                   />
                   <div
                     aria-hidden="true"
-                    className="absolute inset-0 bg-gradient-to-t from-brand-dark-blue/45 to-transparent"
+                    className="absolute inset-0 bg-gradient-to-t from-brand-dark-blue/55 via-brand-dark-blue/10 to-transparent"
                   />
                 </div>
                 {/* Tag */}
-                <span className="absolute left-[16px] top-[16px] inline-flex items-center rounded-full bg-brand-dark-blue/75 px-[12px] py-[6px] text-caption font-semibold text-white backdrop-blur-sm ring-1 ring-white/15">
+                <span className="absolute left-[16px] top-[16px] inline-flex items-center rounded-full bg-brand-dark-blue/75 px-[12px] py-[6px] text-caption font-semibold text-white ring-1 ring-white/15 backdrop-blur-sm">
                   Protección para personas
                 </span>
+                {/* Texto sobre la parte inferior (no tapa la foto) */}
+                <div className="absolute inset-x-0 bottom-0 p-[18px]">
+                  <h3 className="text-h4 font-bold text-white">
+                    Su bienestar y el de su familia
+                  </h3>
+                  <p className="mt-[6px] max-w-md text-small leading-snug text-white/85">
+                    Vida, salud y protección personal para cada etapa, con
+                    acompañamiento cercano.
+                  </p>
+                </div>
               </div>
 
-              {/* Imagen secundaria superpuesta (desplazada, editorial) */}
-              <div className="absolute -bottom-6 right-4 hidden w-[38%] max-w-[190px] overflow-hidden rounded-card border-4 border-white shadow-premium-hover sm:block">
+              {/* Imagen secundaria superpuesta (editorial, desktop) */}
+              <div className="absolute -bottom-5 right-4 hidden w-[34%] max-w-[170px] overflow-hidden rounded-card border-4 border-white shadow-premium-hover sm:block">
                 <div className="relative aspect-square w-full">
                   <Image
-                    src="/images/SegurosPersonas2.png"
+                    src="/images/SegurosPersonas2.jpg"
                     alt="Asesoría cercana para la protección de la salud y la vida"
                     fill
-                    sizes="190px"
+                    sizes="170px"
                     className="object-cover"
                   />
                 </div>
               </div>
             </div>
-
-            <p className="mt-8 max-w-md text-body text-gray-600 sm:mt-6">
-              Soluciones de vida, salud y protección personal pensadas para cada
-              etapa, con acompañamiento cercano.
-            </p>
           </AnimatedSection>
 
-          {/* Hogar y Vehículo — media cards apiladas */}
-          <AnimatedSection delay={120}>
-            <div className="grid gap-6">
-              <InsuranceMediaCard
-                image="/images/Hogar-protegido.webp"
-                alt="Protección de hogar y patrimonio"
-                eyebrow="Hogar y patrimonio"
-                title="Su hogar y su patrimonio, resguardados"
-                description="Hogar, copropiedades y arrendamiento con coberturas a la medida."
-                href="/servicios"
-                ctaLabel="Ver soluciones"
-                objectPosition="center"
-                aspect="16 / 9"
-                sizes="(max-width: 1024px) 100vw, 50vw"
-              />
-              <InsuranceMediaCard
-                image="/images/Vehiculo.webp"
-                alt="Protección para vehículos y movilidad"
-                eyebrow="Vehículo y movilidad"
-                title="Movilidad protegida en cada trayecto"
-                description="Automóviles y movilidad con respaldo y respuesta ágil."
-                href="/contacto"
-                ctaLabel="Cotizar mi vehículo"
-                objectPosition="center"
-                aspect="16 / 9"
-                sizes="(max-width: 1024px) 100vw, 50vw"
-              />
-            </div>
+          {/* Hogar y Vehículo — media cards complementarias */}
+          <AnimatedSection delay={120} className="grid gap-[24px]">
+            <InsuranceMediaCard
+              image="/images/Hogar-protegido.webp"
+              alt="Protección de hogar y patrimonio"
+              eyebrow="Hogar y patrimonio"
+              title="Su hogar y su patrimonio, resguardados"
+              description="Hogar, copropiedades y arrendamiento con coberturas a la medida."
+              href="/servicios"
+              ctaLabel="Ver soluciones"
+              objectPosition="center"
+              aspect="4 / 3"
+              sizes="(max-width: 1024px) 100vw, 40vw"
+              className="h-full"
+            />
+            <InsuranceMediaCard
+              image="/images/Vehiculo.webp"
+              alt="Protección para vehículos y movilidad"
+              eyebrow="Vehículo y movilidad"
+              title="Movilidad protegida en cada trayecto"
+              description="Automóviles y movilidad con respaldo y respuesta ágil."
+              href="/contacto"
+              ctaLabel="Cotizar mi vehículo"
+              objectPosition="center"
+              aspect="4 / 3"
+              sizes="(max-width: 1024px) 100vw, 40vw"
+              className="h-full"
+            />
           </AnimatedSection>
         </div>
       </div>

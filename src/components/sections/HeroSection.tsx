@@ -183,7 +183,7 @@ export default function HeroSection() {
                 {/* Imagen editorial principal (LCP) */}
                 <div className="relative h-[240px] w-full sm:h-[320px] lg:h-[420px]">
                   <Image
-                    src="/images/SeguroIntegral.png"
+                    src="/images/SeguroIntegral.avif"
                     alt="Protección integral para personas, patrimonio y empresas"
                     fill
                     priority
