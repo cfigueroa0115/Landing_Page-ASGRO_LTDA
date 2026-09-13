@@ -4,6 +4,7 @@ import PageHero from '@/components/shared/PageHero';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import SectionCTA from '@/components/shared/SectionCTA';
 import AnimatedSection from '@/components/shared/AnimatedSection';
+import PremiumIconBadge from '@/components/shared/PremiumIconBadge';
 
 export const metadata: Metadata = {
   title: 'Metodología - ASGRO Agencia de Seguros',
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
 const phases = [
   {
     number: 1,
-    icon: <Search className="h-[28px] w-[28px] text-white" />,
+    icon: Search,
     title: 'Diagnóstico',
     description:
       'Evaluamos el estado actual de su empresa frente a los requisitos normativos y las necesidades de protección. Identificamos brechas, riesgos prioritarios y oportunidades de mejora.',
@@ -28,7 +29,7 @@ const phases = [
   },
   {
     number: 2,
-    icon: <CalendarCheck className="h-[28px] w-[28px] text-white" />,
+    icon: CalendarCheck,
     title: 'Planeación',
     description:
       'Con base en el diagnóstico, diseñamos un plan de acción priorizado con objetivos, responsables, cronograma y recursos necesarios para cerrar las brechas identificadas.',
@@ -42,7 +43,7 @@ const phases = [
   },
   {
     number: 3,
-    icon: <Cog className="h-[28px] w-[28px] text-white" />,
+    icon: Cog,
     title: 'Implementación',
     description:
       'Ejecutamos las acciones definidas en el plan: documentación, capacitaciones, trámites, implementación de controles y puesta en marcha de programas.',
@@ -56,7 +57,7 @@ const phases = [
   },
   {
     number: 4,
-    icon: <LineChart className="h-[28px] w-[28px] text-white" />,
+    icon: LineChart,
     title: 'Seguimiento',
     description:
       'Monitoreamos indicadores de gestión, verificamos la eficacia de las acciones implementadas y realizamos auditorías periódicas para asegurar el mantenimiento del sistema.',
@@ -70,7 +71,7 @@ const phases = [
   },
   {
     number: 5,
-    icon: <RefreshCw className="h-[28px] w-[28px] text-white" />,
+    icon: RefreshCw,
     title: 'Mejora Continua',
     description:
       'Identificamos oportunidades de optimización, gestionamos las no conformidades y actualizamos el sistema ante cambios normativos o de la operación.',
@@ -99,7 +100,7 @@ export default function MetodologiaPage() {
       />
 
       {/* Timeline / Roadmap */}
-      <section className="py-10 md:py-14 bg-white">
+      <section className="py-[48px] md:py-[64px] bg-white">
         <div className="section-container">
           <AnimatedSection>
             <div className="max-w-[700px] mx-auto text-center mb-6">
@@ -115,22 +116,26 @@ export default function MetodologiaPage() {
 
           {/* Timeline items */}
           <div className="relative max-w-[800px] mx-auto">
-            {/* Vertical line - hidden on mobile */}
-            <div className="hidden md:block absolute left-[32px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-brand-green via-brand-blue to-brand-dark-blue" />
+            {/* Vertical line - hidden on mobile. left-[27px] = centro del badge de 54px */}
+            <div className="hidden md:block absolute left-[27px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-brand-green via-brand-blue to-brand-dark-blue" />
 
             <div className="space-y-5 md:space-y-6">
               {phases.map((phase) => (
                 <AnimatedSection key={phase.number} delay={phase.number * 100}>
                   <div className="relative flex gap-3 md:gap-4">
-                    {/* Phase number circle */}
-                    <div className="flex-shrink-0 flex items-start">
-                      <div className="relative z-10 flex h-[64px] w-[64px] items-center justify-center rounded-full bg-gradient-to-br from-brand-green to-brand-blue shadow-lg">
-                        {phase.icon}
-                      </div>
+                    {/* Phase badge premium con número de fase integrado */}
+                    <div className="relative z-10 flex-shrink-0 flex items-start">
+                      <PremiumIconBadge
+                        icon={phase.icon}
+                        size="feature"
+                        tone="blue"
+                        number={phase.number}
+                        className="bg-white shadow-lg ring-brand-green/25"
+                      />
                     </div>
 
                     {/* Phase content */}
-                    <div className="flex-1 bg-brand-light-gray rounded-card p-3 md:p-4 border border-gray-100">
+                    <div className="flex-1 bg-brand-light-gray rounded-card p-[16px] md:p-[20px] border border-gray-100">
                       <div className="flex items-center gap-1 mb-1">
                         <span className="text-sm font-bold text-brand-green uppercase tracking-wide">
                           Fase {phase.number}

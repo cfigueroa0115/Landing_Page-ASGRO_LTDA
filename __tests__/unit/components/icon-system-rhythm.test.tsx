@@ -103,6 +103,49 @@ describe('5A.8 — ritmo vertical normalizado (sin py-12/md:py-16)', () => {
   }
 });
 
+// ─── 5A.8.1 — Cierre de consistencia de micrositios ─────────────────────────
+describe('5A.8.1 — PageHero spacing explícito', () => {
+  it('PageHero no usa "py-12 md:py-16" (usa py-[48px] md:py-[64px])', () => {
+    const src = read('src/components/shared/PageHero.tsx');
+    expect(src).not.toContain('py-12 md:py-16');
+    expect(src).toContain('py-[48px] md:py-[64px]');
+  });
+});
+
+describe('5A.8.1 — /metodologia sistema premium y spacing', () => {
+  const src = () => read('src/app/metodologia/page.tsx');
+  it('usa PremiumIconBadge y ya no el círculo gradient de 64px', () => {
+    expect(src()).toContain('PremiumIconBadge');
+    expect(src()).not.toContain('from-brand-green to-brand-blue shadow-lg');
+  });
+  it('conserva las 5 fases numeradas (number 1..5)', () => {
+    const s = src();
+    for (const n of [1, 2, 3, 4, 5]) expect(s).toContain(`number: ${n},`);
+  });
+  it('normaliza el spacing (sin py-10 md:py-14)', () => {
+    expect(src()).not.toContain('py-10 md:py-14');
+    expect(src()).toContain('py-[48px] md:py-[64px]');
+  });
+});
+
+describe('5A.8.1 — /resultados sistema premium y spacing', () => {
+  const src = () => read('src/app/resultados/page.tsx');
+  it('usa PremiumIconBadge para las métricas', () => {
+    expect(src()).toContain('PremiumIconBadge');
+    expect(src()).not.toContain('from-brand-green/20 to-brand-blue/10');
+  });
+  it('conserva los valores de contenido 4/5/360°/100%/24/7', () => {
+    const s = src();
+    for (const v of ["'4'", "'5'", "'360°'", "'100%'", "'24/7'"]) expect(s).toContain(v);
+  });
+  it('normaliza el spacing (sin py-10 md:py-14 ni py-10 md:py-12)', () => {
+    const s = src();
+    expect(s).not.toContain('py-10 md:py-14');
+    expect(s).not.toContain('py-10 md:py-12');
+    expect(s).toContain('py-[48px] md:py-[64px]');
+  });
+});
+
 // ─── WhatsApp panel: spacing interno explícito ──────────────────────────────
 describe('5A.8 — WhatsApp panel usa spacing explícito', () => {
   it('el mini-panel no usa px-4/py-3/p-4/px-3 en su interior', () => {

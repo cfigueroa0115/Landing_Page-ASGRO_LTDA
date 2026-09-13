@@ -18,7 +18,8 @@ const bgStyles: Record<PageHeroVariant, string> = {
 };
 
 /**
- * Internal page hero for microsites. Compact layout (py-12 to py-16).
+ * Internal page hero for microsites. Compact layout con spacing explícito
+ * (escala custom: py-12=96px, md:py-16=128px → py-[48px] md:py-[64px]).
  */
 export default function PageHero({
   title,
@@ -32,7 +33,7 @@ export default function PageHero({
   return (
     <section
       className={cn(
-        'py-12 md:py-16',
+        'py-[48px] md:py-[64px]',
         bgStyles[backgroundVariant],
         className
       )}
