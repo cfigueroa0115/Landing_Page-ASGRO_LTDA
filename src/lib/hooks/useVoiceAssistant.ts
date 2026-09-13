@@ -175,34 +175,56 @@ export function useVoiceAssistant(
     setIsListening(false);
   }, []);
 
+  const pickVoice = useCallback(
+    (voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | undefined =>
+      voices.find((v) => v.lang === lang && /female|mujer/i.test(v.name)) ||
+      voices.find((v) => v.lang === lang) ||
+      voices.find((v) => v.lang.startsWith('es') && /female|mujer/i.test(v.name)) ||
+      voices.find((v) => v.lang.startsWith('es') && !/male|hombre/i.test(v.name)) ||
+      voices.find((v) => v.lang.startsWith('es')),
+    [lang]
+  );
+
   const speak = useCallback(
     (text: string) => {
       if (typeof window === 'undefined' || !window.speechSynthesis) return;
-      window.speechSynthesis.cancel();
+      const synth = window.speechSynthesis;
+      synth.cancel();
 
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = lang;
-      utterance.rate = 0.98;
-      utterance.pitch = 1.1;
-      utterance.volume = 1;
+      const utter = () => {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = lang;
+        utterance.rate = 0.98;
+        utterance.pitch = 1.1;
+        utterance.volume = 1;
+        const preferred = pickVoice(synth.getVoices());
+        if (preferred) utterance.voice = preferred;
+        utterance.onstart = () => setIsSpeaking(true);
+        utterance.onend = () => setIsSpeaking(false);
+        utterance.onerror = () => setIsSpeaking(false);
+        synth.speak(utterance);
+      };
 
-      // Preferir una voz femenina en español si está disponible.
-      const voices = window.speechSynthesis.getVoices();
-      const preferred =
-        voices.find((v) => v.lang === lang && /female|mujer/i.test(v.name)) ||
-        voices.find((v) => v.lang === lang) ||
-        voices.find((v) => v.lang.startsWith('es') && /female|mujer/i.test(v.name)) ||
-        voices.find((v) => v.lang.startsWith('es') && !/male|hombre/i.test(v.name)) ||
-        voices.find((v) => v.lang.startsWith('es'));
-      if (preferred) utterance.voice = preferred;
-
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
-
-      window.speechSynthesis.speak(utterance);
+      // Las voces pueden no estar cargadas en la primera interacción: esperar a
+      // 'voiceschanged' una sola vez antes de hablar.
+      if (synth.getVoices().length === 0 && typeof synth.addEventListener === 'function') {
+        const onVoices = () => {
+          synth.removeEventListener('voiceschanged', onVoices);
+          utter();
+        };
+        synth.addEventListener('voiceschanged', onVoices);
+        // Fallback por si el evento no dispara: intentar de todos modos.
+        setTimeout(() => {
+          if (synth.getVoices().length > 0) {
+            synth.removeEventListener('voiceschanged', onVoices);
+            utter();
+          }
+        }, 300);
+      } else {
+        utter();
+      }
     },
-    [lang]
+    [lang, pickVoice]
   );
 
   const stopSpeaking = useCallback(() => {

@@ -159,7 +159,7 @@ export default function FloatingWhatsApp({ phoneNumber }: FloatingWhatsAppProps)
         aria-label={isOpen ? 'Cerrar WhatsApp de ASGRO' : 'Abrir WhatsApp de ASGRO'}
         aria-expanded={isOpen}
         aria-controls={PANEL_ID}
-        className="flex h-[48px] w-[48px] items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl shadow-[#075E54]/30 ring-1 ring-white/25 transition-colors duration-200 hover:bg-[#20bd5a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#075E54] motion-safe:transition-transform motion-safe:active:scale-95 motion-safe:hover:scale-105 md:h-[54px] md:w-[54px]"
+        className="flex h-[48px] w-[48px] items-center justify-center rounded-full bg-[#25D366] text-brand-dark-blue shadow-xl shadow-[#075E54]/30 ring-1 ring-white/25 transition-colors duration-200 hover:bg-[#20bd5a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#075E54] motion-safe:transition-transform motion-safe:active:scale-95 motion-safe:hover:scale-105 md:h-[54px] md:w-[54px]"
       >
         {isOpen ? (
           <X className="h-[24px] w-[24px]" aria-hidden="true" />

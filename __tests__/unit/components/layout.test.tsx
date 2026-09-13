@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 
@@ -315,5 +315,34 @@ describe('MobileNav', () => {
     render(<MobileNav {...defaultProps} isOpen={false} />);
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  // ─── 5A.3 — comportamiento modal ────────────────────────────────────────
+  it('al abrir, el foco inicial va al botón Cerrar', async () => {
+    render(<MobileNav {...defaultProps} />);
+    const closeBtn = screen.getByRole('button', { name: 'Cerrar menú de navegación' });
+    await waitFor(() => expect(closeBtn).toHaveFocus());
+  });
+
+  it('el botón Cerrar tiene touch target de 48px', () => {
+    render(<MobileNav {...defaultProps} />);
+    const closeBtn = screen.getByRole('button', { name: 'Cerrar menú de navegación' });
+    expect(closeBtn.className).toContain('h-[48px]');
+    expect(closeBtn.className).toContain('w-[48px]');
+  });
+
+  it('al cerrar, devuelve el foco al elemento que lo abrió (hamburguesa simulada)', async () => {
+    const opener = document.createElement('button');
+    opener.textContent = 'menu';
+    document.body.appendChild(opener);
+    opener.focus();
+    expect(opener).toHaveFocus();
+
+    const { rerender } = render(<MobileNav {...defaultProps} isOpen={true} />);
+    // Cerrar el panel.
+    rerender(<MobileNav {...defaultProps} isOpen={false} />);
+    await waitFor(() => expect(opener).toHaveFocus());
+
+    document.body.removeChild(opener);
   });
 });

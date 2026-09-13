@@ -332,7 +332,7 @@ export default function FloatingChatButton() {
                       }
                     }}
                     aria-pressed={voiceReplies}
-                    className={`inline-flex min-h-[36px] items-center gap-[6px] rounded-full border px-3 text-caption font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue ${
+                    className={`inline-flex min-h-[44px] items-center gap-[6px] rounded-full border px-[14px] text-caption font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue ${
                       voiceReplies
                         ? 'border-brand-blue/30 bg-brand-blue/5 text-brand-blue'
                         : 'border-gray-200 bg-white text-gray-500'

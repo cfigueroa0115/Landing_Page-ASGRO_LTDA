@@ -124,6 +124,16 @@ describe('Reduced motion', () => {
     ).toBeInTheDocument();
   });
 
+  it('Hero: no duplica navegación (5A.3) — solo los 2 CTAs, sin bloque HERO_ACCESS', () => {
+    const { container } = render(<HeroSection />);
+    // Antes existían 6 accesos + 2 CTAs. Ahora el Hero solo tiene los 2 CTAs;
+    // la navegación por frentes vive en el Quick Access dock.
+    const links = container.querySelectorAll('a');
+    expect(links.length).toBe(2);
+    expect(screen.queryByRole('link', { name: /^vehículo$/i })).toBeNull();
+    expect(screen.queryByRole('link', { name: /^ARL$/i })).toBeNull();
+  });
+
   it('PremiumButton: renderiza y muestra su contenido con reduced-motion', () => {
     render(<PremiumButton variant="primary">Enviar</PremiumButton>);
     expect(screen.getByRole('button', { name: /enviar/i })).toBeInTheDocument();

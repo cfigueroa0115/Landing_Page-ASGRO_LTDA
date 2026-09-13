@@ -1,47 +1,27 @@
 'use client';
 
 /**
- * HeroSection — Portada premium seguros-first de ASGRO (Bloque 5A.2).
+ * HeroSection — Portada premium seguros-first de ASGRO (Bloque 5A.3).
  *
- * Dirección de arte: el Hero comunica PRIMERO agencia de seguros y protección
- * integral. La columna derecha es una composición editorial aseguradora
- * (personas/familia, hogar, vehículo, empresa) con capa tecnológica sutil —NO
- * la asesora IA, que vive solo en el launcher/panel del asistente—. Layout
- * rebalanceado above-the-fold con tipografía por clamp() y ritmo vertical
- * medido para que no se sienta cortado a 100% de zoom. Preserva titular,
- * subtítulo, CTAs, eyebrow, chips y accesos reales. Respeta reduced-motion.
+ * Dirección de arte: comunica PRIMERO agencia de seguros y protección integral.
+ * La columna derecha es una composición editorial aseguradora (personas/familia,
+ * hogar, vehículo, empresa) con capa tecnológica secundaria —NO la asesora IA,
+ * que vive solo en el launcher/panel del asistente—.
+ *
+ * Hero editorial (no dashboard): eyebrow + H1 + subtítulo + 2 CTA + chips
+ * discretos + visual. La navegación por frentes vive en el Quick Access dock
+ * inmediatamente inferior (no se duplica aquí).
+ *
+ * Above-the-fold: el header es fixed; se usa min-h-svh + pt-[76px] para NO
+ * descontar dos veces la altura del header. Tipografía y spacing con clamp()/
+ * valores explícitos para verse equilibrado a 100% de zoom sin corte.
  */
 
 import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
-import {
-  ShieldCheck,
-  Users,
-  Home,
-  Car,
-  Building2,
-  HardHat,
-  HeartPulse,
-} from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { SITE_CONTENT } from '@/lib/utils/constants';
 import HeroInsuranceVisual from '@/components/sections/HeroInsuranceVisual';
-
-/** Frentes de protección → accesos funcionales reales (rutas existentes). */
-interface HeroAccess {
-  icon: LucideIcon;
-  label: string;
-  href: string;
-}
-
-const HERO_ACCESS: HeroAccess[] = [
-  { icon: Users, label: 'Personas', href: '/servicios' },
-  { icon: Home, label: 'Hogar', href: '/servicios' },
-  { icon: Car, label: 'Vehículo', href: '/servicios' },
-  { icon: Building2, label: 'Empresas', href: '/servicios/seguros-empresariales' },
-  { icon: HardHat, label: 'ARL', href: '/servicios/riesgos-laborales' },
-  { icon: HeartPulse, label: 'SST', href: '/servicios/seguridad-salud-trabajo' },
-];
 
 export default function HeroSection() {
   const prefersReducedMotion = useReducedMotion();
@@ -70,7 +50,7 @@ export default function HeroSection() {
   return (
     <section
       id="inicio"
-      className="relative flex min-h-[calc(100svh-76px)] items-center overflow-hidden bg-hero-gradient pt-[76px]"
+      className="relative flex min-h-svh items-center overflow-hidden bg-hero-gradient pt-[76px]"
       aria-label="Sección principal - ASGRO Agencia de Seguros"
     >
       {/* ─── Capas de fondo (profundidad, 100% CSS/geometría) ─────────────── */}
@@ -91,11 +71,11 @@ export default function HeroSection() {
       </div>
 
       {/* ─── Contenido ─────────────────────────────────────────────────────
-          Padding vertical acotado con clamp para no exceder el above-the-fold
-          en pantallas de menor altura (1366×768) y respirar en 1920×1080. */}
+          Padding vertical con clamp para respirar en 1920×1080 sin cortar en
+          1366×768. reserva espacio inferior para que el dock se insinúe. */}
       <div
         className="relative z-10 section-container w-full"
-        style={{ paddingTop: 'clamp(24px, 4vh, 56px)', paddingBottom: 'clamp(40px, 6vh, 72px)' }}
+        style={{ paddingTop: 'clamp(16px, 3vh, 44px)', paddingBottom: 'clamp(48px, 7vh, 88px)' }}
       >
         <div className="grid items-center gap-[clamp(24px,4vw,56px)] lg:grid-cols-2">
           {/* Columna de mensaje */}
@@ -107,7 +87,7 @@ export default function HeroSection() {
           >
             <motion.span
               variants={itemVariants}
-              className="mb-3 inline-flex items-center gap-[6px] rounded-full border border-brand-green/30 bg-white/[0.06] px-[14px] py-[6px] text-small font-semibold text-brand-neon-green backdrop-blur-sm"
+              className="mb-[12px] inline-flex items-center gap-[6px] rounded-full border border-brand-green/30 bg-white/[0.06] px-[14px] py-[6px] text-small font-semibold text-brand-neon-green backdrop-blur-sm"
             >
               <ShieldCheck className="h-[16px] w-[16px]" aria-hidden="true" />
               ASGRO · Agencia de Seguros
@@ -123,7 +103,7 @@ export default function HeroSection() {
 
             <motion.p
               variants={itemVariants}
-              className="mt-4 max-w-xl text-pretty text-white/85"
+              className="mt-[16px] max-w-xl text-pretty text-white/85"
               style={{ fontSize: 'clamp(1rem, 1.4vw, 1.125rem)' }}
             >
               {SITE_CONTENT.heroSubtitle}
@@ -131,7 +111,7 @@ export default function HeroSection() {
 
             <motion.div
               variants={itemVariants}
-              className="mt-6 flex w-full flex-col items-stretch gap-[10px] sm:w-auto sm:flex-row sm:items-center"
+              className="mt-[24px] flex w-full flex-col items-stretch gap-[10px] sm:w-auto sm:flex-row sm:items-center"
             >
               <Link
                 href="/contacto"
@@ -148,15 +128,16 @@ export default function HeroSection() {
               </a>
             </motion.div>
 
-            {/* Chips de los frentes de protección (indicadores) */}
+            {/* Chips discretos de los frentes de protección (indicadores). El dock
+                inferior cubre la navegación; aquí solo son señales de contexto. */}
             <motion.div
               variants={itemVariants}
-              className="mt-6 flex flex-wrap items-center justify-center gap-x-[8px] gap-y-[8px] lg:justify-start"
+              className="mt-[24px] flex flex-wrap items-center justify-center gap-[8px] lg:justify-start"
             >
               {SITE_CONTENT.heroBadges.map((badge) => (
                 <span
                   key={badge}
-                  className="inline-flex items-center rounded-full bg-white/[0.06] px-3 py-1 text-small font-medium text-white/85 ring-1 ring-white/15"
+                  className="inline-flex items-center rounded-full bg-white/[0.06] px-[12px] py-[4px] text-small font-medium text-white/85 ring-1 ring-white/15"
                 >
                   {badge}
                 </span>
@@ -165,8 +146,8 @@ export default function HeroSection() {
           </motion.div>
 
           {/* Columna visual — composición editorial aseguradora (NO la asesora).
-              Se oculta en pantallas muy pequeñas para no empujar el fold; en
-              móvil ≥ sm y desktop aporta narrativa visual de seguros. */}
+              Compacta en móvil, plena en desktop. Sin bloque de 6 accesos: la
+              navegación por frentes vive en el Quick Access dock inferior. */}
           <motion.div
             className="relative w-full"
             variants={containerVariants}
@@ -176,29 +157,6 @@ export default function HeroSection() {
             <motion.div variants={itemVariants}>
               <HeroInsuranceVisual />
             </motion.div>
-
-            {/* Accesos funcionales reales a los frentes (no pseudo-interactivos) */}
-            <motion.nav
-              variants={itemVariants}
-              aria-label="Frentes de protección"
-              className="mt-4 grid grid-cols-3 gap-2"
-            >
-              {HERO_ACCESS.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                    className="group flex flex-col items-center justify-center gap-[6px] rounded-card border border-white/10 bg-white/[0.05] px-2 py-[10px] text-center transition-colors duration-300 hover:bg-white/[0.1] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-neon-green"
-                  >
-                    <span className="flex h-[36px] w-[36px] items-center justify-center rounded-full bg-brand-blue/25 ring-1 ring-white/10 transition-colors duration-300 group-hover:bg-brand-blue/40">
-                      <Icon className="h-[20px] w-[20px] text-white" strokeWidth={1.75} aria-hidden="true" />
-                    </span>
-                    <span className="text-caption font-medium text-white/85">{item.label}</span>
-                  </Link>
-                );
-              })}
-            </motion.nav>
           </motion.div>
         </div>
       </div>

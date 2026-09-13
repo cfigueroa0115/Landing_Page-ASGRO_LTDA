@@ -381,3 +381,61 @@ describe('5A.1 — MobileNav oculta los widgets flotantes', () => {
     ).not.toBeInTheDocument();
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════
+// BLOQUE 5A.3 — contraste launcher WhatsApp + voz opt-in
+// ═══════════════════════════════════════════════════════════════════
+
+describe('5A.3 — WhatsApp launcher contraste', () => {
+  it('el launcher usa text-brand-dark-blue (no text-white) sobre #25D366', () => {
+    render(<FloatingWhatsApp phoneNumber="573001234567" />);
+    const trigger = screen.getByRole('button', { name: /abrir whatsapp de asgro/i });
+    expect(trigger.className).toContain('text-brand-dark-blue');
+    expect(trigger.className).not.toContain('text-white');
+  });
+});
+
+describe('5A.3 — Voz: control de lectura con touch target >=44px', () => {
+  beforeEach(() => {
+    // Simular soporte de speechSynthesis (jsdom no lo trae) para que el toggle
+    // de lectura por voz se renderice. Sin SpeechRecognition → sin micrófono.
+    (window as any).speechSynthesis = {
+      cancel: vi.fn(),
+      speak: vi.fn(),
+      getVoices: () => [],
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    };
+    (window as any).SpeechSynthesisUtterance = function () {
+      return {};
+    };
+  });
+
+  afterEach(() => {
+    delete (window as any).speechSynthesis;
+    delete (window as any).SpeechSynthesisUtterance;
+  });
+
+  it('el toggle de voz tiene min-h-[44px] (no min-h-[36px])', async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<FloatingChatButton />);
+    await user.click(
+      screen.getByRole('button', { name: /abrir asistente de orientación/i })
+    );
+    const toggle = screen.getByRole('button', { name: /activar lectura por voz/i });
+    expect(toggle.className).toContain('min-h-[44px]');
+    expect(toggle.className).not.toContain('min-h-[36px]');
+  });
+
+  it('la lectura por voz NO se activa automáticamente (aria-pressed=false al abrir)', async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<FloatingChatButton />);
+    await user.click(
+      screen.getByRole('button', { name: /abrir asistente de orientación/i })
+    );
+    const toggle = screen.getByRole('button', { name: /activar lectura por voz/i });
+    expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  });
+});
+
+
