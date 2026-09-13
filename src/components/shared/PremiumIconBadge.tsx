@@ -77,30 +77,30 @@ const VARIANT_HALO: Record<PremiumIconBadgeVariant, string> = {
 const TONE = {
   blue: {
     surface:
-      'bg-[radial-gradient(120%_120%_at_50%_0%,#ffffff_0%,#eef4fb_55%,#e3edf8_100%)] ring-1 ring-brand-blue/12',
+      'bg-[radial-gradient(120%_120%_at_50%_0%,#ffffff_0%,#eef4fb_55%,#e3edf8_100%)] ring-1 ring-brand-blue/[0.12]',
     shadow:
       'shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_6px_18px_rgba(2,78,163,0.14),0_0_0_1px_rgba(2,78,163,0.05)]',
     innerRing: 'ring-1 ring-inset ring-white/70',
     highlight: 'from-white/80',
     icon: 'text-brand-blue',
-    halo: 'bg-brand-green/18',
+    halo: 'bg-brand-green/[0.18]',
   },
   light: {
     surface: 'bg-white/10 ring-1 ring-white/15',
     shadow:
       'shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_6px_18px_rgba(1,25,48,0.35)]',
-    innerRing: 'ring-1 ring-inset ring-white/12',
+    innerRing: 'ring-1 ring-inset ring-white/[0.12]',
     highlight: 'from-white/15',
     icon: 'text-brand-neon-green',
-    halo: 'bg-brand-green/22',
+    halo: 'bg-brand-green/[0.22]',
   },
   dark: {
     surface:
-      'bg-[radial-gradient(120%_120%_at_50%_0%,rgba(2,78,163,0.35)_0%,rgba(1,25,48,0.85)_100%)] ring-1 ring-white/12',
+      'bg-[radial-gradient(120%_120%_at_50%_0%,rgba(2,78,163,0.35)_0%,rgba(1,25,48,0.85)_100%)] ring-1 ring-white/[0.12]',
     shadow:
       'shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_6px_18px_rgba(1,25,48,0.5)]',
     innerRing: 'ring-1 ring-inset ring-white/10',
-    highlight: 'from-white/12',
+    highlight: 'from-white/[0.12]',
     icon: 'text-brand-neon-green',
     halo: 'bg-brand-green/25',
   },

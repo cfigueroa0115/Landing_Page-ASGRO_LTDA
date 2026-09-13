@@ -116,6 +116,20 @@ describe('6B — call sites usan la variante correcta', () => {
   });
 });
 
+describe('6B.1 — PremiumIconBadge sin modificadores de opacidad no estándar', () => {
+  it('no usa /12, /18 ni /22 como modificador de opacidad de utility', () => {
+    const src = read('src/components/shared/PremiumIconBadge.tsx');
+    // Modificador de opacidad de Tailwind sobre color: -<color>/NN (fuera de []).
+    // Los no estándar (12/18/22...) deben expresarse como /[0.NN].
+    const nonStandard = /-(?:brand-blue|brand-green|white|black)\/(?:12|18|22|33|45|55|65|85)\b/;
+    expect(nonStandard.test(src)).toBe(false);
+    // Confirmar que se migraron a sintaxis arbitraria explícita.
+    expect(src).toContain('/[0.12]');
+    expect(src).toContain('/[0.18]');
+    expect(src).toContain('/[0.22]');
+  });
+});
+
 // ─── ProcessStep a11y "Paso N" ──────────────────────────────────────────────
 describe('5A.8 — ProcessStep expone "Paso N" a lectores de pantalla', () => {
   it('incluye el texto sr-only "Paso 2"', () => {
