@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * InsuranceShowcaseSection — Vitrina editorial de protección (Bloque 5A.5).
+ * InsuranceShowcaseSection — Vitrina editorial de protección (Bloque 5A.6).
  *
  * Bento editorial premium: Personas como pieza principal (dos imágenes
  * superpuestas) junto a Hogar y Vehículo como piezas complementarias. Las dos
@@ -40,7 +40,7 @@ export default function InsuranceShowcaseSection() {
             <div className="relative flex-1">
               {/* Imagen principal — 4:3 móvil, algo más alto en desktop */}
               <div className="relative h-full overflow-hidden rounded-modal border border-gray-200/80 shadow-premium">
-                <div className="relative aspect-[4/3] w-full lg:aspect-auto lg:h-full lg:min-h-[420px]">
+                <div className="relative aspect-[4/3] w-full lg:aspect-auto lg:h-full">
                   <Image
                     src="/images/SegurosPersonas3.webp"
                     alt="Familia protegida por un seguro de personas de ASGRO"
@@ -70,8 +70,10 @@ export default function InsuranceShowcaseSection() {
                 </div>
               </div>
 
-              {/* Imagen secundaria superpuesta (editorial, desktop) */}
-              <div className="absolute -bottom-5 right-4 hidden w-[34%] max-w-[170px] overflow-hidden rounded-card border-4 border-white shadow-premium-hover sm:block">
+              {/* Imagen secundaria superpuesta (editorial, desktop).
+                  Valores explícitos: -bottom-[20px] (no -bottom-5=-40px) y
+                  right-[16px] (no right-4=32px). Máx 170px, borde blanco. */}
+              <div className="absolute -bottom-[20px] right-[16px] hidden w-[34%] max-w-[170px] overflow-hidden rounded-card border-4 border-white shadow-premium-hover sm:block">
                 <div className="relative aspect-square w-full">
                   <Image
                     src="/images/SegurosPersonas2.jpg"
@@ -85,7 +87,9 @@ export default function InsuranceShowcaseSection() {
             </div>
           </AnimatedSection>
 
-          {/* Hogar y Vehículo — media cards complementarias */}
+          {/* Hogar y Vehículo — media cards complementarias.
+              Móvil 4:3; desktop 16:9 para que las dos + gap terminen alineadas
+              con Personas (Bento ~520-620px, no ~800px). */}
           <AnimatedSection delay={120} className="grid gap-[24px]">
             <InsuranceMediaCard
               image="/images/Hogar-protegido.webp"
@@ -96,9 +100,8 @@ export default function InsuranceShowcaseSection() {
               href="/servicios"
               ctaLabel="Ver soluciones"
               objectPosition="center"
-              aspect="4 / 3"
+              aspectClassName="aspect-[4/3] lg:aspect-[16/9]"
               sizes="(max-width: 1024px) 100vw, 40vw"
-              className="h-full"
             />
             <InsuranceMediaCard
               image="/images/Vehiculo.webp"
@@ -109,9 +112,8 @@ export default function InsuranceShowcaseSection() {
               href="/contacto"
               ctaLabel="Cotizar mi vehículo"
               objectPosition="center"
-              aspect="4 / 3"
+              aspectClassName="aspect-[4/3] lg:aspect-[16/9]"
               sizes="(max-width: 1024px) 100vw, 40vw"
-              className="h-full"
             />
           </AnimatedSection>
         </div>

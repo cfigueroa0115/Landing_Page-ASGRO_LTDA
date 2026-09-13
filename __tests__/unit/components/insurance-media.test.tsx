@@ -67,12 +67,16 @@ vi.mock('lucide-react', () => {
     Cog: Icon,
     Activity: Icon,
     Loader2: Icon,
+    Car: Icon,
+    Building2: Icon,
   };
 });
 
 import HeroSection from '@/components/sections/HeroSection';
+import HeroMedia from '@/components/sections/HeroMedia';
 import InsuranceShowcaseSection from '@/components/sections/InsuranceShowcaseSection';
 import CorporateSection from '@/components/shared/CorporateSection';
+import { fireEvent } from '@testing-library/react';
 
 function imgs(container: HTMLElement) {
   return Array.from(container.querySelectorAll('img'));
@@ -135,6 +139,32 @@ describe('5A.4 — Showcase (Personas, Hogar, Vehículo)', () => {
     const hrefs = Array.from(container.querySelectorAll('a')).map((a) => a.getAttribute('href'));
     expect(hrefs).toContain('/servicios');
     expect(hrefs).toContain('/contacto');
+  });
+
+  it('las media cards usan aspect responsive (4:3 móvil → 16:9 desktop)', () => {
+    const { container } = render(<InsuranceShowcaseSection />);
+    const html = container.innerHTML;
+    expect(html).toContain('aspect-[4/3]');
+    expect(html).toContain('lg:aspect-[16/9]');
+  });
+});
+
+describe('5A.6 — Hero fallback real', () => {
+  it('muestra SeguroIntegral por defecto (sin fallback visible)', () => {
+    const { container } = render(<HeroMedia />);
+    const hero = imgs(container).find((i) => (i.getAttribute('src') || '').includes('SeguroIntegral'));
+    expect(hero).toBeDefined();
+  });
+
+  it('ante error de carga, sustituye por el fallback y ya no muestra la imagen', () => {
+    const { container } = render(<HeroMedia />);
+    const hero = imgs(container).find((i) => (i.getAttribute('src') || '').includes('SeguroIntegral'));
+    expect(hero).toBeDefined();
+    // Disparar el error real de carga de la imagen.
+    fireEvent.error(hero!);
+    // La imagen SeguroIntegral ya no está (se muestra el fallback en su lugar).
+    const heroAfter = imgs(container).find((i) => (i.getAttribute('src') || '').includes('SeguroIntegral'));
+    expect(heroAfter).toBeUndefined();
   });
 });
 

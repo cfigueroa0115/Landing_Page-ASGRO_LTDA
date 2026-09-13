@@ -25,20 +25,25 @@ export interface InsuranceMediaCardProps {
   objectPosition?: string;
   /** Carga prioritaria (solo para imágenes LCP; below-the-fold => false). */
   priority?: boolean;
-  /** Relación de aspecto del media (evita CLS). Por defecto 16/10. */
-  aspect?: string;
+  /**
+   * Clases Tailwind para la relación de aspecto del media (evita CLS). Permite
+   * aspect responsive, p. ej. 'aspect-[4/3] lg:aspect-[16/9]'. Por defecto
+   * 'aspect-[16/10]'.
+   */
+  aspectClassName?: string;
   /** sizes de next/image. */
   sizes?: string;
   className?: string;
 }
 
 /**
- * InsuranceMediaCard — Tarjeta editorial con fotografía protagonista (5A.4).
+ * InsuranceMediaCard — Tarjeta editorial con fotografía protagonista (5A.6).
  *
  * La foto ocupa el bloque; overlay azul discreto + gradiente inferior solo para
  * garantizar contraste del texto. Borde fino, sombra premium, radio consistente
  * y microinteracción hover ≤3px (respeta reduced-motion). Si recibe `href`,
- * renderiza un ÚNICO elemento interactivo <a> (sin nesting).
+ * renderiza un ÚNICO elemento interactivo <a> (sin nesting). La relación de
+ * aspecto se controla con `aspectClassName` (permite aspect responsive).
  */
 export default function InsuranceMediaCard({
   image,
@@ -50,7 +55,7 @@ export default function InsuranceMediaCard({
   ctaLabel,
   objectPosition = 'center',
   priority = false,
-  aspect = '16 / 10',
+  aspectClassName = 'aspect-[16/10]',
   sizes = '(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw',
   className,
 }: InsuranceMediaCardProps) {
@@ -59,7 +64,7 @@ export default function InsuranceMediaCard({
   const inner = (
     <>
       {/* Media */}
-      <div className="relative w-full overflow-hidden" style={{ aspectRatio: aspect }}>
+      <div className={cn('relative w-full overflow-hidden', aspectClassName)}>
         <Image
           src={image}
           alt={alt}
