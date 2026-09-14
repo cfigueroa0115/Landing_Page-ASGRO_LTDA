@@ -40,19 +40,48 @@ completos, API keys ni valores desencriptados de SSM.
 
 ---
 
-## 2. Workaround temporal de conexión (solo CloudShell)
+## 2. Mecanismos de ejecución (migración vs seed)
 
-Para ejecutar la migración y el seed desde AWS CloudShell se utilizó el driver
-**`neon-http`** como mecanismo de conexión puntual del entorno de CloudShell.
+La migración y el seed **no** usaron el mismo mecanismo. Es importante no
+confundirlos:
 
-- Uso **exclusivo** del entorno operativo de CloudShell para aplicar la
-  migración versionada y el seed V2.
-- **No** se introdujo en el código de la aplicación: el runtime del sitio sigue
-  usando `drizzle-orm/neon-serverless` + `@neondatabase/serverless` (Pool), sin
-  cambios (`src/lib/db/index.ts` intacto).
-- **No** se persistió ningún connection string ni credencial en el repositorio,
-  en `.env*` ni en esta documentación.
-- Es un detalle operativo temporal; no forma parte de la arquitectura de la app.
+**Migración — `drizzle-kit migrate`.** La migración versionada
+`drizzle/0001_dashing_the_watchers.sql` se aplicó mediante `drizzle-kit migrate`
+contra la branch Neon de preview, y terminó con `migrations applied
+successfully`. La migración **no** utilizó el runner temporal `neon-http`.
+
+**Seed — runner temporal `neon-http` (solo por compatibilidad en CloudShell).**
+El seed oficial (`npm run db:seed:kb-v2`, que usa `drizzle-orm/neon-serverless`
++ `@neondatabase/serverless` Pool) **falló** en AWS CloudShell / Node 20 por una
+incompatibilidad del **transporte WebSocket** del adaptador Pool en ese entorno
+(no fue un error del corpus, del schema, de Neon ni de la migración). Como
+diagnóstico se validó que `SELECT 1` vía `Pool` + `poolQueryViaFetch` daba PASS,
+pero Drizzle `neon-serverless` seguía intentando prepared queries por WebSocket.
+
+Por esa razón, y **solo** para ejecutar el seed en CloudShell, se creó un runner
+temporal basado en `drizzle-orm/neon-http` + `@neondatabase/serverless` `neon()`.
+Ese runner **reutilizó exactamente los artefactos oficiales del proyecto**:
+`SAFE_CORPUS_V2`, `knowledgeBaseV2SeedSchema5B1`, `knowledgeBaseV2`,
+`buildInsertValues` y `buildUpdateSet`. No duplicó ni modificó el corpus, no
+introdujo lógica de negocio distinta, **no** se añadió al runtime de la
+aplicación, **no** se committeó y fue **eliminado** al completar la operación.
+
+Naturaleza del workaround: es un **workaround operacional temporal de
+CloudShell**, no una arquitectura definitiva, no un cambio de runtime, no un
+nuevo driver de producción ni una nueva dependencia de la aplicación. En
+concreto:
+
+- **no** se modificó `src/lib/db/index.ts` (el runtime del sitio sigue usando
+  `drizzle-orm/neon-serverless` + Pool);
+- **no** se cambió `/api/chat`;
+- **no** se cambió el runtime de Amplify;
+- **no** se cambió la arquitectura productiva;
+- **no** se modificó `package.json` ni se añadió `neon-http` como dependencia de
+  runtime;
+- **no** se modificó Neon production.
+
+**No** se persistió ningún connection string ni credencial en el repositorio,
+en `.env*` ni en esta documentación.
 
 ---
 
@@ -81,6 +110,9 @@ Existencia de objetos antes de migrar:
 
 - Migración: `drizzle/0001_dashing_the_watchers.sql` (la existente; **no** se
   generó una nueva).
+- Mecanismo: **`drizzle-kit migrate`** contra la branch Neon de preview,
+  finalizada con `migrations applied successfully`. **No** se usó el runner
+  temporal `neon-http` para la migración.
 - Naturaleza: **aditiva**. Solo `CREATE TABLE "knowledge_base_v2"`,
   `UNIQUE("key")` y 5 `CREATE INDEX`. Sin `DROP/TRUNCATE/DELETE/ALTER/UPDATE/
   INSERT` sobre tablas legacy.
@@ -100,8 +132,34 @@ Estructura verificada — columnas presentes: `id`, `key`, `topic`, `category`,
 
 ## 5. Seed V2
 
-- Script: `src/lib/db/seed-kb-v2.ts` (`npm run db:seed:kb-v2`). Upsert
-  idempotente por `key`. **No** se ejecutó seed legacy, reset, truncate ni delete.
+**Mecanismo real.** Los primeros intentos con el seed oficial
+(`npm run db:seed:kb-v2`) **fallaron** en CloudShell por el transporte WebSocket
+de `drizzle-orm/neon-serverless` + Pool (ver §2). El seed se **completó
+exitosamente** mediante el **runner temporal `neon-http`**, que reutilizó los
+artefactos oficiales del proyecto (`SAFE_CORPUS_V2`, `knowledgeBaseV2SeedSchema5B1`,
+`knowledgeBaseV2`, `buildInsertValues`, `buildUpdateSet`) con upsert idempotente
+por `key`. **No** se ejecutó seed legacy, reset, truncate ni delete.
+
+**Sin inserción parcial.** Tras los intentos fallidos del seed oficial (y antes
+de ejecutar el runner HTTP), se verificó:
+
+| Verificación | Resultado |
+|--------------|-----------|
+| `knowledge_base_v2` filas | 0 |
+| `knowledge_base` (legacy) | 8 |
+| `chat_sessions` | 7 |
+| `chat_messages` | 24 |
+
+Es decir: los fallos del seed oficial **no** dejaron inserción parcial, no
+corrompieron datos ni alteraron las tablas legacy. Solo después se ejecutó el
+runner HTTP temporal, que sí completó.
+
+**Runs del runner HTTP (idempotencia):**
+
+| Run | Procesadas | Aprobadas | Pendiente |
+|-----|-----------|-----------|-----------|
+| 1º | 24 | 23 | 1 |
+| 2º | 24 | 23 | 1 |
 
 Resultado de integridad tras el seed:
 
