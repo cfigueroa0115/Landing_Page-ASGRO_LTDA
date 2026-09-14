@@ -59,62 +59,106 @@ export default function HeroSection() {
         <div className="absolute -top-1/3 left-1/2 h-[560px] w-[820px] -translate-x-1/2 rounded-full bg-brand-blue/25 blur-3xl" />
         <div className="absolute right-[-8%] top-1/4 h-[440px] w-[440px] rounded-full bg-brand-blue/20 blur-3xl" />
         <div className="absolute bottom-0 left-[-10%] h-[380px] w-[380px] rounded-full bg-brand-green/10 blur-3xl" />
-        {/* Textura aseguradora sutil (reemplaza la antigua cuadrícula): red
-            hexagonal de protección con nodos y glifos (escudo/corazón/hogar/
-            vehículo) tintada en azul-verde translúcido para fundirse con el
-            fondo azul. Solo decorativa, muy tenue. */}
+        {/* Textura aseguradora premium (reemplaza la antigua cuadrícula): red
+            hexagonal de protección con "chips" semi-3D (degradado + borde de luz
+            + sombra suave) y glifos de alta definición: familia, hogar, auto,
+            salud, ARL, SST y documento con check. Tintada en azul-verde
+            translúcido para fundirse con el fondo azul. Muy tenue y decorativa. */}
         <div
-          className="absolute inset-0 opacity-[0.5] mix-blend-screen"
+          className="absolute inset-0 opacity-[0.32] mix-blend-screen"
           style={{
             backgroundImage: `url("data:image/svg+xml;utf8,${encodeURIComponent(
-              `<svg xmlns='http://www.w3.org/2000/svg' width='320' height='278' viewBox='0 0 320 278'>
+              `<svg xmlns='http://www.w3.org/2000/svg' width='420' height='364' viewBox='0 0 420 364'>
   <defs>
-    <g id='hex'>
-      <polygon points='40,2 76,22 76,62 40,82 4,62 4,22' fill='none' stroke='rgba(120,170,235,0.16)' stroke-width='1.2'/>
+    <linearGradient id='chip' x1='0' y1='0' x2='0' y2='1'>
+      <stop offset='0' stop-color='rgba(150,195,245,0.20)'/>
+      <stop offset='0.5' stop-color='rgba(110,160,225,0.07)'/>
+      <stop offset='1' stop-color='rgba(60,100,170,0.03)'/>
+    </linearGradient>
+    <linearGradient id='chipEdge' x1='0' y1='0' x2='0' y2='1'>
+      <stop offset='0' stop-color='rgba(190,220,255,0.42)'/>
+      <stop offset='1' stop-color='rgba(90,140,210,0.10)'/>
+    </linearGradient>
+    <linearGradient id='ink' x1='0' y1='0' x2='0' y2='1'>
+      <stop offset='0' stop-color='rgba(205,225,255,0.55)'/>
+      <stop offset='1' stop-color='rgba(120,165,230,0.30)'/>
+    </linearGradient>
+    <linearGradient id='inkG' x1='0' y1='0' x2='0' y2='1'>
+      <stop offset='0' stop-color='rgba(190,240,190,0.55)'/>
+      <stop offset='1' stop-color='rgba(120,205,130,0.30)'/>
+    </linearGradient>
+    <!-- Chip hexagonal semi-3D: relleno con degradado, sombra baja y borde de luz superior -->
+    <g id='chip'>
+      <polygon points='46,3 88,26 88,72 46,95 4,72 4,26' fill='url(#chip)'/>
+      <polygon points='46,7 84,28 84,70 46,91 8,70 8,28' fill='none' stroke='rgba(20,40,80,0.28)' stroke-width='2'/>
+      <polygon points='46,3 88,26 88,72 46,95 4,72 4,26' fill='none' stroke='url(#chipEdge)' stroke-width='1.3'/>
+      <path d='M12 30 L46 10 L80 30' fill='none' stroke='rgba(220,238,255,0.30)' stroke-width='1' stroke-linecap='round'/>
     </g>
   </defs>
+
+  <!-- conectores tenues entre chips (red) -->
   <g fill='none' stroke='rgba(120,170,235,0.10)' stroke-width='1'>
-    <line x1='40' y1='82' x2='40' y2='118'/>
-    <line x1='160' y1='42' x2='120' y2='62'/>
-    <line x1='200' y1='62' x2='240' y2='82'/>
-    <line x1='120' y1='200' x2='160' y2='220'/>
-    <line x1='240' y1='180' x2='280' y2='160'/>
+    <line x1='46' y1='95' x2='46' y2='138'/>
+    <line x1='210' y1='49' x2='168' y2='72'/>
+    <line x1='252' y1='72' x2='294' y2='95'/>
+    <line x1='168' y1='260' x2='210' y2='283'/>
+    <line x1='294' y1='233' x2='336' y2='210'/>
+    <line x1='88' y1='49' x2='126' y2='26'/>
   </g>
-  <g stroke-width='1.2'>
-    <use href='#hex' x='120' y='0'/>
-    <use href='#hex' x='0' y='90'/>
-    <use href='#hex' x='240' y='60'/>
-    <use href='#hex' x='120' y='150'/>
-    <use href='#hex' x='0' y='196'/>
-    <use href='#hex' x='240' y='196'/>
+
+  <!-- chips (hexágonos 3D) -->
+  <use href='#chip' x='164' y='0'/>
+  <use href='#chip' x='0' y='115'/>
+  <use href='#chip' x='290' y='72'/>
+  <use href='#chip' x='164' y='188'/>
+  <use href='#chip' x='0' y='246'/>
+  <use href='#chip' x='290' y='246'/>
+
+  <!-- glifos de alta definición (trazo con degradado + luz) -->
+  <g fill='none' stroke='url(#ink)' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'>
+    <!-- FAMILIA (chip 164,0) -->
+    <g transform='translate(210,47)'>
+      <circle cx='-8' cy='-9' r='4'/><path d='M-14 4 v-5 a6 6 0 0 1 12 0 v5'/>
+      <circle cx='9' cy='-9' r='4'/><path d='M3 4 v-5 a6 6 0 0 1 12 0 v5'/>
+      <circle cx='1' cy='-1' r='3' stroke='url(#inkG)'/><path d='M-4 9 v-4 a5 5 0 0 1 10 0 v4' stroke='url(#inkG)'/>
+    </g>
+    <!-- HOGAR (chip 290,72) -->
+    <g transform='translate(336,119)'>
+      <path d='M-13 2 L0 -11 L13 2'/><path d='M-9 0 v11 h18 v-11'/>
+      <path d='M15 -4 v14' stroke='url(#inkG)'/><circle cx='15' cy='-7' r='4' stroke='url(#inkG)'/>
+    </g>
+    <!-- AUTO (chip 0,115) -->
+    <g transform='translate(46,162)'>
+      <path d='M-15 3 l3 -8 a3 3 0 0 1 3 -2 h12 a3 3 0 0 1 3 2 l3 8'/>
+      <path d='M-16 3 h32 v6 h-32 z'/>
+      <circle cx='-9' cy='11' r='3'/><circle cx='9' cy='11' r='3'/>
+    </g>
+    <!-- SALUD (chip 164,188) -->
+    <g transform='translate(210,235)' stroke='url(#inkG)'>
+      <path d='M-13 0 h6 l3 -7 l6 15 l3 -8 h5'/>
+    </g>
+    <!-- ARL: trabajador con casco (chip 0,246) -->
+    <g transform='translate(46,293)'>
+      <path d='M-8 -6 a8 8 0 0 1 16 0'/><path d='M-10 -6 h20'/><path d='M0 -14 v3'/>
+      <circle cx='0' cy='2' r='4'/><path d='M-7 13 v-4 a7 7 0 0 1 14 0 v4'/>
+    </g>
+    <!-- SST: escudo con check (chip 290,246) -->
+    <g transform='translate(336,293)'>
+      <path d='M0 -13 l13 5 v8 c0 9 -7 13 -13 16 c-6 -3 -13 -7 -13 -16 v-8 z'/>
+      <path d='M-6 0 l4 4 l8 -9' stroke='url(#inkG)'/>
+    </g>
   </g>
-  <g fill='none' stroke='rgba(150,195,245,0.30)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>
-    <!-- escudo -->
-    <path d='M160 24 l12 5 v9 c0 8 -6 12 -12 15 c-6 -3 -12 -7 -12 -15 v-9 z'/>
-    <!-- corazon -->
-    <path d='M40 118 c-4 -6 -12 -4 -12 3 c0 6 12 13 12 13 c0 0 12 -7 12 -13 c0 -7 -8 -9 -12 -3 z' stroke='rgba(150,225,150,0.30)'/>
-    <!-- hogar -->
-    <path d='M280 96 l-13 11 M280 96 l13 11 M270 105 v14 h20 v-14'/>
-    <!-- vehiculo -->
-    <path d='M150 196 h20 l4 8 h4 v8 h-36 v-8 h4 z M154 212 a3 3 0 1 0 0.1 0 M172 212 a3 3 0 1 0 0.1 0'/>
-    <!-- pulso salud -->
-    <path d='M28 240 h8 l4 -8 l6 16 l4 -8 h8' stroke='rgba(150,225,150,0.28)'/>
-    <!-- documento + check -->
-    <path d='M268 236 h16 v22 h-24 v-22 z M264 236 v22 M290 250 l4 4 l7 -8' />
+
+  <!-- nodos de conexión luminosos -->
+  <g fill='rgba(190,240,190,0.42)'>
+    <circle cx='126' cy='72' r='2.4'/><circle cx='294' cy='210' r='2.4'/><circle cx='210' cy='283' r='2.4'/>
   </g>
-  <g fill='rgba(150,225,150,0.35)'>
-    <circle cx='120' cy='62' r='2.2'/>
-    <circle cx='240' cy='160' r='2.2'/>
-    <circle cx='160' cy='220' r='2.2'/>
-  </g>
-  <g fill='rgba(120,170,235,0.30)'>
-    <circle cx='40' cy='118' r='2'/>
-    <circle cx='200' cy='62' r='2'/>
-    <circle cx='280' cy='120' r='2'/>
+  <g fill='rgba(170,205,255,0.42)'>
+    <circle cx='46' cy='138' r='2.2'/><circle cx='252' cy='72' r='2.2'/><circle cx='336' cy='150' r='2.2'/>
   </g>
 </svg>`
             )}")`,
-            backgroundSize: '480px 417px',
+            backgroundSize: '560px 485px',
             backgroundRepeat: 'repeat',
           }}
         />
