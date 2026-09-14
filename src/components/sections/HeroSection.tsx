@@ -59,12 +59,63 @@ export default function HeroSection() {
         <div className="absolute -top-1/3 left-1/2 h-[560px] w-[820px] -translate-x-1/2 rounded-full bg-brand-blue/25 blur-3xl" />
         <div className="absolute right-[-8%] top-1/4 h-[440px] w-[440px] rounded-full bg-brand-blue/20 blur-3xl" />
         <div className="absolute bottom-0 left-[-10%] h-[380px] w-[380px] rounded-full bg-brand-green/10 blur-3xl" />
+        {/* Textura aseguradora sutil (reemplaza la antigua cuadrícula): red
+            hexagonal de protección con nodos y glifos (escudo/corazón/hogar/
+            vehículo) tintada en azul-verde translúcido para fundirse con el
+            fondo azul. Solo decorativa, muy tenue. */}
         <div
-          className="absolute inset-0 opacity-[0.05]"
+          className="absolute inset-0 opacity-[0.5] mix-blend-screen"
           style={{
-            backgroundImage:
-              'linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)',
-            backgroundSize: '48px 48px',
+            backgroundImage: `url("data:image/svg+xml;utf8,${encodeURIComponent(
+              `<svg xmlns='http://www.w3.org/2000/svg' width='320' height='278' viewBox='0 0 320 278'>
+  <defs>
+    <g id='hex'>
+      <polygon points='40,2 76,22 76,62 40,82 4,62 4,22' fill='none' stroke='rgba(120,170,235,0.16)' stroke-width='1.2'/>
+    </g>
+  </defs>
+  <g fill='none' stroke='rgba(120,170,235,0.10)' stroke-width='1'>
+    <line x1='40' y1='82' x2='40' y2='118'/>
+    <line x1='160' y1='42' x2='120' y2='62'/>
+    <line x1='200' y1='62' x2='240' y2='82'/>
+    <line x1='120' y1='200' x2='160' y2='220'/>
+    <line x1='240' y1='180' x2='280' y2='160'/>
+  </g>
+  <g stroke-width='1.2'>
+    <use href='#hex' x='120' y='0'/>
+    <use href='#hex' x='0' y='90'/>
+    <use href='#hex' x='240' y='60'/>
+    <use href='#hex' x='120' y='150'/>
+    <use href='#hex' x='0' y='196'/>
+    <use href='#hex' x='240' y='196'/>
+  </g>
+  <g fill='none' stroke='rgba(150,195,245,0.30)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>
+    <!-- escudo -->
+    <path d='M160 24 l12 5 v9 c0 8 -6 12 -12 15 c-6 -3 -12 -7 -12 -15 v-9 z'/>
+    <!-- corazon -->
+    <path d='M40 118 c-4 -6 -12 -4 -12 3 c0 6 12 13 12 13 c0 0 12 -7 12 -13 c0 -7 -8 -9 -12 -3 z' stroke='rgba(150,225,150,0.30)'/>
+    <!-- hogar -->
+    <path d='M280 96 l-13 11 M280 96 l13 11 M270 105 v14 h20 v-14'/>
+    <!-- vehiculo -->
+    <path d='M150 196 h20 l4 8 h4 v8 h-36 v-8 h4 z M154 212 a3 3 0 1 0 0.1 0 M172 212 a3 3 0 1 0 0.1 0'/>
+    <!-- pulso salud -->
+    <path d='M28 240 h8 l4 -8 l6 16 l4 -8 h8' stroke='rgba(150,225,150,0.28)'/>
+    <!-- documento + check -->
+    <path d='M268 236 h16 v22 h-24 v-22 z M264 236 v22 M290 250 l4 4 l7 -8' />
+  </g>
+  <g fill='rgba(150,225,150,0.35)'>
+    <circle cx='120' cy='62' r='2.2'/>
+    <circle cx='240' cy='160' r='2.2'/>
+    <circle cx='160' cy='220' r='2.2'/>
+  </g>
+  <g fill='rgba(120,170,235,0.30)'>
+    <circle cx='40' cy='118' r='2'/>
+    <circle cx='200' cy='62' r='2'/>
+    <circle cx='280' cy='120' r='2'/>
+  </g>
+</svg>`
+            )}")`,
+            backgroundSize: '480px 417px',
+            backgroundRepeat: 'repeat',
           }}
         />
         <div className="absolute -top-40 left-1/2 h-[520px] w-[860px] -translate-x-1/2 rounded-[50%] border-t border-brand-green/25" />
