@@ -354,9 +354,10 @@ describe('POST /api/chat', () => {
     mockReturningResult = Promise.resolve([{ id: 'new-session-uuid-1234' }]);
     // Default: select queries return empty arrays
     mockSelectResult = Promise.resolve([]);
-    // Default: V2 governed response
+    // Default: V2 governed response (sin acciones comerciales)
     mockProcessMessageV2.mockResolvedValue({
       response: 'Hola, soy el asistente de ASGRO.',
+      actions: [],
       meta: { intent: 'general_insurance', usedEntries: [], fallback: false },
     });
     // Default: insert (for messages) resolves
@@ -382,11 +383,42 @@ describe('POST /api/chat', () => {
     const response = await POST(request);
     const raw = await response.text();
 
-    expect(raw).not.toContain('intent');
     expect(raw).not.toContain('usedEntries');
     expect(raw).not.toContain('meta');
     const data = JSON.parse(raw);
+    // Sin actions: contrato mínimo backward-compatible.
     expect(Object.keys(data).sort()).toEqual(['response', 'sessionId', 'timestamp']);
+  });
+
+  it('incluye actions cuando el flujo V2 las devuelve (contrato extendido)', async () => {
+    mockProcessMessageV2.mockResolvedValue({
+      response: 'Con gusto te ayudo a cotizar.',
+      actions: [{ type: 'quote', label: 'Solicitar cotización', href: '/cotizar' }],
+      meta: { intent: 'cotizacion', usedEntries: [], fallback: false },
+    });
+    const request = createPostRequest('http://localhost/api/chat', validChatBody);
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(Array.isArray(data.actions)).toBe(true);
+    expect(data.actions[0]).toEqual({ type: 'quote', label: 'Solicitar cotización', href: '/cotizar' });
+    // Nunca expone meta/usedEntries aunque el flujo los tenga internamente.
+    expect(data.meta).toBeUndefined();
+    expect(data.usedEntries).toBeUndefined();
+  });
+
+  it('omite actions cuando el flujo V2 devuelve []', async () => {
+    mockProcessMessageV2.mockResolvedValue({
+      response: 'Info general.',
+      actions: [],
+      meta: { intent: 'hogar', usedEntries: [], fallback: false },
+    });
+    const request = createPostRequest('http://localhost/api/chat', validChatBody);
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(data.actions).toBeUndefined();
   });
 
   it('creates a new session when no sessionId provided', async () => {

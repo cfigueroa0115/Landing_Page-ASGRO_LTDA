@@ -67,6 +67,8 @@ export interface IntentResult {
   reason: string;
   /** True si pide precio/condición contractual/decisión aseguradora. */
   wantsCommercialOrContractual: boolean;
+  /** True si pide garantía/indemnización/aprobación (mejor a asesoría que a cotización). */
+  wantsContractualGuarantee: boolean;
 }
 
 /** Mensaje mínimo de contexto para follow-ups. */
@@ -327,6 +329,7 @@ const ON_TOPIC_TERMS: string[] = [
   'carro', 'auto', 'vehiculo', 'moto', 'arriendo', 'arrendamiento',
   'cumplimiento', 'manejo', 'multirriesgo', 'asgro', 'responsabilidad civil',
   'accidente', 'accidentes', 'negocio', 'familia', 'patrimonio', 'proteger',
+  'indemniza', 'indemnizan', 'indemnizacion', 'garantizan', 'aprobacion', 'aprueban',
 ];
 
 // Precio / condición contractual / decisión aseguradora (guardrail).
@@ -335,6 +338,15 @@ const COMMERCIAL_CONTRACTUAL_TERMS: string[] = [
   'mejor cobertura', 'mejor precio', 'mejor relacion',
   'me aprueban', 'aprobacion', 'garantizan', 'garantia de indemnizacion',
   'que cubre exactamente', 'esta cubierto', 'me indemnizan', 'indemnizacion',
+  'indemnizan',
+];
+
+// Subconjunto: garantía / indemnización / aprobación aseguradora. Estas
+// preguntas se orientan mejor a ASESORÍA (evaluación humana) que a cotización.
+const CONTRACTUAL_GUARANTEE_TERMS: string[] = [
+  'garantizan', 'garantia de indemnizacion', 'me indemnizan', 'indemnizan',
+  'indemnizacion', 'me aprueban', 'aprobacion', 'aprueban',
+  'esta cubierto', 'que cubre exactamente',
 ];
 
 // Follow-ups ambiguos que dependen del contexto previo.
@@ -390,9 +402,10 @@ function isFollowup(normalized: string): boolean {
 function classifyOnce(message: string): IntentResult {
   const normalized = normalize(message);
   const wantsCommercialOrContractual = matchesAny(normalized, COMMERCIAL_CONTRACTUAL_TERMS);
+  const wantsContractualGuarantee = matchesAny(normalized, CONTRACTUAL_GUARANTEE_TERMS);
 
   if (normalized.length === 0) {
-    return base('unknown', 'unknown', null, null, 0, 'empty', wantsCommercialOrContractual);
+    return base('unknown', 'unknown', null, null, 0, 'empty', wantsCommercialOrContractual, null, wantsContractualGuarantee);
   }
 
   let best: IntentRule | null = null;
@@ -420,6 +433,7 @@ function classifyOnce(message: string): IntentResult {
         confidence,
         reason: `matched:${best.intent}:score=${bestScore.toFixed(2)}${domain ? `+domain:${domain.intent}` : ''}`,
         wantsCommercialOrContractual,
+        wantsContractualGuarantee,
       };
     }
 
@@ -431,16 +445,17 @@ function classifyOnce(message: string): IntentResult {
       confidence,
       `matched:${best.intent}:score=${bestScore.toFixed(2)}`,
       wantsCommercialOrContractual,
-      null
+      null,
+      wantsContractualGuarantee
     );
   }
 
   if (matchesAny(normalized, ON_TOPIC_TERMS)) {
     // Panorama general: NO forzar personas (category null → retrieval balanceado).
-    return base('general_insurance', 'general_insurance', null, null, 0.4, 'on-topic-no-rule', wantsCommercialOrContractual);
+    return base('general_insurance', 'general_insurance', null, null, 0.4, 'on-topic-no-rule', wantsCommercialOrContractual, null, wantsContractualGuarantee);
   }
 
-  return base('off_topic', 'off_topic', null, null, 0, 'no-topic-signal', wantsCommercialOrContractual);
+  return base('off_topic', 'off_topic', null, null, 0, 'no-topic-signal', wantsCommercialOrContractual, null, wantsContractualGuarantee);
 }
 
 function base(
@@ -451,7 +466,8 @@ function base(
   confidence: number,
   reason: string,
   wantsCommercialOrContractual: boolean,
-  domainIntent: Intent | null = null
+  domainIntent: Intent | null = null,
+  wantsContractualGuarantee: boolean = false
 ): IntentResult {
   return {
     intent,
@@ -462,6 +478,7 @@ function base(
     confidence,
     reason,
     wantsCommercialOrContractual,
+    wantsContractualGuarantee,
   };
 }
 

@@ -17,9 +17,15 @@
 import {
   routeIntent,
   CONFIDENCE_MEDIUM,
+  type IntentResult,
   type RouterContextMessage,
 } from '@/lib/ai/routing/intent-router';
 import { retrieveForIntent, type RetrievableEntry } from '@/lib/ai/retrieval/selective-retrieval';
+import {
+  decideCommercialHandoff,
+  sanitizeActions,
+  type ChatAction,
+} from '@/lib/ai/handoff/commercial-handoff';
 
 /** Ventana máxima de contexto (se mantiene el criterio actual de 10 mensajes). */
 const MAX_CONTEXT_MESSAGES = 10;
@@ -57,6 +63,8 @@ const COMMERCIAL_GUARD_NOTE =
 export interface ProcessV2Result {
   /** Texto para el usuario (seguro, sin internals). */
   response: string;
+  /** Acciones comerciales PÚBLICAS (allowlist, máx 2). Puede ser []. */
+  actions: ChatAction[];
   /** Diagnóstico interno — NO enviar al cliente. */
   meta: {
     intent: string;
@@ -76,8 +84,21 @@ function boundContext(messages: RouterContextMessage[]): RouterContextMessage[] 
  * Presenta 1..N ideas atómicas de forma profesional, sin claims ni cifras.
  */
 export function formatEntries(entries: RetrievableEntry[]): string {
-  const parts = entries.map((e) => `**${e.topic}**\n${e.content.trim()}`);
+  // Texto PLANO premium: la UI renderiza texto sin Markdown. Se preservan
+  // saltos de línea (topic en su propia línea, luego el contenido). Sin ** ## `.
+  const parts = entries.map((e) => `${e.topic.trim()}\n${e.content.trim()}`);
   return parts.join('\n\n');
+}
+
+/** Calcula acciones comerciales públicas (allowlist + máx 2). */
+function actionsFor(
+  intent: IntentResult,
+  fallback: boolean,
+  whatsappNumber: string
+): ChatAction[] {
+  return sanitizeActions(
+    decideCommercialHandoff(intent, { fallback, whatsappNumber })
+  );
 }
 
 /**
@@ -85,23 +106,26 @@ export function formatEntries(entries: RetrievableEntry[]): string {
  *
  * @param message  mensaje actual del usuario
  * @param context  historial de la sesión (orden cronológico)
- * @param deps     inyección para tests (retrieval). Por defecto usa el real.
+ * @param deps     inyección para tests. `whatsappNumber` por defecto desde env.
  */
 export async function processMessageV2(
   message: string,
   context: RouterContextMessage[] = [],
   deps: {
     retrieve?: typeof retrieveForIntent;
+    whatsappNumber?: string;
   } = {}
 ): Promise<ProcessV2Result> {
   const retrieve = deps.retrieve ?? retrieveForIntent;
+  const whatsappNumber = deps.whatsappNumber ?? process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '';
   const bounded = boundContext(context);
   const intent = routeIntent(message, bounded);
 
-  // 1) Fuera de alcance.
+  // 1) Fuera de alcance: solo respuesta de alcance, SIN CTA comercial.
   if (intent.intent === 'off_topic') {
     return {
       response: OFF_TOPIC,
+      actions: [],
       meta: { intent: intent.intent, usedEntries: [], fallback: true },
     };
   }
@@ -110,6 +134,7 @@ export async function processMessageV2(
   if (intent.intent === 'human_advisor' || intent.intent === 'whatsapp') {
     return {
       response: HUMAN_HANDOFF,
+      actions: actionsFor(intent, false, whatsappNumber),
       meta: { intent: intent.intent, usedEntries: [], fallback: false },
     };
   }
@@ -122,6 +147,7 @@ export async function processMessageV2(
   ) {
     return {
       response: SAFE_FALLBACK,
+      actions: intent.intent === 'unknown' ? [] : actionsFor(intent, true, whatsappNumber),
       meta: { intent: intent.intent, usedEntries: [], fallback: true },
     };
   }
@@ -129,25 +155,27 @@ export async function processMessageV2(
   // 4) Recuperación selectiva de contenido V2 elegible.
   const entries = await retrieve(intent, message, 3);
 
-  // 4) Sin contenido elegible (p. ej. arrendamiento pending, o unknown):
-  //    fallback seguro + handoff. NUNCA usar contenido pending ni legacy.
+  // 5) Sin contenido elegible (p. ej. arrendamiento pending): fallback seguro +
+  //    handoff (asesoría). NUNCA usar contenido pending ni legacy.
   if (entries.length === 0) {
     return {
       response: SAFE_FALLBACK,
+      actions: actionsFor(intent, true, whatsappNumber),
       meta: { intent: intent.intent, usedEntries: [], fallback: true },
     };
   }
 
-  // 5) Respuesta determinística a partir del contenido gobernado.
+  // 6) Respuesta determinística a partir del contenido gobernado.
   let response = formatEntries(entries);
 
-  // 6) Guardrail comercial/contractual: añade nota de orientación + handoff.
+  // 7) Guardrail comercial/contractual: añade nota de orientación + handoff.
   if (intent.wantsCommercialOrContractual) {
     response += COMMERCIAL_GUARD_NOTE;
   }
 
   return {
     response,
+    actions: actionsFor(intent, false, whatsappNumber),
     meta: {
       intent: intent.intent,
       usedEntries: entries.map((e) => e.key),

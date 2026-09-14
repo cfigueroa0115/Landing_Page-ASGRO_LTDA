@@ -157,6 +157,8 @@ export default function FloatingChatButton() {
           role: 'assistant',
           content: data.response,
           timestamp: new Date(),
+          // Acciones comerciales opcionales (allowlist ya validada en servidor).
+          actions: Array.isArray(data.actions) ? data.actions.slice(0, 2) : undefined,
         };
 
         setMessages((prev) => [...prev, assistantMessage]);
@@ -283,22 +285,53 @@ export default function FloatingChatButton() {
             {/* Conversación */}
             <div className="space-y-3 px-4 py-3">
               {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex items-end gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  {msg.role === 'assistant' && (
-                    <AdvisorAvatar className="h-[26px] w-[26px] flex-shrink-0" aria-hidden="true" />
-                  )}
+                <div key={msg.id} className="space-y-2">
                   <div
-                    className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm shadow-sm ${
-                      msg.role === 'user'
-                        ? 'rounded-br-sm bg-brand-blue text-white'
-                        : 'rounded-bl-sm bg-white text-gray-800 ring-1 ring-gray-100'
-                    }`}
+                    className={`flex items-end gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
-                    {msg.content}
+                    {msg.role === 'assistant' && (
+                      <AdvisorAvatar className="h-[26px] w-[26px] flex-shrink-0" aria-hidden="true" />
+                    )}
+                    <div
+                      className={`max-w-[80%] whitespace-pre-line rounded-2xl px-3 py-2 text-sm shadow-sm ${
+                        msg.role === 'user'
+                          ? 'rounded-br-sm bg-brand-blue text-white'
+                          : 'rounded-bl-sm bg-white text-gray-800 ring-1 ring-gray-100'
+                      }`}
+                    >
+                      {msg.content}
+                    </div>
                   </div>
+
+                  {/* CTAs comerciales premium (máx 2) — solo respuestas del
+                      asistente. WhatsApp abre en nueva pestaña; asesoría/cotizar
+                      navegan internamente y cierran el panel. Sin nesting. */}
+                  {msg.role === 'assistant' && msg.actions && msg.actions.length > 0 && (
+                    <div className="ml-[34px] flex flex-wrap gap-2" role="group" aria-label="Acciones sugeridas">
+                      {msg.actions.slice(0, 2).map((action) =>
+                        action.type === 'whatsapp' ? (
+                          <a
+                            key={action.type}
+                            href={action.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex min-h-[44px] items-center rounded-full bg-brand-green px-[16px] py-1 text-small font-bold text-brand-dark-blue shadow-btn transition-colors hover:bg-brand-green-alt focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
+                          >
+                            {action.label}
+                          </a>
+                        ) : (
+                          <Link
+                            key={action.type}
+                            href={action.href}
+                            onClick={handleClosePanel}
+                            className="inline-flex min-h-[44px] items-center rounded-full border border-brand-blue/40 bg-white px-[16px] py-1 text-small font-semibold text-brand-blue transition-colors hover:bg-brand-blue/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
+                          >
+                            {action.label}
+                          </Link>
+                        )
+                      )}
+                    </div>
+                  )}
                 </div>
               ))}
               {isLoading && (

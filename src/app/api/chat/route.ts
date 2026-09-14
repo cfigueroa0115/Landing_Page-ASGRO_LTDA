@@ -97,7 +97,7 @@ export async function POST(request: Request) {
       // 4. Process message through the governed V2 flow:
       //    intent router → selective retrieval of eligible KB V2 → safe formatter.
       //    Only the safe text reaches the client (intent/scores/keys stay internal).
-      const { response: aiResponse } = await processMessageV2(
+      const { response: aiResponse, actions } = await processMessageV2(
         message,
         sessionMessages
       );
@@ -119,10 +119,12 @@ export async function POST(request: Request) {
       // 7. Return response
       const timestamp = new Date().toISOString();
 
+      // `actions` es opcional (backward compatible). Solo se incluye si hay CTA.
       return NextResponse.json({
         sessionId: resolvedSessionId,
         response: aiResponse,
         timestamp,
+        ...(actions.length > 0 ? { actions } : {}),
       });
     } catch (dbError) {
       // Database-related errors

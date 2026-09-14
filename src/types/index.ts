@@ -50,12 +50,20 @@ export interface ServiceModalProps {
   service: ServiceData;
 }
 
+/** Acción comercial pública que puede acompañar una respuesta del asistente. */
+export type ChatAction =
+  | { type: 'whatsapp'; label: 'Escribir por WhatsApp'; href: string }
+  | { type: 'advisory'; label: 'Solicitar asesoría'; href: '/contacto' }
+  | { type: 'quote'; label: 'Solicitar cotización'; href: '/cotizar' };
+
 /** Mensaje de chat individual */
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  /** CTAs comerciales opcionales (solo respuestas del asistente). Máx 2. */
+  actions?: ChatAction[];
 }
 
 /** Props del componente del agente IA */

@@ -271,6 +271,65 @@ describe('FloatingChatButton — asistente de orientación', () => {
     }
   });
 
+  it('renderiza CTAs (máx 2) cuando la respuesta trae actions', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        sessionId: 's1',
+        response: 'Con gusto te ayudo a cotizar tu seguro de vehículo.',
+        timestamp: new Date().toISOString(),
+        actions: [
+          { type: 'quote', label: 'Solicitar cotización', href: '/cotizar' },
+          { type: 'advisory', label: 'Solicitar asesoría', href: '/contacto' },
+        ],
+      }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<FloatingChatButton />);
+    await user.click(
+      screen.getByRole('button', { name: /abrir asistente de orientación/i })
+    );
+
+    const input = screen.getByLabelText(/mensaje para el asistente/i);
+    await user.type(input, 'quiero cotizar seguro para mi carro');
+    await user.click(screen.getByRole('button', { name: /enviar mensaje/i }));
+
+    // Chips de acción renderizados (grupo accesible), máximo 2.
+    const group = await screen.findByRole('group', { name: /acciones sugeridas/i });
+    expect(group).toBeInTheDocument();
+    const quote = screen.getByRole('link', { name: /solicitar cotización/i });
+    expect(quote).toHaveAttribute('href', '/cotizar');
+    const advisory = screen.getByRole('link', { name: /solicitar asesoría/i });
+    expect(advisory).toHaveAttribute('href', '/contacto');
+  });
+
+  it('no renderiza CTAs cuando la respuesta no trae actions', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        sessionId: 's1',
+        response: 'Información general.',
+        timestamp: new Date().toISOString(),
+      }),
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<FloatingChatButton />);
+    await user.click(
+      screen.getByRole('button', { name: /abrir asistente de orientación/i })
+    );
+
+    const input = screen.getByLabelText(/mensaje para el asistente/i);
+    await user.type(input, 'seguro de hogar');
+    await user.click(screen.getByRole('button', { name: /enviar mensaje/i }));
+
+    await screen.findByText(/información general/i);
+    expect(screen.queryByRole('group', { name: /acciones sugeridas/i })).not.toBeInTheDocument();
+  });
+
   it('sin reduced-motion, scrollIntoView usa behavior smooth', async () => {
     mockMatchMedia(false);
     const scrollSpy = vi
