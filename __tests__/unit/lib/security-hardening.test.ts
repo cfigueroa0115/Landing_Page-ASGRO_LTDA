@@ -49,6 +49,19 @@ describe('next.config — security headers', () => {
     expect(h['Strict-Transport-Security']).toContain('max-age=');
   });
 
+  it('Permissions-Policy: microphone=(self) para la voz de la Asesora, camera/geolocation bloqueadas', async () => {
+    const h = await getRootHeaders();
+    const pp = h['Permissions-Policy'] ?? '';
+    // Micrófono permitido solo al propio origen (dictado por voz).
+    expect(pp).toContain('microphone=(self)');
+    // No debe estar completamente bloqueado ni abierto a cualquiera.
+    expect(pp).not.toContain('microphone=()');
+    expect(pp).not.toContain('microphone=*');
+    // Cámara y geolocalización siguen bloqueadas.
+    expect(pp).toContain('camera=()');
+    expect(pp).toContain('geolocation=()');
+  });
+
   it('incluye headers de aislamiento de origen', async () => {
     const h = await getRootHeaders();
     expect(h['Cross-Origin-Opener-Policy']).toBe('same-origin');
@@ -95,28 +108,29 @@ describe('next.config — Content-Security-Policy', () => {
   });
 });
 
-describe('Feature flag — Asesora (NEXT_PUBLIC_AI_ASSISTANT_ENABLED)', () => {
-  it('undefined → habilitada (comportamiento actual)', () => {
+describe('Feature flag — Asesora (NEXT_PUBLIC_AI_ASSISTANT_ENABLED, fail-closed)', () => {
+  it('undefined → habilitada (compatibilidad de preview)', () => {
     expect(isAiAssistantEnabled(undefined)).toBe(true);
   });
 
-  it('"true" → habilitada', () => {
+  it('"true" reconocido → habilitada (incl. case/espacios)', () => {
     expect(isAiAssistantEnabled('true')).toBe(true);
+    expect(isAiAssistantEnabled('TRUE')).toBe(true);
+    expect(isAiAssistantEnabled('  true  ')).toBe(true);
   });
 
-  it('"false" → deshabilitada', () => {
+  it('"false" → deshabilitada (incl. case/espacios)', () => {
     expect(isAiAssistantEnabled('false')).toBe(false);
-  });
-
-  it('"FALSE"/" false " → deshabilitada (case/espacios)', () => {
     expect(isAiAssistantEnabled('FALSE')).toBe(false);
     expect(isAiAssistantEnabled('  false  ')).toBe(false);
   });
 
-  it('cualquier otro valor → habilitada (no oculta inesperadamente)', () => {
-    expect(isAiAssistantEnabled('1')).toBe(true);
-    expect(isAiAssistantEnabled('yes')).toBe(true);
-    expect(isAiAssistantEnabled('')).toBe(true);
+  it('valores inválidos → deshabilitada (fail-closed, no activa silenciosamente)', () => {
+    expect(isAiAssistantEnabled('yes')).toBe(false);
+    expect(isAiAssistantEnabled('1')).toBe(false);
+    expect(isAiAssistantEnabled('enabled')).toBe(false);
+    expect(isAiAssistantEnabled('abc')).toBe(false);
+    expect(isAiAssistantEnabled('')).toBe(false);
   });
 });
 

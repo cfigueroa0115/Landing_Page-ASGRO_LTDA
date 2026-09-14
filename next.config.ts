@@ -42,8 +42,15 @@ const SECURITY_HEADERS = [
   { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   {
+    // microphone=(self): la Asesora usa SpeechRecognition (dictado por voz) SOLO
+    // por acción explícita del usuario y en el mismo origen. camera/geolocation
+    // siguen bloqueadas. No se abre microphone=* (solo el propio origen).
+    // Nota: NO se añade `on-device-speech-recognition` — es un token
+    // experimental, aún no estandarizado en el registro de Permissions-Policy y
+    // con soporte marginal; incluirlo podría generar avisos de parsing sin
+    // aportar control efectivo. Se revalorará cuando se estandarice.
     key: 'Permissions-Policy',
-    value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
+    value: 'camera=(), microphone=(self), geolocation=(), interest-cohort=()',
   },
   {
     key: 'Strict-Transport-Security',

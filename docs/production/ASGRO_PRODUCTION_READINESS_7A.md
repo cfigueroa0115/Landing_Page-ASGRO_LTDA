@@ -29,7 +29,7 @@ Aplicados a `/(.*)` en `next.config.ts`:
 | `X-Content-Type-Options` | `nosniff` |
 | `X-Frame-Options` | `SAMEORIGIN` |
 | `Referrer-Policy` | `strict-origin-when-cross-origin` |
-| `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), interest-cohort=()` |
+| `Permissions-Policy` | `camera=(), microphone=(self), geolocation=(), interest-cohort=()` |
 | `Strict-Transport-Security` | `max-age=63072000; includeSubDomains; preload` |
 | `Content-Security-Policy` | ver §4 |
 | `Cross-Origin-Opener-Policy` | `same-origin` |
@@ -40,6 +40,18 @@ Aplicados a `/(.*)` en `next.config.ts`:
 sitio solo consume subrecursos y APIs del mismo origen; navegaciones externas
 (WhatsApp, redes) no son subrecursos y no se ven afectadas. `X-DNS-Prefetch-
 Control: off` reduce fugas de DNS sin impacto funcional perceptible.
+
+**Voice policy (corregida en 7A.1):** `microphone=(self)`. La Asesora usa
+`SpeechRecognition` (dictado por voz) en `useVoiceAssistant.ts`, activado **solo
+por acción explícita** del usuario y en el mismo origen; por eso `microphone=()`
+(bloqueo total) contradecía la funcionalidad publicada. Se corrige a
+`microphone=(self)` — solo el propio origen ASGRO — manteniendo `camera=()` y
+`geolocation=()` bloqueadas y **sin** abrir `microphone=*`. Se decidió **no**
+añadir `on-device-speech-recognition`: es un token experimental, aún no
+estandarizado en el registro de Permissions-Policy y con soporte marginal;
+incluirlo podría generar avisos de parsing sin aportar control efectivo. La
+implementación de voz (`useVoiceAssistant.ts`, `FloatingChatButton`, `ChatInput`,
+`ChatWindow`) **no** se modificó: solo el header que la gobierna.
 
 ## 4. Content-Security-Policy
 
@@ -149,16 +161,22 @@ transición se evalúa en 5B.2.
 
 ## 13. Feature flag de la Asesora
 
-`NEXT_PUBLIC_AI_ASSISTANT_ENABLED` (público, no secreto):
-- `"true"` → renderiza la Asesora.
-- `"false"` → no la renderiza.
-- ausente/undefined → **comportamiento actual** (renderizada). Nunca la oculta
-  de forma inesperada.
+`NEXT_PUBLIC_AI_ASSISTANT_ENABLED` (público, no secreto) — **fail-closed
+(endurecido en 7A.1)**:
+- ausente/undefined → **comportamiento actual** (renderizada), por
+  compatibilidad de preview.
+- `"true"` (case/espacios: `TRUE`, `  true  `) → renderiza la Asesora.
+- **cualquier otro valor** (`"false"`, `"FALSE"`, `"yes"`, `"1"`, `"enabled"`,
+  `"abc"`, cadena vacía) → **no** la renderiza.
+
+Antes, cualquier valor distinto de `false` la activaba; ahora solo un `true`
+explícito lo hace cuando el flag está presente, de modo que un error de
+configuración en producción **no** activa la Asesora silenciosamente.
 
 Implementado en `src/lib/config/feature-flags.ts` (`isAiAssistantEnabled`) y
 consumido en `layout.tsx`: `{aiAssistantEnabled && <FloatingChatButton />}`.
-WhatsApp es independiente del flag. Tests para true/false/undefined y variantes
-de caso/espacios.
+WhatsApp es independiente del flag. Tests para undefined/true/false/inválidos y
+variantes de caso/espacios.
 
 ## 14. Canonical domain
 
