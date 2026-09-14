@@ -161,3 +161,73 @@ Cubiertos en `__tests__/unit/lib/ai-retrieval-5b2.test.ts` y el bloque de chat d
 - Sin embeddings: la coincidencia lexical es simple (adecuada para 24 entradas).
 - Providers legacy sin modernizar (5B.4). Handoff visual/comercial en 5B.3.
 - Activo en **preview**; no se conecta ni despliega a producción en este bloque.
+
+---
+
+## 14. Endurecimiento de precisión (Bloque 5B.2.1)
+
+### 14.1 Matching por límites de palabra/frase (sin colisiones)
+
+El router ya **no** usa `String.includes()`. `matchesTerm` compara por tokens:
+- término de **una palabra** → debe aparecer como token completo;
+- término **multi-palabra** → subsecuencia contigua de tokens.
+
+Esto elimina falsos positivos por substring: "configuración **auto**mática" **no**
+activa `vehiculos`; "**asesor**ía" **no** activa `human_advisor`; "**actividad**
+económica" no clasifica por coincidencia parcial irrelevante. La normalización de
+acentos/mayúsculas se mantiene.
+
+### 14.2 human_advisor explícito
+
+Solo frases explícitas ("quiero hablar con un asesor / con una persona",
+"atención personalizada", "que me contacte un asesor", ...). La palabra
+`asesor`/`asesoria` aislada **no** domina otra intención:
+"necesito asesoría sobre seguro de hogar" → **hogar**.
+
+### 14.3 Dominio comercial secundario
+
+`IntentResult` incorpora `primaryIntent` y `domainIntent` (internos). Las
+intenciones transaccionales conservan el producto:
+- "quiero cotizar seguro para mi carro" → `cotizacion` + personas/vehiculos.
+- "cotizar cumplimiento" → `cotizacion` + empresas/cumplimiento.
+- "tuve un accidente con mi carro" → `siniestros` + personas/vehiculos.
+- "tengo un siniestro empresarial" → `siniestros` + empresas.
+
+**Follow-up comercial:** si el contexto era un dominio ("seguro para mi carro")
+y luego llega "quiero cotizar", el resultado conserva `cotizacion` +
+personas/vehiculos. Una intención explícita nueva no se sobrescribe.
+
+### 14.4 Estrategia de consulta general
+
+`general_insurance` **ya no** se fuerza a `personas` (category = `null`). El
+retrieval usa `retrieveBalancedGeneral`: toma la entrada representativa de
+`personas` y de `empresas` (orientación general) más una tercera por prioridad,
+con **máximo 3** (`MAX_GENERAL`), para una respuesta breve y ejecutiva (no 10
+productos). Se reconocen consultas naturales: "qué seguros manejan", "qué
+soluciones ofrecen", "quiero proteger mi negocio" (→ empresas), "quiero proteger
+a mi familia" (→ personas).
+
+### 14.5 Umbral de confianza
+
+`confidence ∈ [0,1]` con umbrales `CONFIDENCE_HIGH = 0.7` y
+`CONFIDENCE_MEDIUM = 0.45`. El orquestador **no inventa** intención para
+responder: si la intención es `unknown`, o la confianza es **< 0.45 sin
+dominio** y no es una consulta general, entrega el **fallback seguro** con
+handoff en lugar de forzar contenido. Señales fuertes (multi-palabra y reglas
+transaccionales/handoff) elevan la confianza por encima del umbral.
+
+### 14.6 Pruebas de colisión (negativas) y matriz live-style
+
+`__tests__/unit/lib/ai-intent-precision-5b2-1.test.ts` cubre: `matchesTerm`
+(palabra/frase), colisiones negativas (auto/asesor/actividad), human_advisor
+explícito, dominio secundario de cotización/siniestros, follow-up comercial,
+`general_insurance` balanceado, umbral de confianza y una **matriz de 33
+consultas** representativas (personas, hogar, vida, salud, vehículos, empresas,
+cumplimiento, RC, ARL, SST, cotización, siniestros, handoff, general, off-topic,
+arrendamiento) con intención/dominio esperados.
+
+### 14.7 Contrato de API
+
+`IntentResult.primaryIntent/domainIntent/category/subcategory/confidence/reason`
+son **internos**. La respuesta de `/api/chat` sigue siendo exactamente
+`{ sessionId, response, timestamp }`.

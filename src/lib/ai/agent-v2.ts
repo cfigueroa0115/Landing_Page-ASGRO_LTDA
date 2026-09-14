@@ -14,7 +14,11 @@
 // - No expone intención interna, scores, keys de fuente, SQL ni metadata.
 // ============================================================================
 
-import { routeIntent, type RouterContextMessage } from '@/lib/ai/routing/intent-router';
+import {
+  routeIntent,
+  CONFIDENCE_MEDIUM,
+  type RouterContextMessage,
+} from '@/lib/ai/routing/intent-router';
 import { retrieveForIntent, type RetrievableEntry } from '@/lib/ai/retrieval/selective-retrieval';
 
 /** Ventana máxima de contexto (se mantiene el criterio actual de 10 mensajes). */
@@ -110,7 +114,19 @@ export async function processMessageV2(
     };
   }
 
-  // 3) Recuperación selectiva de contenido V2 elegible.
+  // 3) Confianza insuficiente / intención desconocida sin dominio: no inventar
+  //    intent para responder. Se prefiere el fallback seguro con handoff.
+  if (
+    intent.intent === 'unknown' ||
+    (intent.confidence < CONFIDENCE_MEDIUM && !intent.category && intent.primaryIntent !== 'general_insurance')
+  ) {
+    return {
+      response: SAFE_FALLBACK,
+      meta: { intent: intent.intent, usedEntries: [], fallback: true },
+    };
+  }
+
+  // 4) Recuperación selectiva de contenido V2 elegible.
   const entries = await retrieve(intent, message, 3);
 
   // 4) Sin contenido elegible (p. ej. arrendamiento pending, o unknown):

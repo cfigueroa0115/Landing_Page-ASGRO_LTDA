@@ -15,6 +15,9 @@ import { normalize } from '@/lib/ai/routing/intent-router';
 import type { IntentResult } from '@/lib/ai/routing/intent-router';
 import type { KbCategory, KbSubcategory } from '@/lib/ai/knowledge/taxonomy';
 
+/** Máximo de entradas para una consulta general/panorama (breve, ejecutivo). */
+export const MAX_GENERAL = 3;
+
 /** Máximo absoluto de entradas devueltas al contexto. */
 export const MAX_RETRIEVED = 4;
 
@@ -102,7 +105,13 @@ export async function retrieveForIntent(
   query: string,
   topK: number = 3
 ): Promise<RetrievableEntry[]> {
-  if (!intent.category) return [];
+  // Consulta general / panorama de portafolio: SIN category → balanceado.
+  if (intent.primaryIntent === 'general_insurance' || !intent.category) {
+    if (intent.primaryIntent === 'general_insurance') {
+      return retrieveBalancedGeneral(query);
+    }
+    return [];
+  }
 
   const category = intent.category as KbCategory;
   const subcategory = intent.subcategory as KbSubcategory | null;
@@ -120,4 +129,34 @@ export async function retrieveForIntent(
   }
 
   return rankAndLimit(rows, intent, query, topK);
+}
+
+/**
+ * Recuperación balanceada para consultas generales de portafolio
+ * ("¿qué seguros manejan?"). Toma la entrada de mayor prioridad de personas y
+ * de empresas (orientación general), evitando devolver 10 productos. Máximo
+ * MAX_GENERAL (3), breve y ejecutivo. Solo contenido elegible.
+ */
+export async function retrieveBalancedGeneral(
+  query: string
+): Promise<RetrievableEntry[]> {
+  const [personas, empresas] = await Promise.all([
+    getKnowledgeByCategory('personas') as Promise<RetrievableEntry[]>,
+    getKnowledgeByCategory('empresas') as Promise<RetrievableEntry[]>,
+  ]);
+
+  // getKnowledgeByCategory ya ordena por priority desc, key asc → [0] es la
+  // entrada representativa (orientación general) de cada dominio.
+  const picks: RetrievableEntry[] = [];
+  if (personas[0]) picks.push(personas[0]);
+  if (empresas[0]) picks.push(empresas[0]);
+
+  // Tercera entrada opcional: la segunda de mayor prioridad global entre ambos.
+  const rest = [...personas.slice(1), ...empresas.slice(1)].sort((a, b) => {
+    if (b.priority !== a.priority) return b.priority - a.priority;
+    return a.key.localeCompare(b.key);
+  });
+  if (rest[0] && picks.length < MAX_GENERAL) picks.push(rest[0]);
+
+  return picks.slice(0, MAX_GENERAL);
 }
