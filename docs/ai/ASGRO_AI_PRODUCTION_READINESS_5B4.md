@@ -63,14 +63,20 @@ y `/cotizar`. El `interest` es un **enum cerrado** (no transporta texto libre ni
 PII). El mensaje de WhatsApp es genérico (producto), sin sessionId, historial ni
 PII. Formularios formales sin cambios.
 
-## 4. Providers
+## 4. Providers (LEGACY / INACTIVE)
 
-- Abstracción mantenida (`providers.ts`), pero **no** está en el camino activo:
-  la Asesora responde sin LLM.
-- Modelo Gemini deprecado `gemini-pro` → `gemini-1.5-flash` (vigente). OpenAI
-  `gpt-3.5-turbo` sin cambio automático (validación de API pendiente para una
-  eventual capa opcional).
-- **No** se hardcodean ni agregan API keys. LLM **no** es requisito para responder.
+- `providers.ts` está marcado explícitamente como **LEGACY / INACTIVE** y **no**
+  está en el camino activo. Verificado por source-check: `/api/chat` y
+  `agent-v2.ts` **no importan** `providers.ts` (5B.4.1).
+- El **camino activo de IA es el V2 determinístico**; el proveedor externo **no
+  es requerido** y no hay dependencia de producción de Gemini/OpenAI.
+- Los endpoints/modelos del módulo legacy **no se consideran vigentes ni
+  validados** (no se afirma vigencia). Reactivar LLM exigiría validar
+  proveedor/modelo/keys en un bloque dedicado.
+- **No** se hardcodean ni agregan API keys.
+- **Logging endurecido (5B.4.1):** el módulo legacy solo registra un mensaje
+  genérico (`[AI Providers] Provider request failed.`), sin objeto de error
+  crudo, URL, key, headers ni cuerpo de respuesta.
 
 ## 5. Estrategia de fallback (provider failure)
 
@@ -83,9 +89,11 @@ responde 400/503/500 genéricos; el chat V2 entrega texto seguro).
 
 Se persiste **únicamente el UUID de sesión** en `sessionStorage` (no
 `localStorage`, para no retener entre pestañas/cierres). Solo se acepta/almacena
-un UUID con formato válido (`isValidSessionId`). **No** se persiste el contenido
-de la conversación ni PII en el navegador. `FloatingChatButton` inicializa el
-`sessionId` desde `readSessionId()` y lo actualiza con `writeSessionId()`.
+un **UUID v4 real** (versión `4` + variante `[89ab]`, case-insensitive) mediante
+`isValidSessionId` (alineado con `gen_random_uuid()` de Postgres). **No** se
+persiste el contenido de la conversación ni PII en el navegador.
+`FloatingChatButton` inicializa el `sessionId` desde `readSessionId()` y lo
+actualiza con `writeSessionId()`.
 
 ## 7. Rate / abuse (capa de app)
 
@@ -146,7 +154,9 @@ arquitectura innecesaria.)
 secretos/prompt, escalamiento de rol, datos internos/pending, comparación,
 garantía, precio, arrendamiento, off-topic, provider failure / sin LLM, no-legacy,
 service↔interest, metadata anti-spoof, UUID de sesión y matriz funcional segura.
-Suite total: **525 tests / 33 files**.
+`__tests__/unit/lib/ai-hygiene-5b4-1.test.ts` (5B.4.1) añade source-checks
+(el flujo activo no importa el provider legacy) y validación de UUID v4.
+Suite total: **534 tests / 34 files**.
 
 ## 14. Live preview QA (manual)
 

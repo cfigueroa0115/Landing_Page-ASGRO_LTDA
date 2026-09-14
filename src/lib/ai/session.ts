@@ -12,11 +12,14 @@
 
 const STORAGE_KEY = 'asgro_chat_session_id';
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+// UUID v4 real: 3er grupo empieza por '4' (versión) y 4º grupo por [89ab]
+// (variante RFC 4122). Case-insensitive. Alinea implementación y documentación.
+const UUID_V4_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-/** ¿Es un UUID con formato válido? PURA. */
+/** ¿Es un UUID v4 con formato válido? PURA. */
 export function isValidSessionId(value: unknown): value is string {
-  return typeof value === 'string' && UUID_RE.test(value);
+  return typeof value === 'string' && UUID_V4_RE.test(value);
 }
 
 /** Lee el sessionId persistido (o null). Seguro en SSR / sin storage. */

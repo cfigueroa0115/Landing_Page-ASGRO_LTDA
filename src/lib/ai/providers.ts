@@ -1,8 +1,19 @@
 // ============================================================================
-// AI Provider Abstraction - OpenAI y Gemini
-// Usa fetch nativo para evitar dependencias extra.
-// Detecta automáticamente el proveedor según variables de entorno.
-// Retorna null si la llamada falla, permitiendo fallback al keyword matcher.
+// AI Provider Abstraction — LEGACY / INACTIVE (Bloque 5B.4.1)
+// ----------------------------------------------------------------------------
+// ⚠️ Este módulo NO forma parte del flujo activo de la Asesora. El camino
+// productivo es `processMessageV2` (agent-v2.ts), 100% determinístico, que NO
+// importa ni depende de este archivo. La Asesora funciona sin ningún proveedor
+// externo y sin API keys.
+//
+// Se conserva únicamente por compatibilidad histórica (lo consume el `agent.ts`
+// legacy, tampoco activo). Los endpoints/modelos aquí referenciados NO se
+// consideran vigentes ni validados; no deben tratarse como una integración LLM
+// productiva. Cualquier reactivación de LLM requeriría validar el proveedor,
+// modelo y la gestión de claves en un bloque dedicado (no aquí).
+//
+// Logging: solo mensajes genéricos, sin objetos de error crudos, URLs, keys,
+// headers ni cuerpos de respuesta.
 // ============================================================================
 
 import type { ChatMessage } from '@/types';
@@ -11,13 +22,10 @@ import type { ChatMessage } from '@/types';
 // Constantes
 // ============================================================================
 
+// Endpoints de proveedores LEGACY (no vigentes; ver cabecera del módulo).
 const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
-// Modelo Gemini estable y vigente (5B.4): reemplaza el deprecado `gemini-pro`.
-// NOTA: el flujo activo de la Asesora (agent-v2 / /api/chat) es 100%
-// determinístico y NO usa este proveedor; se mantiene la abstracción por
-// compatibilidad y para una eventual capa opcional. No requiere API key.
 const GEMINI_API_URL =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+  'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
 
 /** Timeout máximo para llamadas a APIs externas (5 segundos) */
 const API_TIMEOUT_MS = 5000;
@@ -133,9 +141,7 @@ async function callOpenAI(
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      console.error(
-        `[AI Providers] OpenAI API error: ${response.status} ${response.statusText}`
-      );
+      console.error('[AI Providers] Provider request failed.');
       return null;
     }
 
@@ -143,18 +149,15 @@ async function callOpenAI(
     const content = data?.choices?.[0]?.message?.content;
 
     if (!content || typeof content !== 'string') {
-      console.error('[AI Providers] OpenAI response missing content');
+      console.error('[AI Providers] Provider request failed.');
       return null;
     }
 
     return content.trim();
-  } catch (error: unknown) {
+  } catch {
     clearTimeout(timeoutId);
-    if (error instanceof Error && error.name === 'AbortError') {
-      console.error('[AI Providers] OpenAI API timeout (5s exceeded)');
-    } else {
-      console.error('[AI Providers] OpenAI API call failed:', error);
-    }
+    // Mensaje genérico: nunca se registra el error crudo, URL, key ni headers.
+    console.error('[AI Providers] Provider request failed.');
     return null;
   }
 }
@@ -216,9 +219,7 @@ async function callGemini(
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      console.error(
-        `[AI Providers] Gemini API error: ${response.status} ${response.statusText}`
-      );
+      console.error('[AI Providers] Provider request failed.');
       return null;
     }
 
@@ -226,18 +227,15 @@ async function callGemini(
     const content = data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!content || typeof content !== 'string') {
-      console.error('[AI Providers] Gemini response missing content');
+      console.error('[AI Providers] Provider request failed.');
       return null;
     }
 
     return content.trim();
-  } catch (error: unknown) {
+  } catch {
     clearTimeout(timeoutId);
-    if (error instanceof Error && error.name === 'AbortError') {
-      console.error('[AI Providers] Gemini API timeout (5s exceeded)');
-    } else {
-      console.error('[AI Providers] Gemini API call failed:', error);
-    }
+    // Mensaje genérico: nunca se registra el error crudo, URL, key ni headers.
+    console.error('[AI Providers] Provider request failed.');
     return null;
   }
 }
