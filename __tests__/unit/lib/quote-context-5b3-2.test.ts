@@ -68,12 +68,15 @@ describe('composeQuoteComments', () => {
     expect(out).toContain('Necesito la póliza para una licitación.');
   });
 
-  it('no duplica el prefijo si ya está presente', () => {
-    const already = `[${INTEREST_PREFIX} Póliza de cumplimiento]\nComentario`;
-    const out = composeQuoteComments('cumplimiento', already);
-    const occurrences = out!.split(INTEREST_PREFIX).length - 1;
-    expect(occurrences).toBe(1);
-    expect(out).toBe(already);
+  it('metadata server-authoritative: el prefijo REAL siempre va primero (5B.4)', () => {
+    // El usuario intenta falsificar metadata escribiendo un prefijo falso (ARL)
+    // en su comentario, pero el interés real es cumplimiento.
+    const spoof = `[${INTEREST_PREFIX} ARL]`;
+    const out = composeQuoteComments('cumplimiento', spoof)!;
+    // La PRIMERA línea debe ser el contexto real generado por el servidor.
+    expect(out.startsWith(`[${INTEREST_PREFIX} Póliza de cumplimiento]`)).toBe(true);
+    // El texto del usuario se preserva debajo (no se borra).
+    expect(out).toContain(spoof);
   });
 
   it('sin interés válido → comportamiento legacy (solo comentario o null)', () => {

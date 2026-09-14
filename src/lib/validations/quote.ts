@@ -100,7 +100,45 @@ export const quoteSchema = z.object({
     .refine((val) => val === true, {
       message: 'Debe aceptar el tratamiento de datos personales para continuar',
     }),
+}).superRefine((data, ctx) => {
+  // Validación cruzada service ↔ interest (5B.4): el interés debe ser coherente
+  // con el servicio requerido. Un body inconsistente se rechaza (400) y no se
+  // persiste. Ver isServiceInterestConsistent para el detalle de las reglas.
+  if (data.interest && !isServiceInterestConsistent(data.serviceRequired, data.interest)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['interest'],
+      message: 'El interés no es coherente con el servicio requerido',
+    });
+  }
 });
+
+/**
+ * ¿El `interest` es coherente con el `serviceRequired`?
+ * Reglas (5B.4):
+ * - interés empresarial (multirriesgo, responsabilidad_civil, cumplimiento,
+ *   manejo, vida_grupo) → requiere serviceRequired = 'seguros'.
+ * - interés 'arl' → requiere serviceRequired = 'arl'.
+ * - interés 'sst' → requiere serviceRequired = 'sst'.
+ * Función PURA (sin dependencias) para reutilizar en tests.
+ */
+export function isServiceInterestConsistent(
+  service: string,
+  interest: string
+): boolean {
+  const enterprise = [
+    'multirriesgo',
+    'responsabilidad_civil',
+    'cumplimiento',
+    'manejo',
+    'vida_grupo',
+  ];
+  if (enterprise.includes(interest)) return service === 'seguros';
+  if (interest === 'arl') return service === 'arl';
+  if (interest === 'sst') return service === 'sst';
+  // Interés desconocido: la validación de enum ya lo habría rechazado.
+  return false;
+}
 
 /** Tipo inferido del esquema de cotización */
 export type QuoteFormData = z.infer<typeof quoteSchema>;

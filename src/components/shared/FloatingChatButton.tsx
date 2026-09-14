@@ -8,6 +8,7 @@ import type { ChatMessage } from '@/types';
 import AdvisorAvatar from '@/components/shared/AdvisorAvatar';
 import { useFloatingUI } from '@/components/shared/FloatingUIProvider';
 import { useVoiceAssistant } from '@/lib/hooks/useVoiceAssistant';
+import { readSessionId, writeSessionId } from '@/lib/ai/session';
 
 const PANEL_ID = 'asgro-assistant-panel';
 
@@ -33,7 +34,9 @@ export default function FloatingChatButton() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [sessionId, setSessionId] = useState<string | null>(null);
+  // Continuidad de sesión: se recupera el UUID persistido (sessionStorage) para
+  // no perder el hilo al recargar dentro de la misma pestaña. Solo el UUID.
+  const [sessionId, setSessionId] = useState<string | null>(() => readSessionId());
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -151,6 +154,8 @@ export default function FloatingChatButton() {
 
         const data = await response.json();
         setSessionId(data.sessionId);
+        // Persistir solo el UUID (sessionStorage) para continuidad de sesión.
+        writeSessionId(data.sessionId);
 
         const assistantMessage: ChatMessage = {
           id: `assistant-${Date.now()}`,

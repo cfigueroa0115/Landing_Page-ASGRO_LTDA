@@ -12,8 +12,12 @@ import type { ChatMessage } from '@/types';
 // ============================================================================
 
 const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
+// Modelo Gemini estable y vigente (5B.4): reemplaza el deprecado `gemini-pro`.
+// NOTA: el flujo activo de la Asesora (agent-v2 / /api/chat) es 100%
+// determinístico y NO usa este proveedor; se mantiene la abstracción por
+// compatibilidad y para una eventual capa opcional. No requiere API key.
 const GEMINI_API_URL =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+  'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 /** Timeout máximo para llamadas a APIs externas (5 segundos) */
 const API_TIMEOUT_MS = 5000;

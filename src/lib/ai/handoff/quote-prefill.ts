@@ -109,15 +109,16 @@ export function composeQuoteComments(
   const trimmed = (userComments ?? '').trim();
   const label = interestLabelOf(interest);
 
+  // Sin interés válido → comportamiento legacy (solo comentario del usuario).
   if (!label) {
     return trimmed.length > 0 ? trimmed : null;
   }
 
-  // Evitar duplicar el prefijo si ya viene incluido.
-  if (trimmed.includes(INTEREST_PREFIX)) {
-    return trimmed;
-  }
-
+  // METADATA SERVER-AUTHORITATIVE (5B.4): cuando hay un `interest` válido, el
+  // contexto SIEMPRE lo genera el servidor como primera línea, con la etiqueta
+  // REAL. No se confía en una aparición del prefijo dentro del comentario del
+  // usuario (evita spoofing de metadata). El comentario se preserva íntegro
+  // debajo, incluyendo cualquier prefijo falso que el usuario haya escrito.
   const context = `[${INTEREST_PREFIX} ${label}]`;
   return trimmed.length > 0 ? `${context}\n${trimmed}` : context;
 }

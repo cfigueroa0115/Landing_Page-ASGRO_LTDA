@@ -26,6 +26,11 @@ import {
   sanitizeActions,
   type ChatAction,
 } from '@/lib/ai/handoff/commercial-handoff';
+import {
+  detectAdversarial,
+  assertSafeResponse,
+  ADVERSARIAL_SAFE_RESPONSE,
+} from '@/lib/ai/safety/guardrails';
 
 /** Ventana máxima de contexto (se mantiene el criterio actual de 10 mensajes). */
 const MAX_CONTEXT_MESSAGES = 10;
@@ -119,6 +124,19 @@ export async function processMessageV2(
   const retrieve = deps.retrieve ?? retrieveForIntent;
   const whatsappNumber = deps.whatsappNumber ?? process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '';
   const bounded = boundContext(context);
+
+  // 0) Guardrail adversarial: prompt injection, extracción de secretos/prompt,
+  //    escalamiento de rol o solicitud de datos internos → respuesta neutral y
+  //    segura. NO revela prompts, reglas, keys, DB ni metadata. Sin CTA.
+  const adversarial = detectAdversarial(message);
+  if (adversarial) {
+    return {
+      response: ADVERSARIAL_SAFE_RESPONSE,
+      actions: [],
+      meta: { intent: `adversarial:${adversarial}`, usedEntries: [], fallback: true },
+    };
+  }
+
   const intent = routeIntent(message, bounded);
 
   // 1) Fuera de alcance: solo respuesta de alcance, SIN CTA comercial.
@@ -172,6 +190,11 @@ export async function processMessageV2(
   if (intent.wantsCommercialOrContractual) {
     response += COMMERCIAL_GUARD_NOTE;
   }
+
+  // 8) Cinturón de seguridad de respuesta: si por cualquier razón el texto
+  //    contuviera un claim prohibido o un internal, se reemplaza por el
+  //    fallback seguro. El corpus V2 aprobado ya está libre de estos términos.
+  response = assertSafeResponse(response, SAFE_FALLBACK);
 
   return {
     response,
