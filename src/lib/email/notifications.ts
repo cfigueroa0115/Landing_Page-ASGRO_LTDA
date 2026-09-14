@@ -181,6 +181,8 @@ export interface QuoteNotificationData {
   serviceRequired: string;
   currentArl?: string | null;
   comments?: string | null;
+  /** Interés comercial legible originado por la Asesora (opcional). */
+  interestLabel?: string | null;
 }
 
 /**
@@ -202,6 +204,8 @@ export async function sendQuoteNotification(
     { label: 'Actividad económica', value: data.economicActivity },
     { label: 'N.º de trabajadores', value: String(data.employeeCount) },
     { label: 'Servicio requerido', value: data.serviceRequired },
+    // Interés comercial (solo cuando la Asesora lo transporta).
+    ...(data.interestLabel ? [{ label: 'Interés', value: data.interestLabel }] : []),
     { label: 'ARL actual', value: data.currentArl || 'No indicada' },
     { label: 'Comentarios', value: data.comments || 'Sin comentarios' },
   ];

@@ -13,11 +13,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 let mockInsertResult: Promise<unknown>;
 let mockSelectResult: Promise<unknown>;
 let mockReturningResult: Promise<unknown>;
+/** Captura del último payload pasado a db.insert(...).values(...) */
+let capturedInsertValues: Record<string, unknown> | null = null;
 
 function resetDbMocks() {
   mockInsertResult = Promise.resolve(undefined);
   mockSelectResult = Promise.resolve([]);
   mockReturningResult = Promise.resolve([{ id: 'mock-uuid-1234' }]);
+  capturedInsertValues = null;
 }
 
 vi.mock('@/lib/db', () => {
@@ -27,7 +30,11 @@ vi.mock('@/lib/db', () => {
       get(_target, prop) {
         if (prop === 'insert') {
           return () => ({
-            values: () => {
+            values: (vals: unknown) => {
+              // Capturar solo objetos (inserts de fila única) para aserciones.
+              if (vals && typeof vals === 'object' && !Array.isArray(vals)) {
+                capturedInsertValues = vals as Record<string, unknown>;
+              }
               return {
                 returning: () => mockReturningResult,
                 then: (resolve: (v: unknown) => unknown, reject: (e: unknown) => unknown) =>
@@ -296,6 +303,83 @@ describe('POST /api/quote', () => {
 
     expect(response.status).toBe(201);
     expect(data.success).toBe(true);
+  });
+
+  // ── 5B.3.2: persistencia segura del contexto comercial (interest) ──────────
+
+  it('persiste el contexto de interés (cumplimiento) en comments', async () => {
+    const body = { ...validQuoteBody, serviceRequired: 'seguros', interest: 'cumplimiento' };
+    const request = createPostRequest('http://localhost/api/quote', body);
+    const response = await POST(request);
+
+    expect(response.status).toBe(201);
+    expect(String(capturedInsertValues?.comments)).toContain('Póliza de cumplimiento');
+    expect(String(capturedInsertValues?.comments)).toContain('Interés originado desde la Asesora');
+  });
+
+  it('preserva el comentario del usuario junto al contexto', async () => {
+    const body = {
+      ...validQuoteBody,
+      serviceRequired: 'seguros',
+      interest: 'responsabilidad_civil',
+      comments: 'Requiero RC para una obra.',
+    };
+    const request = createPostRequest('http://localhost/api/quote', body);
+    await POST(request);
+
+    const stored = String(capturedInsertValues?.comments);
+    expect(stored).toContain('Responsabilidad civil');
+    expect(stored).toContain('Requiero RC para una obra.');
+  });
+
+  it('ARL/SST persisten su contexto', async () => {
+    for (const [interest, service, label] of [
+      ['arl', 'arl', 'ARL'],
+      ['sst', 'sst', 'SST'],
+    ] as const) {
+      resetDbMocks();
+      mockSendQuoteNotification.mockResolvedValue({ sent: true });
+      const request = createPostRequest('http://localhost/api/quote', {
+        ...validQuoteBody,
+        serviceRequired: service,
+        interest,
+      });
+      await POST(request);
+      expect(String(capturedInsertValues?.comments)).toContain(label);
+    }
+  });
+
+  it('sin interest → comments legacy intacto', async () => {
+    const request = createPostRequest('http://localhost/api/quote', {
+      ...validQuoteBody,
+      comments: 'Comentario simple',
+    });
+    await POST(request);
+    expect(capturedInsertValues?.comments).toBe('Comentario simple');
+    expect(String(capturedInsertValues?.comments)).not.toContain('Interés originado');
+  });
+
+  it('interest inválido (PII/HTML) es rechazado por Zod (400) y no se persiste', async () => {
+    const request = createPostRequest('http://localhost/api/quote', {
+      ...validQuoteBody,
+      interest: 'juan@email.com',
+    });
+    const response = await POST(request);
+    const data = await response.json();
+    expect(response.status).toBe(400);
+    expect(data.error).toBe('Validation failed');
+    expect(capturedInsertValues).toBeNull();
+  });
+
+  it('el email recibe la etiqueta de interés (interestLabel)', async () => {
+    const request = createPostRequest('http://localhost/api/quote', {
+      ...validQuoteBody,
+      serviceRequired: 'seguros',
+      interest: 'cumplimiento',
+    });
+    await POST(request);
+    const arg = mockSendQuoteNotification.mock.calls[0]?.[0] as { interestLabel?: string };
+    expect(arg.interestLabel).toBe('Póliza de cumplimiento');
   });
 
   it('returns 400 with field errors on invalid body', async () => {

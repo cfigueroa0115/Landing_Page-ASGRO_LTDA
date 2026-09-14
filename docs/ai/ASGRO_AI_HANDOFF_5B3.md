@@ -219,3 +219,64 @@ de asesoría dinámicas bajo las respuestas, evitando redundancia visual.
 
 Sin cambios: `{ sessionId, response, timestamp, actions? }`. El tipo `quote.href`
 admite `/cotizar` con query allowlisted; no se exponen nuevos internals.
+
+---
+
+## 15. Persistencia del contexto de cotización (Bloque 5B.3.2)
+
+### 15.1 Problema
+
+El chat conservaba `/cotizar?service=seguros&interest=cumplimiento` y el
+formulario mostraba "Interés: Póliza de cumplimiento", pero el submit **no**
+transportaba `interest` a `/api/quote`; DB/email recibían solo
+`serviceRequired=seguros`. Ahora ese contexto comercial se conserva de forma
+segura, **sin migración de base de datos y sin PII**.
+
+### 15.2 Allowlist e ida y vuelta
+
+`interest` solo puede provenir de la allowlist cerrada existente:
+`multirriesgo`, `responsabilidad_civil`, `cumplimiento`, `manejo`, `vida_grupo`,
+`arl`, `sst`. **Nunca** texto libre.
+
+- `QuotePrefill` conserva `interest` (valor) + `interestLabel` (etiqueta).
+- `QuoteSection` adjunta el `interest` **sanitizado** en el POST (estado
+  interno; no hay input editable ni hidden manipulable como fuente de verdad).
+
+### 15.3 Validación server-side
+
+`quoteSchema` incorpora `interest` **opcional** con `z.enum` (allowlist cerrada).
+El API revalida todo el body con Zod: un `interest` fuera de la allowlist
+(`cedula`, `<script>`, `juan@email.com`, `../../`, texto libre) produce **400 y
+no se persiste**. No se confía únicamente en la sanitización del frontend.
+
+### 15.4 Persistencia sin migración
+
+**No** se modifica el schema Drizzle ni se crea columna. Si `interest` es válido,
+el servidor compone (`composeQuoteComments`) el contexto en la columna
+`comments` existente:
+
+```
+[Interés originado desde la Asesora: Póliza de cumplimiento]
+<comentario del usuario, si existe>
+```
+
+- El prefijo **no se duplica** (si el comentario ya lo contiene, se respeta).
+- El comentario del usuario se **preserva**.
+- Sin `interest` válido → comportamiento legacy intacto (solo el comentario o
+  `null`).
+- La composición ocurre **únicamente server-side** (§9).
+
+ARL → contexto "ARL"; SST → contexto "SST".
+
+### 15.5 Email
+
+`sendQuoteNotification` recibe `interestLabel` y agrega una fila **"Interés"**
+(además de "Servicio requerido") cuando aplica. El email **no** es la fuente de
+verdad: el contexto también queda en DB (`comments`).
+
+### 15.6 Protección de PII
+
+El `interest` es un enum cerrado: por diseño no puede transportar cédula, NIT,
+email, datos médicos/financieros ni texto libre. Cualquier valor no allowlisted
+se rechaza en Zod y jamás llega a DB ni al email. La query cruda nunca se
+persiste.

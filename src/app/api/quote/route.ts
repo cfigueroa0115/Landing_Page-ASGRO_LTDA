@@ -4,6 +4,7 @@ import { quoteSchema } from '@/lib/validations/quote';
 import { getDbAsync } from '@/lib/db';
 import { quoteRequests } from '@/lib/db/schema';
 import { sendQuoteNotification } from '@/lib/email/notifications';
+import { composeQuoteComments, interestLabelOf } from '@/lib/ai/handoff/quote-prefill';
 
 /**
  * POST /api/quote
@@ -39,8 +40,16 @@ export async function POST(request: Request) {
       serviceRequired,
       currentArl,
       comments,
+      interest,
       dataAcceptance,
     } = validated.data;
+
+    // Contexto comercial: `interest` ya viene validado por Zod (allowlist). Se
+    // compone server-side dentro de `comments` (columna existente, sin
+    // migración). El prefijo no se duplica y el comentario del usuario se
+    // preserva. Etiqueta legible para el email.
+    const composedComments = composeQuoteComments(interest, comments);
+    const interestLabel = interestLabelOf(interest);
 
     // 1) Persistir la solicitud en la base de datos (fuente de verdad).
     const db = await getDbAsync();
@@ -56,7 +65,7 @@ export async function POST(request: Request) {
       employeeCount,
       serviceRequired,
       currentArl: currentArl ?? null,
-      comments: comments ?? null,
+      comments: composedComments,
       dataAcceptance,
     });
 
@@ -74,7 +83,8 @@ export async function POST(request: Request) {
       employeeCount,
       serviceRequired,
       currentArl: currentArl ?? null,
-      comments: comments ?? null,
+      comments: composedComments,
+      interestLabel,
     });
 
     return NextResponse.json(

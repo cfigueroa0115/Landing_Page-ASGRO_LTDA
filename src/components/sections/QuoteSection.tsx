@@ -37,6 +37,8 @@ export default function QuoteSection() {
 
   // Interés empresarial preseleccionado desde query allowlisted (solo lectura).
   const [interestLabel, setInterestLabel] = useState<string | null>(null);
+  // Valor allowlisted del interés (contexto comercial) para enviar al API.
+  const [interest, setInterest] = useState<string | null>(null);
 
   const {
     register,
@@ -69,9 +71,12 @@ export default function QuoteSection() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
-    const { service, interestLabel: label } = parseQuotePrefill(params);
+    const { service, interest: safeInterest, interestLabel: label } = parseQuotePrefill(params);
     if (service) {
       setValue('serviceRequired', service, { shouldValidate: false });
+    }
+    if (safeInterest) {
+      setInterest(safeInterest);
     }
     if (label) {
       setInterestLabel(label);
@@ -86,7 +91,9 @@ export default function QuoteSection() {
       const response = await fetch('/api/quote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        // Se adjunta el interés allowlisted (contexto comercial, no editable).
+        // El API lo revalida contra la allowlist antes de persistir.
+        body: JSON.stringify(interest ? { ...data, interest } : data),
       });
 
       if (response.ok) {

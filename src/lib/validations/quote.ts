@@ -8,6 +8,21 @@ export const serviceRequiredEnum = z.enum(['arl', 'sst', 'seguros', 'bienestar']
 });
 
 /**
+ * Interés comercial (subdominio empresarial) originado por la Asesora.
+ * Allowlist CERRADA — nunca texto libre. Opcional; si es inválido, Zod lo
+ * rechaza (el API no lo persiste como contexto).
+ */
+export const quoteInterestEnum = z.enum([
+  'multirriesgo',
+  'responsabilidad_civil',
+  'cumplimiento',
+  'manejo',
+  'vida_grupo',
+  'arl',
+  'sst',
+]);
+
+/**
  * Esquema Zod para el formulario de cotización.
  * Campos expandidos: nombre de empresa, NIT, nombre de contacto, cargo,
  * teléfono, email, ciudad, actividad económica, número aproximado de
@@ -75,6 +90,10 @@ export const quoteSchema = z.object({
     .string()
     .max(1000, 'Los comentarios no pueden exceder 1000 caracteres')
     .optional(),
+
+  // Contexto comercial opcional (allowlist cerrada). No es un campo editable
+  // del formulario: lo transporta la Asesora vía query allowlisted.
+  interest: quoteInterestEnum.optional(),
 
   dataAcceptance: z
     .boolean()
