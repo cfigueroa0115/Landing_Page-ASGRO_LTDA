@@ -64,101 +64,85 @@ export default function HeroSection() {
             + sombra suave) y glifos de alta definición: familia, hogar, auto,
             salud, ARL, SST y documento con check. Tintada en azul-verde
             translúcido para fundirse con el fondo azul. Muy tenue y decorativa. */}
+        {/* Textura de transformación digital (reemplaza los antiguos iconos):
+            líneas tenues, curvas fluidas y una red de conexión con nodos que
+            sugieren innovación, conectividad y alta calidad. Sin iconos.
+            Tintada en azul-verde translúcido para fundirse con el fondo azul. */}
         <div
-          className="absolute inset-0 opacity-[0.32] mix-blend-screen"
+          className="absolute inset-0 opacity-[0.6] mix-blend-screen"
           style={{
             backgroundImage: `url("data:image/svg+xml;utf8,${encodeURIComponent(
-              `<svg xmlns='http://www.w3.org/2000/svg' width='420' height='364' viewBox='0 0 420 364'>
+              `<svg xmlns='http://www.w3.org/2000/svg' width='600' height='520' viewBox='0 0 600 520'>
   <defs>
-    <linearGradient id='chip' x1='0' y1='0' x2='0' y2='1'>
-      <stop offset='0' stop-color='rgba(150,195,245,0.20)'/>
-      <stop offset='0.5' stop-color='rgba(110,160,225,0.07)'/>
-      <stop offset='1' stop-color='rgba(60,100,170,0.03)'/>
+    <linearGradient id='flow' x1='0' y1='0' x2='1' y2='1'>
+      <stop offset='0' stop-color='rgba(150,195,245,0)'/>
+      <stop offset='0.5' stop-color='rgba(150,195,245,0.16)'/>
+      <stop offset='1' stop-color='rgba(150,195,245,0)'/>
     </linearGradient>
-    <linearGradient id='chipEdge' x1='0' y1='0' x2='0' y2='1'>
-      <stop offset='0' stop-color='rgba(190,220,255,0.42)'/>
-      <stop offset='1' stop-color='rgba(90,140,210,0.10)'/>
+    <linearGradient id='flowG' x1='0' y1='0' x2='1' y2='0'>
+      <stop offset='0' stop-color='rgba(150,225,160,0)'/>
+      <stop offset='0.5' stop-color='rgba(150,225,160,0.14)'/>
+      <stop offset='1' stop-color='rgba(150,225,160,0)'/>
     </linearGradient>
-    <linearGradient id='ink' x1='0' y1='0' x2='0' y2='1'>
-      <stop offset='0' stop-color='rgba(205,225,255,0.55)'/>
-      <stop offset='1' stop-color='rgba(120,165,230,0.30)'/>
-    </linearGradient>
-    <linearGradient id='inkG' x1='0' y1='0' x2='0' y2='1'>
-      <stop offset='0' stop-color='rgba(190,240,190,0.55)'/>
-      <stop offset='1' stop-color='rgba(120,205,130,0.30)'/>
-    </linearGradient>
-    <!-- Chip hexagonal semi-3D: relleno con degradado, sombra baja y borde de luz superior -->
-    <g id='chip'>
-      <polygon points='46,3 88,26 88,72 46,95 4,72 4,26' fill='url(#chip)'/>
-      <polygon points='46,7 84,28 84,70 46,91 8,70 8,28' fill='none' stroke='rgba(20,40,80,0.28)' stroke-width='2'/>
-      <polygon points='46,3 88,26 88,72 46,95 4,72 4,26' fill='none' stroke='url(#chipEdge)' stroke-width='1.3'/>
-      <path d='M12 30 L46 10 L80 30' fill='none' stroke='rgba(220,238,255,0.30)' stroke-width='1' stroke-linecap='round'/>
-    </g>
+    <radialGradient id='node' cx='0.5' cy='0.5' r='0.5'>
+      <stop offset='0' stop-color='rgba(190,220,255,0.55)'/>
+      <stop offset='1' stop-color='rgba(190,220,255,0)'/>
+    </radialGradient>
+    <radialGradient id='nodeG' cx='0.5' cy='0.5' r='0.5'>
+      <stop offset='0' stop-color='rgba(175,235,180,0.55)'/>
+      <stop offset='1' stop-color='rgba(175,235,180,0)'/>
+    </radialGradient>
   </defs>
 
-  <!-- conectores tenues entre chips (red) -->
-  <g fill='none' stroke='rgba(120,170,235,0.10)' stroke-width='1'>
-    <line x1='46' y1='95' x2='46' y2='138'/>
-    <line x1='210' y1='49' x2='168' y2='72'/>
-    <line x1='252' y1='72' x2='294' y2='95'/>
-    <line x1='168' y1='260' x2='210' y2='283'/>
-    <line x1='294' y1='233' x2='336' y2='210'/>
-    <line x1='88' y1='49' x2='126' y2='26'/>
+  <!-- Curvas fluidas tenues (movimiento / innovación) -->
+  <g fill='none' stroke='url(#flow)' stroke-width='1.1'>
+    <path d='M-20 120 C 140 60, 300 200, 480 110 S 760 160, 900 90'/>
+    <path d='M-20 250 C 160 300, 320 160, 500 260 S 780 300, 900 220'/>
+    <path d='M-20 400 C 150 360, 320 470, 500 380 S 780 430, 900 360'/>
+  </g>
+  <g fill='none' stroke='url(#flowG)' stroke-width='1'>
+    <path d='M-20 190 C 180 150, 340 300, 540 200'/>
+    <path d='M-20 330 C 170 380, 360 250, 560 330'/>
   </g>
 
-  <!-- chips (hexágonos 3D) -->
-  <use href='#chip' x='164' y='0'/>
-  <use href='#chip' x='0' y='115'/>
-  <use href='#chip' x='290' y='72'/>
-  <use href='#chip' x='164' y='188'/>
-  <use href='#chip' x='0' y='246'/>
-  <use href='#chip' x='290' y='246'/>
-
-  <!-- glifos de alta definición (trazo con degradado + luz) -->
-  <g fill='none' stroke='url(#ink)' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'>
-    <!-- FAMILIA (chip 164,0) -->
-    <g transform='translate(210,47)'>
-      <circle cx='-8' cy='-9' r='4'/><path d='M-14 4 v-5 a6 6 0 0 1 12 0 v5'/>
-      <circle cx='9' cy='-9' r='4'/><path d='M3 4 v-5 a6 6 0 0 1 12 0 v5'/>
-      <circle cx='1' cy='-1' r='3' stroke='url(#inkG)'/><path d='M-4 9 v-4 a5 5 0 0 1 10 0 v4' stroke='url(#inkG)'/>
-    </g>
-    <!-- HOGAR (chip 290,72) -->
-    <g transform='translate(336,119)'>
-      <path d='M-13 2 L0 -11 L13 2'/><path d='M-9 0 v11 h18 v-11'/>
-      <path d='M15 -4 v14' stroke='url(#inkG)'/><circle cx='15' cy='-7' r='4' stroke='url(#inkG)'/>
-    </g>
-    <!-- AUTO (chip 0,115) -->
-    <g transform='translate(46,162)'>
-      <path d='M-15 3 l3 -8 a3 3 0 0 1 3 -2 h12 a3 3 0 0 1 3 2 l3 8'/>
-      <path d='M-16 3 h32 v6 h-32 z'/>
-      <circle cx='-9' cy='11' r='3'/><circle cx='9' cy='11' r='3'/>
-    </g>
-    <!-- SALUD (chip 164,188) -->
-    <g transform='translate(210,235)' stroke='url(#inkG)'>
-      <path d='M-13 0 h6 l3 -7 l6 15 l3 -8 h5'/>
-    </g>
-    <!-- ARL: trabajador con casco (chip 0,246) -->
-    <g transform='translate(46,293)'>
-      <path d='M-8 -6 a8 8 0 0 1 16 0'/><path d='M-10 -6 h20'/><path d='M0 -14 v3'/>
-      <circle cx='0' cy='2' r='4'/><path d='M-7 13 v-4 a7 7 0 0 1 14 0 v4'/>
-    </g>
-    <!-- SST: escudo con check (chip 290,246) -->
-    <g transform='translate(336,293)'>
-      <path d='M0 -13 l13 5 v8 c0 9 -7 13 -13 16 c-6 -3 -13 -7 -13 -16 v-8 z'/>
-      <path d='M-6 0 l4 4 l8 -9' stroke='url(#inkG)'/>
-    </g>
+  <!-- Red de conexión: líneas rectas finas entre nodos (conectividad / datos) -->
+  <g stroke='rgba(140,185,240,0.14)' stroke-width='0.9' fill='none'>
+    <path d='M80 90 L210 150 L150 260 L300 300 L250 420'/>
+    <path d='M210 150 L360 120 L470 220 L560 180'/>
+    <path d='M300 300 L440 350 L520 300 L560 380'/>
+    <path d='M150 260 L60 350'/>
+    <path d='M470 220 L440 350'/>
+    <path d='M360 120 L300 300'/>
   </g>
 
-  <!-- nodos de conexión luminosos -->
-  <g fill='rgba(190,240,190,0.42)'>
-    <circle cx='126' cy='72' r='2.4'/><circle cx='294' cy='210' r='2.4'/><circle cx='210' cy='283' r='2.4'/>
+  <!-- Nodos (puntos de conexión) con halo suave -->
+  <g>
+    <circle cx='80' cy='90' r='9' fill='url(#node)'/>
+    <circle cx='210' cy='150' r='10' fill='url(#node)'/>
+    <circle cx='360' cy='120' r='9' fill='url(#nodeG)'/>
+    <circle cx='470' cy='220' r='10' fill='url(#node)'/>
+    <circle cx='560' cy='180' r='8' fill='url(#node)'/>
+    <circle cx='150' cy='260' r='9' fill='url(#nodeG)'/>
+    <circle cx='300' cy='300' r='11' fill='url(#node)'/>
+    <circle cx='440' cy='350' r='9' fill='url(#node)'/>
+    <circle cx='520' cy='300' r='8' fill='url(#nodeG)'/>
+    <circle cx='250' cy='420' r='9' fill='url(#node)'/>
+    <circle cx='60' cy='350' r='8' fill='url(#node)'/>
+    <circle cx='560' cy='380' r='8' fill='url(#nodeG)'/>
   </g>
-  <g fill='rgba(170,205,255,0.42)'>
-    <circle cx='46' cy='138' r='2.2'/><circle cx='252' cy='72' r='2.2'/><circle cx='336' cy='150' r='2.2'/>
+  <g fill='rgba(210,230,255,0.6)'>
+    <circle cx='80' cy='90' r='1.6'/><circle cx='210' cy='150' r='1.8'/>
+    <circle cx='470' cy='220' r='1.8'/><circle cx='300' cy='300' r='2'/>
+    <circle cx='440' cy='350' r='1.6'/><circle cx='250' cy='420' r='1.6'/>
+    <circle cx='560' cy='180' r='1.4'/><circle cx='60' cy='350' r='1.4'/>
+  </g>
+  <g fill='rgba(185,240,190,0.6)'>
+    <circle cx='360' cy='120' r='1.6'/><circle cx='150' cy='260' r='1.6'/>
+    <circle cx='520' cy='300' r='1.4'/><circle cx='560' cy='380' r='1.4'/>
   </g>
 </svg>`
             )}")`,
-            backgroundSize: '560px 485px',
+            backgroundSize: '820px 710px',
             backgroundRepeat: 'repeat',
           }}
         />
