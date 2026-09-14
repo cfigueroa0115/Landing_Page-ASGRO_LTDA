@@ -150,3 +150,72 @@ ausencia sin actions). Suite total: 454 tests.
 - Validación visual real (overflow, mobile 390/430, landscape) recomendada en
   navegador; los tests cubren estructura y accesibilidad, no pixel-perfect.
 - Providers legacy y hardening de producción → 5B.4. Activo solo en preview.
+
+---
+
+## 14. Journey de cotización endurecido (Bloque 5B.3.1)
+
+### 14.1 Personas vs empresas
+
+El formulario `/cotizar` es **empresarial** (empresa, NIT, actividad económica,
+nº de trabajadores) y no es apropiado para seguros de personas. Por eso:
+
+- **Personas** (`vehiculos`, `hogar`, `vida`, `salud`, `accidentes_personales`,
+  `personas`, `arrendamiento`) → **ADVISORY + WhatsApp**. **No** se envía a
+  `/cotizar` mientras no exista un formulario específico de personas.
+- **Empresas** (`empresas`, `multirriesgo`, `responsabilidad_civil`,
+  `cumplimiento`, `manejo`, `vida_grupo`) y **ARL/SST** → **QUOTE** hacia
+  `/cotizar` con contexto allowlisted.
+
+Ejemplo: "quiero cotizar seguro para mi carro" → Solicitar asesoría + Escribir
+por WhatsApp (no cotización empresarial).
+
+### 14.2 Política de personas (decisión)
+
+No se amplía el formulario empresarial para hacerlo "universal" en este bloque
+(evita complejidad y captura inadecuada de datos). Hasta crear un formulario
+específico de Personas, las cotizaciones personales se atienden por
+asesoría/WhatsApp. Documentado como pendiente.
+
+### 14.3 Cotización empresarial + contexto
+
+QUOTE genera `href` con **query allowlisted** (sin PII, sin texto libre):
+- `service` ∈ {`arl`, `sst`, `seguros`, `bienestar`} (opciones reales del form).
+- `interest` ∈ {`multirriesgo`, `responsabilidad_civil`, `cumplimiento`,
+  `manejo`, `vida_grupo`, `arl`, `sst`}.
+
+Ejemplos:
+- "cotizar cumplimiento" → `/cotizar?service=seguros&interest=cumplimiento`
+- "cotizar RC" → `/cotizar?service=seguros&interest=responsabilidad_civil`
+- "cotizar ARL" → `/cotizar?service=arl...`
+- "cotizar SST" → `/cotizar?service=sst...`
+
+`isSafeQuoteHref` valida en el borde: cualquier parámetro fuera de la allowlist
+(p. ej. `email`, `nit`, texto libre) invalida la acción. **Nunca** viajan
+`sessionId`, nombre, teléfono, email, NIT ni contenido de conversación.
+
+### 14.4 Comparación / recomendación → asesoría
+
+Preguntas como "cuál es la mejor cobertura", "qué cobertura me conviene",
+"cuál me recomiendan", "cuál es mejor" → **ADVISORY** (recomendación humana),
+nunca QUOTE automático. Precio explícito ("cuánto cuesta", "prima") → QUOTE solo
+si el dominio es empresarial; si es personas → ADVISORY/WhatsApp.
+
+### 14.5 Prefill seguro del formulario
+
+`QuoteSection` lee `?service=&interest=` desde `window.location.search` y los
+**sanitiza** con `parseQuotePrefill` contra las allowlists. Solo preselecciona
+`serviceRequired` y muestra una etiqueta visible "Interés: …". **No**
+autocompleta campos personales ni confía en el query crudo.
+
+### 14.6 Duplicación de CTA resuelta
+
+El bloque estático "Hablar con un asesor" del panel se muestra **solo en el
+estado inicial** (antes de conversar, junto a las consultas frecuentes). Cuando
+ya hay conversación, el acceso al asesor humano se preserva mediante las acciones
+de asesoría dinámicas bajo las respuestas, evitando redundancia visual.
+
+### 14.7 Contrato de API
+
+Sin cambios: `{ sessionId, response, timestamp, actions? }`. El tipo `quote.href`
+admite `/cotizar` con query allowlisted; no se exponen nuevos internals.

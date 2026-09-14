@@ -69,6 +69,8 @@ export interface IntentResult {
   wantsCommercialOrContractual: boolean;
   /** True si pide garantía/indemnización/aprobación (mejor a asesoría que a cotización). */
   wantsContractualGuarantee: boolean;
+  /** True si pide comparación/recomendación ("cuál es mejor / me conviene"). */
+  wantsComparison: boolean;
 }
 
 /** Mensaje mínimo de contexto para follow-ups. */
@@ -330,6 +332,7 @@ const ON_TOPIC_TERMS: string[] = [
   'cumplimiento', 'manejo', 'multirriesgo', 'asgro', 'responsabilidad civil',
   'accidente', 'accidentes', 'negocio', 'familia', 'patrimonio', 'proteger',
   'indemniza', 'indemnizan', 'indemnizacion', 'garantizan', 'aprobacion', 'aprueban',
+  'recomiendan', 'conviene', 'recomienda',
 ];
 
 // Precio / condición contractual / decisión aseguradora (guardrail).
@@ -349,16 +352,24 @@ const CONTRACTUAL_GUARANTEE_TERMS: string[] = [
   'esta cubierto', 'que cubre exactamente',
 ];
 
+// Comparación / recomendación ("cuál es mejor / cuál me conviene"). Se orientan
+// a ASESORÍA (recomendación humana), NO a cotización automática.
+const COMPARISON_TERMS: string[] = [
+  'mejor cobertura', 'mejor precio', 'mejor relacion', 'mejor opcion',
+  'cual es mejor', 'cual me conviene', 'cual me recomiendan', 'que me recomiendan',
+  'que cobertura me conviene', 'cual recomiendan', 'que conviene',
+];
+
 // Follow-ups ambiguos que dependen del contexto previo.
 const FOLLOWUP_TERMS: string[] = [
   'y cuanto cuesta', 'y que cubre', 'me interesa ese', 'ese', 'esa', 'eso',
   'cuentame mas', 'mas informacion', 'y que incluye', 'como funciona', 'y que',
 ];
 
-// Reglas de dominio (personas/empresas subdominios) para extraer dominio
-// secundario de una consulta transaccional.
+// Reglas de dominio (personas/empresas/capacidades) para extraer dominio
+// secundario de una consulta transaccional (p. ej. "cotizar arl").
 const DOMAIN_RULES = INTENT_RULES.filter(
-  (r) => r.category === 'personas' || r.category === 'empresas'
+  (r) => r.category === 'personas' || r.category === 'empresas' || r.category === 'capacidades'
 );
 
 // ----------------------------------------------------------------------------
@@ -403,9 +414,10 @@ function classifyOnce(message: string): IntentResult {
   const normalized = normalize(message);
   const wantsCommercialOrContractual = matchesAny(normalized, COMMERCIAL_CONTRACTUAL_TERMS);
   const wantsContractualGuarantee = matchesAny(normalized, CONTRACTUAL_GUARANTEE_TERMS);
+  const wantsComparison = matchesAny(normalized, COMPARISON_TERMS);
 
   if (normalized.length === 0) {
-    return base('unknown', 'unknown', null, null, 0, 'empty', wantsCommercialOrContractual, null, wantsContractualGuarantee);
+    return base('unknown', 'unknown', null, null, 0, 'empty', wantsCommercialOrContractual, null, wantsContractualGuarantee, wantsComparison);
   }
 
   let best: IntentRule | null = null;
@@ -434,6 +446,7 @@ function classifyOnce(message: string): IntentResult {
         reason: `matched:${best.intent}:score=${bestScore.toFixed(2)}${domain ? `+domain:${domain.intent}` : ''}`,
         wantsCommercialOrContractual,
         wantsContractualGuarantee,
+        wantsComparison,
       };
     }
 
@@ -446,16 +459,17 @@ function classifyOnce(message: string): IntentResult {
       `matched:${best.intent}:score=${bestScore.toFixed(2)}`,
       wantsCommercialOrContractual,
       null,
-      wantsContractualGuarantee
+      wantsContractualGuarantee,
+      wantsComparison
     );
   }
 
   if (matchesAny(normalized, ON_TOPIC_TERMS)) {
     // Panorama general: NO forzar personas (category null → retrieval balanceado).
-    return base('general_insurance', 'general_insurance', null, null, 0.4, 'on-topic-no-rule', wantsCommercialOrContractual, null, wantsContractualGuarantee);
+    return base('general_insurance', 'general_insurance', null, null, 0.4, 'on-topic-no-rule', wantsCommercialOrContractual, null, wantsContractualGuarantee, wantsComparison);
   }
 
-  return base('off_topic', 'off_topic', null, null, 0, 'no-topic-signal', wantsCommercialOrContractual, null, wantsContractualGuarantee);
+  return base('off_topic', 'off_topic', null, null, 0, 'no-topic-signal', wantsCommercialOrContractual, null, wantsContractualGuarantee, wantsComparison);
 }
 
 function base(
@@ -467,7 +481,8 @@ function base(
   reason: string,
   wantsCommercialOrContractual: boolean,
   domainIntent: Intent | null = null,
-  wantsContractualGuarantee: boolean = false
+  wantsContractualGuarantee: boolean = false,
+  wantsComparison: boolean = false
 ): IntentResult {
   return {
     intent,
@@ -479,6 +494,7 @@ function base(
     reason,
     wantsCommercialOrContractual,
     wantsContractualGuarantee,
+    wantsComparison,
   };
 }
 

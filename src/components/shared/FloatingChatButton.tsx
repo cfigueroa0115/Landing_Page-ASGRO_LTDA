@@ -244,22 +244,27 @@ export default function FloatingChatButton() {
             aria-live="polite"
             aria-label="Orientación y conversación con el asistente"
           >
-            {/* Bloque de orientación + CTA destacado */}
-            <div className="border-b border-gray-100 bg-white px-4 py-3">
-              <p className="text-sm font-semibold text-brand-dark-blue">
-                {SITE_CONTENT.aiAssistantTitle}
-              </p>
-              <p className="mt-1 text-sm text-gray-600">
-                {SITE_CONTENT.aiAssistantIntro}
-              </p>
-              <Link
-                href="/contacto"
-                onClick={handleClosePanel}
-                className="mt-3 inline-flex min-h-[44px] w-full items-center justify-center rounded-btn bg-brand-green px-3 py-2 text-sm font-bold text-brand-dark-blue shadow-btn transition-colors hover:bg-brand-green-alt focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
-              >
-                Hablar con un asesor
-              </Link>
-            </div>
+            {/* Bloque de orientación + CTA destacado — SOLO en estado inicial
+                (antes de conversar). Evita redundancia con las acciones de
+                asesoría dinámicas que aparecen bajo las respuestas. El acceso al
+                asesor humano se preserva vía esas acciones y el CTA inferior. */}
+            {showQuickActions && (
+              <div className="border-b border-gray-100 bg-white px-4 py-3">
+                <p className="text-sm font-semibold text-brand-dark-blue">
+                  {SITE_CONTENT.aiAssistantTitle}
+                </p>
+                <p className="mt-1 text-sm text-gray-600">
+                  {SITE_CONTENT.aiAssistantIntro}
+                </p>
+                <Link
+                  href="/contacto"
+                  onClick={handleClosePanel}
+                  className="mt-3 inline-flex min-h-[44px] w-full items-center justify-center rounded-btn bg-brand-green px-3 py-2 text-sm font-bold text-brand-dark-blue shadow-btn transition-colors hover:bg-brand-green-alt focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
+                >
+                  Hablar con un asesor
+                </Link>
+              </div>
+            )}
 
             {/* Acciones rápidas (chips) — precargan consultas frecuentes */}
             {showQuickActions && (

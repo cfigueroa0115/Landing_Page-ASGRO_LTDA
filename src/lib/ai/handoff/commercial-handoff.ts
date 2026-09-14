@@ -16,11 +16,79 @@
 import { generateWhatsAppUrl } from '@/lib/utils/whatsapp';
 import type { IntentResult, Intent } from '@/lib/ai/routing/intent-router';
 
-/** Acción pública cerrada que puede recibir el cliente. */
+/**
+ * Acción pública cerrada que puede recibir el cliente.
+ * `quote.href` es `/cotizar` opcionalmente con query allowlisted
+ * (`?service=...&interest=...`). Ver ENTERPRISE_SERVICE / QUOTE_INTEREST.
+ */
 export type ChatAction =
   | { type: 'whatsapp'; label: 'Escribir por WhatsApp'; href: string }
   | { type: 'advisory'; label: 'Solicitar asesoría'; href: '/contacto' }
-  | { type: 'quote'; label: 'Solicitar cotización'; href: '/cotizar' };
+  | { type: 'quote'; label: 'Solicitar cotización'; href: string };
+
+// ----------------------------------------------------------------------------
+// Journey de cotización: personas vs empresas (Bloque 5B.3.1)
+// ----------------------------------------------------------------------------
+//
+// El formulario /cotizar es EMPRESARIAL (empresa, NIT, actividad económica,
+// nº trabajadores). NO es apropiado para seguros de personas. Por eso:
+// - Personas (vehiculos/hogar/vida/salud/accidentes_personales/personas) →
+//   ADVISORY + WHATSAPP (no QUOTE) hasta que exista un formulario de personas.
+// - Empresas y ARL/SST → QUOTE con contexto NO sensible por query allowlisted.
+
+/** Dominios de PERSONAS: no deben ir al formulario empresarial. */
+const PERSONAL_DOMAINS: ReadonlySet<Intent> = new Set<Intent>([
+  'vehiculos', 'hogar', 'vida', 'salud', 'accidentes_personales', 'personas', 'arrendamiento',
+]);
+
+/**
+ * Mapa dominio → `service` allowlisted del formulario (SERVICE_OPTIONS del
+ * QuoteSection: arl | sst | seguros | bienestar). Cerrado: cualquier otro
+ * dominio no produce query.
+ */
+const ENTERPRISE_SERVICE: Partial<Record<Intent, 'arl' | 'sst' | 'seguros'>> = {
+  empresas: 'seguros',
+  multirriesgo: 'seguros',
+  responsabilidad_civil: 'seguros',
+  cumplimiento: 'seguros',
+  manejo: 'seguros',
+  vida_grupo: 'seguros',
+  arl: 'arl',
+  sst: 'sst',
+};
+
+/**
+ * Valores allowlisted para el query param `interest` (subcategoría empresarial).
+ * Cerrado: solo estos valores pueden viajar en la URL.
+ */
+export const QUOTE_INTEREST_ALLOWLIST: ReadonlySet<string> = new Set<string>([
+  'multirriesgo', 'responsabilidad_civil', 'cumplimiento', 'manejo', 'vida_grupo', 'arl', 'sst',
+]);
+
+export const QUOTE_SERVICE_ALLOWLIST: ReadonlySet<string> = new Set<string>([
+  'arl', 'sst', 'seguros', 'bienestar',
+]);
+
+/** Construye el href de /cotizar con query allowlisted (sin PII/texto libre). */
+export function buildQuoteHref(intent: IntentResult): string {
+  const domain = intent.domainIntent ?? intent.primaryIntent;
+  const service = ENTERPRISE_SERVICE[domain];
+  if (!service) return '/cotizar';
+
+  const params = new URLSearchParams({ service });
+  // `interest` solo si es un subdominio empresarial allowlisted.
+  if (intent.subcategory && QUOTE_INTEREST_ALLOWLIST.has(intent.subcategory)) {
+    params.set('interest', intent.subcategory);
+  }
+  return `/cotizar?${params.toString()}`;
+}
+
+/** ¿La intención corresponde a cotización EMPRESARIAL (elegible para /cotizar)? */
+export function isEnterpriseQuote(intent: IntentResult): boolean {
+  const domain = intent.domainIntent ?? intent.primaryIntent;
+  if (PERSONAL_DOMAINS.has(domain)) return false;
+  return ENTERPRISE_SERVICE[domain] !== undefined;
+}
 
 export type HandoffKind = 'NONE' | 'WHATSAPP' | 'ADVISORY' | 'QUOTE';
 
@@ -81,12 +149,6 @@ const ADVISORY_ACTION: ChatAction = {
   href: '/contacto',
 };
 
-const QUOTE_ACTION: ChatAction = {
-  type: 'quote',
-  label: 'Solicitar cotización',
-  href: '/cotizar',
-};
-
 function whatsappAction(intent: IntentResult, number: string): ChatAction | null {
   const href = generateWhatsAppUrl(number, buildWhatsAppMessage(intent));
   if (!href) return null; // sin número configurado → no ofrecer WhatsApp
@@ -118,8 +180,15 @@ export function decideHandoffKind(
   // humana), NO cotización. Nunca prometer indemnización ni aprobación.
   if (intent.wantsContractualGuarantee) return 'ADVISORY';
 
+  // Comparación/recomendación ("cuál es mejor / me conviene") → asesoría, NO
+  // cotización automática.
+  if (intent.wantsComparison) return 'ADVISORY';
+
+  // Intención comercial (cotizar o precio explícito): el journey depende del
+  // dominio. PERSONAS → asesoría/WhatsApp (el formulario /cotizar es
+  // empresarial). EMPRESAS/ARL/SST → cotización con contexto allowlisted.
   if (intent.primaryIntent === 'cotizacion' || intent.wantsCommercialOrContractual) {
-    return 'QUOTE';
+    return isEnterpriseQuote(intent) ? 'QUOTE' : 'ADVISORY';
   }
 
   // Fallback seguro sobre un dominio legítimo (no off_topic): ofrecer asesoría.
@@ -153,13 +222,42 @@ export function decideCommercialHandoff(
       // Asesoría primero; WhatsApp como alternativa si hay número.
       return wa ? [ADVISORY_ACTION, wa] : [ADVISORY_ACTION];
 
-    case 'QUOTE':
-      // Cotización primero; asesoría como alternativa (máx 2).
-      return [QUOTE_ACTION, ADVISORY_ACTION];
+    case 'QUOTE': {
+      // Cotización empresarial con contexto allowlisted; asesoría como
+      // alternativa (máx 2).
+      const quote: ChatAction = {
+        type: 'quote',
+        label: 'Solicitar cotización',
+        href: buildQuoteHref(intent),
+      };
+      return [quote, ADVISORY_ACTION];
+    }
 
     default:
       return [];
   }
+}
+
+/**
+ * Valida que el href de `/cotizar` solo lleva query allowlisted
+ * (`service` ∈ QUOTE_SERVICE_ALLOWLIST, `interest` ∈ QUOTE_INTEREST_ALLOWLIST).
+ * Rechaza texto libre, PII o parámetros no permitidos.
+ */
+export function isSafeQuoteHref(href: string): boolean {
+  if (href === '/cotizar') return true;
+  if (!href.startsWith('/cotizar?')) return false;
+  const query = href.slice('/cotizar?'.length);
+  const params = new URLSearchParams(query);
+  for (const [key, value] of params.entries()) {
+    if (key === 'service') {
+      if (!QUOTE_SERVICE_ALLOWLIST.has(value)) return false;
+    } else if (key === 'interest') {
+      if (!QUOTE_INTEREST_ALLOWLIST.has(value)) return false;
+    } else {
+      return false; // clave no permitida
+    }
+  }
+  return true;
 }
 
 /**
@@ -171,7 +269,7 @@ export function sanitizeActions(actions: ChatAction[]): ChatAction[] {
   const valid = actions.filter((a) => {
     if (!allowedTypes.has(a.type)) return false;
     if (a.type === 'advisory') return a.href === '/contacto';
-    if (a.type === 'quote') return a.href === '/cotizar';
+    if (a.type === 'quote') return isSafeQuoteHref(a.href);
     if (a.type === 'whatsapp') return a.href.startsWith('https://wa.me/');
     return false;
   });

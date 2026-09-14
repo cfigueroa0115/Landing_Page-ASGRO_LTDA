@@ -54,7 +54,7 @@ export interface ServiceModalProps {
 export type ChatAction =
   | { type: 'whatsapp'; label: 'Escribir por WhatsApp'; href: string }
   | { type: 'advisory'; label: 'Solicitar asesoría'; href: '/contacto' }
-  | { type: 'quote'; label: 'Solicitar cotización'; href: '/cotizar' };
+  | { type: 'quote'; label: 'Solicitar cotización'; href: string };
 
 /** Mensaje de chat individual */
 export interface ChatMessage {

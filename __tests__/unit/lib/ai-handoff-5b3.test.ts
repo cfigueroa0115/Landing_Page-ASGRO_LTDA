@@ -5,6 +5,7 @@ import {
   decideCommercialHandoff,
   buildWhatsAppMessage,
   sanitizeActions,
+  isSafeQuoteHref,
   type ChatAction,
 } from '@/lib/ai/handoff/commercial-handoff';
 import { processMessageV2, formatEntries } from '@/lib/ai/agent-v2';
@@ -25,11 +26,14 @@ const ctxFallback = { fallback: true, whatsappNumber: WA };
 describe('decideHandoffKind', () => {
   const kind = (q: string, c = ctx) => decideHandoffKind(routeIntent(q), c);
 
-  it('cotizacion → QUOTE', () => {
-    expect(kind('quiero cotizar seguro para mi carro')).toBe('QUOTE');
+  it('cotizacion empresarial → QUOTE', () => {
+    expect(kind('cotizar cumplimiento')).toBe('QUOTE');
   });
-  it('precio/prima/valor (wantsCommercial) → QUOTE', () => {
-    expect(kind('cuanto cuesta un seguro de vida')).toBe('QUOTE');
+  it('cotizacion de personas (carro) → ADVISORY (no formulario empresarial)', () => {
+    expect(kind('quiero cotizar seguro para mi carro')).toBe('ADVISORY');
+  });
+  it('precio de personas (vida) → ADVISORY', () => {
+    expect(kind('cuanto cuesta un seguro de vida')).toBe('ADVISORY');
   });
   it('human_advisor → ADVISORY', () => {
     expect(kind('quiero hablar con un asesor')).toBe('ADVISORY');
@@ -62,11 +66,18 @@ describe('decideHandoffKind', () => {
 // ----------------------------------------------------------------------------
 
 describe('decideCommercialHandoff — acciones', () => {
-  it('QUOTE devuelve cotización + asesoría (máx 2)', () => {
-    const acts = decideCommercialHandoff(routeIntent('quiero cotizar seguro para mi carro'), ctx);
+  it('QUOTE empresarial devuelve cotización + asesoría (máx 2)', () => {
+    const acts = decideCommercialHandoff(routeIntent('cotizar cumplimiento'), ctx);
     expect(acts.length).toBeLessThanOrEqual(2);
     expect(acts[0]!.type).toBe('quote');
     expect(acts.map((a) => a.type)).toContain('advisory');
+  });
+
+  it('cotización de personas (carro) → asesoría + WhatsApp, sin quote', () => {
+    const acts = decideCommercialHandoff(routeIntent('quiero cotizar seguro para mi carro'), ctx);
+    expect(acts.some((a) => a.type === 'quote')).toBe(false);
+    expect(acts.some((a) => a.type === 'advisory')).toBe(true);
+    expect(acts.some((a) => a.type === 'whatsapp')).toBe(true);
   });
 
   it('WHATSAPP devuelve whatsapp primero', () => {
@@ -102,12 +113,26 @@ describe('decideCommercialHandoff — acciones', () => {
     expect(acts.some((a) => a.type === 'whatsapp')).toBe(false);
   });
 
-  it('href de acciones internas es exacto', () => {
-    const acts = decideCommercialHandoff(routeIntent('quiero cotizar'), ctx);
-    const quote = acts.find((a) => a.type === 'quote');
+  it('href de asesoría es exacto (/contacto)', () => {
+    const acts = decideCommercialHandoff(routeIntent('quiero hablar con un asesor'), ctx);
     const advisory = acts.find((a) => a.type === 'advisory');
-    expect(quote?.href).toBe('/cotizar');
     expect(advisory?.href).toBe('/contacto');
+  });
+
+  it('QUOTE empresarial lleva contexto allowlisted en el href', () => {
+    const acts = decideCommercialHandoff(routeIntent('cotizar cumplimiento'), ctx);
+    const quote = acts.find((a) => a.type === 'quote');
+    expect(quote?.href).toBe('/cotizar?service=seguros&interest=cumplimiento');
+  });
+
+  it('QUOTE de ARL/SST usa service allowlisted', () => {
+    const arl = decideCommercialHandoff(routeIntent('quiero cotizar arl'), ctx).find((a) => a.type === 'quote');
+    const sst = decideCommercialHandoff(routeIntent('quiero cotizar sg sst'), ctx).find((a) => a.type === 'quote');
+    expect(arl?.href).toMatch(/^\/cotizar\?service=arl/);
+    expect(sst?.href).toMatch(/^\/cotizar\?service=sst/);
+    // Solo params allowlisted.
+    expect(isSafeQuoteHref(arl!.href)).toBe(true);
+    expect(isSafeQuoteHref(sst!.href)).toBe(true);
   });
 });
 
@@ -190,13 +215,27 @@ describe('processMessageV2 — actions', () => {
     category: 'personas', subcategory: 'vehiculos', content: 'Orientación.', tags: 'v', priority: 6,
   };
 
-  it('cotizar carro → incluye acción quote', async () => {
+  it('cotizar carro (personas) → asesoría/WhatsApp, sin quote', async () => {
     const { actions } = await processMessageV2('quiero cotizar seguro para mi carro', [], {
       retrieve: async () => [carEntry],
       whatsappNumber: WA,
     });
-    expect(actions.some((a) => a.type === 'quote')).toBe(true);
+    expect(actions.some((a) => a.type === 'quote')).toBe(false);
+    expect(actions.some((a) => a.type === 'advisory')).toBe(true);
     expect(actions.length).toBeLessThanOrEqual(2);
+  });
+
+  it('cotizar cumplimiento (empresarial) → incluye acción quote con contexto', async () => {
+    const cumpEntry: RetrievableEntry = {
+      key: 'empresas-cumplimiento-orientacion-general', topic: 'Cumplimiento',
+      category: 'empresas', subcategory: 'cumplimiento', content: 'Orientación.', tags: 'c', priority: 8,
+    };
+    const { actions } = await processMessageV2('cotizar cumplimiento', [], {
+      retrieve: async () => [cumpEntry],
+      whatsappNumber: WA,
+    });
+    const quote = actions.find((a) => a.type === 'quote');
+    expect(quote?.href).toBe('/cotizar?service=seguros&interest=cumplimiento');
   });
 
   it('informativo (hogar) → sin acciones', async () => {
@@ -223,5 +262,47 @@ describe('processMessageV2 — actions', () => {
     expect(meta.fallback).toBe(true);
     expect(actions.some((a) => a.type === 'advisory')).toBe(true);
     expect(actions.some((a) => a.type === 'quote')).toBe(false);
+  });
+});
+
+// ----------------------------------------------------------------------------
+// 5B.3.1 — comparación, quote href allowlist, prefill
+// ----------------------------------------------------------------------------
+
+describe('comparación/recomendación → ADVISORY', () => {
+  const kind = (q: string) => decideHandoffKind(routeIntent(q), ctx);
+  it('"cual es la mejor cobertura" → ADVISORY', () => {
+    expect(kind('cual es la mejor cobertura')).toBe('ADVISORY');
+  });
+  it('"que cobertura me conviene" → ADVISORY', () => {
+    expect(kind('que cobertura me conviene')).toBe('ADVISORY');
+  });
+  it('"cual me recomiendan" → ADVISORY', () => {
+    expect(kind('cual me recomiendan')).toBe('ADVISORY');
+  });
+});
+
+describe('isSafeQuoteHref — allowlist de query', () => {
+  it('acepta /cotizar y query allowlisted', () => {
+    expect(isSafeQuoteHref('/cotizar')).toBe(true);
+    expect(isSafeQuoteHref('/cotizar?service=seguros&interest=cumplimiento')).toBe(true);
+    expect(isSafeQuoteHref('/cotizar?service=arl')).toBe(true);
+  });
+  it('rechaza service/interest fuera de allowlist', () => {
+    expect(isSafeQuoteHref('/cotizar?service=hacking')).toBe(false);
+    expect(isSafeQuoteHref('/cotizar?interest=cedula')).toBe(false);
+  });
+  it('rechaza parámetros no permitidos (posible PII/texto libre)', () => {
+    expect(isSafeQuoteHref('/cotizar?email=juan@x.com')).toBe(false);
+    expect(isSafeQuoteHref('/cotizar?nit=900123')).toBe(false);
+    expect(isSafeQuoteHref('/cotizar?q=texto+libre')).toBe(false);
+  });
+});
+
+describe('el href de QUOTE nunca contiene PII', () => {
+  it('cotizar cumplimiento no incluye email/nit/telefono/nombre', () => {
+    const acts = decideCommercialHandoff(routeIntent('cotizar cumplimiento'), ctx);
+    const quote = acts.find((a) => a.type === 'quote');
+    expect(quote?.href).not.toMatch(/email|nit|telefono|nombre|cedula|@/i);
   });
 });
