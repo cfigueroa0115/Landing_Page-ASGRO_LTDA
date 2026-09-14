@@ -73,10 +73,10 @@ vi.mock('@/lib/db', () => {
   };
 });
 
-// Mock @/lib/ai/agent
-const mockProcessMessage = vi.fn();
-vi.mock('@/lib/ai/agent', () => ({
-  processMessage: (...args: unknown[]) => mockProcessMessage(...args),
+// Mock @/lib/ai/agent-v2 (flujo V2 gobernado usado por /api/chat)
+const mockProcessMessageV2 = vi.fn();
+vi.mock('@/lib/ai/agent-v2', () => ({
+  processMessageV2: (...args: unknown[]) => mockProcessMessageV2(...args),
 }));
 
 // Mock @/lib/email/notifications — controla el resultado `notified` de forma
@@ -354,8 +354,11 @@ describe('POST /api/chat', () => {
     mockReturningResult = Promise.resolve([{ id: 'new-session-uuid-1234' }]);
     // Default: select queries return empty arrays
     mockSelectResult = Promise.resolve([]);
-    // Default: AI response
-    mockProcessMessage.mockResolvedValue('Hola, soy el asistente de ASGRO.');
+    // Default: V2 governed response
+    mockProcessMessageV2.mockResolvedValue({
+      response: 'Hola, soy el asistente de ASGRO.',
+      meta: { intent: 'general_insurance', usedEntries: [], fallback: false },
+    });
     // Default: insert (for messages) resolves
     mockInsertResult = Promise.resolve(undefined);
 
@@ -372,6 +375,18 @@ describe('POST /api/chat', () => {
     expect(data.sessionId).toBe('new-session-uuid-1234');
     expect(data.response).toBe('Hola, soy el asistente de ASGRO.');
     expect(data.timestamp).toBeDefined();
+  });
+
+  it('no expone internals del flujo V2 (intent, scores, keys, meta)', async () => {
+    const request = createPostRequest('http://localhost/api/chat', validChatBody);
+    const response = await POST(request);
+    const raw = await response.text();
+
+    expect(raw).not.toContain('intent');
+    expect(raw).not.toContain('usedEntries');
+    expect(raw).not.toContain('meta');
+    const data = JSON.parse(raw);
+    expect(Object.keys(data).sort()).toEqual(['response', 'sessionId', 'timestamp']);
   });
 
   it('creates a new session when no sessionId provided', async () => {

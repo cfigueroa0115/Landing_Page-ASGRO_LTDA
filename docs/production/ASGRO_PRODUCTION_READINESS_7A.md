@@ -47,9 +47,12 @@ por acción explícita** del usuario y en el mismo origen; por eso `microphone=(
 (bloqueo total) contradecía la funcionalidad publicada. Se corrige a
 `microphone=(self)` — solo el propio origen ASGRO — manteniendo `camera=()` y
 `geolocation=()` bloqueadas y **sin** abrir `microphone=*`. Se decidió **no**
-añadir `on-device-speech-recognition`: es un token experimental, aún no
-estandarizado en el registro de Permissions-Policy y con soporte marginal;
-incluirlo podría generar avisos de parsing sin aportar control efectivo. La
+declarar `on-device-speech-recognition` explícitamente: es un token
+experimental, su **default policy ya es `self`**, y la implementación actual de
+voz usa la Web Speech API estándar (`SpeechRecognition`/`webkitSpeechRecognition`)
+sin las APIs `SpeechRecognition.available()`/`install()` que ese token gobierna;
+por eso no necesitamos declararlo (hacerlo solo añadiría un token no estándar sin
+efecto sobre la funcionalidad real). Se revalorará si se estandariza. La
 implementación de voz (`useVoiceAssistant.ts`, `FloatingChatButton`, `ChatInput`,
 `ChatWindow`) **no** se modificó: solo el header que la gobierna.
 

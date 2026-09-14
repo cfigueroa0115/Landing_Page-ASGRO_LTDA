@@ -3,9 +3,9 @@ import { eq, desc } from 'drizzle-orm';
 
 import { chatSchema } from '@/lib/validations/chat';
 import { getDbAsync } from '@/lib/db';
-import { chatSessions, chatMessages, knowledgeBase } from '@/lib/db/schema';
-import { processMessage } from '@/lib/ai/agent';
-import type { ChatMessage } from '@/types';
+import { chatSessions, chatMessages } from '@/lib/db/schema';
+import { processMessageV2 } from '@/lib/ai/agent-v2';
+import type { RouterContextMessage } from '@/lib/ai/routing/intent-router';
 
 /**
  * POST /api/chat
@@ -77,13 +77,8 @@ export async function POST(request: Request) {
         resolvedSessionId = newSession.id;
       }
 
-      // 3. Fetch active knowledge base entries
-      const kbEntries = await db
-        .select()
-        .from(knowledgeBase)
-        .where(eq(knowledgeBase.isActive, true));
-
-      // 4. Fetch last 10 messages from the session for context
+      // 3. Fetch last 10 messages from the session for conversational context.
+      //    (KB V2 flow: NO se carga la KB completa; el retrieval es selectivo.)
       const recentMessages = await db
         .select()
         .from(chatMessages)
@@ -91,30 +86,20 @@ export async function POST(request: Request) {
         .orderBy(desc(chatMessages.createdAt))
         .limit(10);
 
-      // Convert to ChatMessage[] format (reverse to chronological order)
-      const sessionMessages: ChatMessage[] = recentMessages
+      // Convert to context format (reverse to chronological order).
+      const sessionMessages: RouterContextMessage[] = recentMessages
         .reverse()
         .map((msg) => ({
-          id: msg.id,
           role: msg.role as 'user' | 'assistant',
           content: msg.content,
-          timestamp: msg.createdAt,
         }));
 
-      // 5. Process message through AI agent
-      const aiResponse = await processMessage(
+      // 4. Process message through the governed V2 flow:
+      //    intent router → selective retrieval of eligible KB V2 → safe formatter.
+      //    Only the safe text reaches the client (intent/scores/keys stay internal).
+      const { response: aiResponse } = await processMessageV2(
         message,
-        sessionMessages,
-        kbEntries.map((entry) => ({
-          id: entry.id,
-          topic: entry.topic,
-          category: entry.category,
-          content: entry.content,
-          tags: entry.tags,
-          isActive: entry.isActive,
-          createdAt: entry.createdAt,
-          updatedAt: entry.updatedAt,
-        }))
+        sessionMessages
       );
 
       // 6. Store user message and assistant response in DB
