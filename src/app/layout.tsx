@@ -7,6 +7,7 @@ import SkipNav from '@/components/layout/SkipNav';
 import FloatingWhatsApp from '@/components/shared/FloatingWhatsApp';
 import FloatingChatButton from '@/components/shared/FloatingChatButton';
 import { FloatingUIProvider } from '@/components/shared/FloatingUIProvider';
+import { isAiAssistantEnabled } from '@/lib/config/feature-flags';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -180,6 +181,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '';
+  const aiAssistantEnabled = isAiAssistantEnabled();
 
   return (
     <html lang="es" className={inter.variable}>
@@ -197,7 +199,7 @@ export default function RootLayout({
               Coordinados por FloatingUIProvider: solo uno abierto a la vez y se
               ocultan cuando el menú móvil está abierto (para no superponerse). */}
           {whatsappNumber && <FloatingWhatsApp phoneNumber={whatsappNumber} />}
-          <FloatingChatButton />
+          {aiAssistantEnabled && <FloatingChatButton />}
         </FloatingUIProvider>
       </body>
     </html>
