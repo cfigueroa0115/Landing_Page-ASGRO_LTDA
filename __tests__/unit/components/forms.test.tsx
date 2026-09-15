@@ -28,6 +28,8 @@ vi.mock('lucide-react', () => ({
   AlertCircle: (props: any) => React.createElement('span', { 'data-testid': 'alert-icon', ...props }),
   Loader2: (props: any) => React.createElement('span', { 'data-testid': 'loader-icon', ...props }),
   Check: (props: any) => React.createElement('span', props),
+  Copy: (props: any) => React.createElement('span', props),
+  X: (props: any) => React.createElement('span', props),
   ChevronDown: (props: any) => React.createElement('span', props),
   ChevronUp: (props: any) => React.createElement('span', props),
 }));

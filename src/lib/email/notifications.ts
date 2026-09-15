@@ -139,6 +139,8 @@ export interface ContactNotificationData {
   city: string;
   serviceOfInterest: string;
   message: string;
+  /** Referencia de atención (misma que retorna /api/contact). Opcional. */
+  reference?: string;
 }
 
 /**
@@ -149,6 +151,8 @@ export async function sendContactNotification(
   data: ContactNotificationData
 ): Promise<NotificationResult> {
   const rows: EmailRow[] = [
+    // Referencia de atención al inicio (solo si la ruta la provee).
+    ...(data.reference ? [{ label: 'Referencia', value: data.reference }] : []),
     { label: 'Nombre', value: data.fullName },
     { label: 'Empresa', value: data.company },
     { label: 'Cargo', value: data.position },

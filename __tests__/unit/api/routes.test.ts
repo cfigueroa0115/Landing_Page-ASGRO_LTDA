@@ -16,10 +16,13 @@ let mockReturningResult: Promise<unknown>;
 /** Captura del último payload pasado a db.insert(...).values(...) */
 let capturedInsertValues: Record<string, unknown> | null = null;
 
+// UUID v4 real de prueba (para derivar la referencia de contacto sin romper).
+const MOCK_LEAD_UUID = '7f3a91b2-4c5d-4e6f-8a9b-0c1d2e3f4a5b';
+
 function resetDbMocks() {
   mockInsertResult = Promise.resolve(undefined);
   mockSelectResult = Promise.resolve([]);
-  mockReturningResult = Promise.resolve([{ id: 'mock-uuid-1234' }]);
+  mockReturningResult = Promise.resolve([{ id: MOCK_LEAD_UUID }]);
   capturedInsertValues = null;
 }
 
@@ -223,7 +226,8 @@ describe('POST /api/contact', () => {
   });
 
   it('returns 503 on database connection error', async () => {
-    mockInsertResult = Promise.reject(new Error('ECONNREFUSED: connection refused'));
+    // La ruta ahora usa insert(...).returning(): el error viaja por esa promesa.
+    mockReturningResult = Promise.reject(new Error('ECONNREFUSED: connection refused'));
     const request = createPostRequest('http://localhost/api/contact', validContactBody);
     const response = await POST(request);
     const data = await response.json();
@@ -233,13 +237,60 @@ describe('POST /api/contact', () => {
   });
 
   it('returns 500 on unexpected error', async () => {
-    mockInsertResult = Promise.reject(new Error('Unexpected internal failure'));
+    mockReturningResult = Promise.reject(new Error('Unexpected internal failure'));
     const request = createPostRequest('http://localhost/api/contact', validContactBody);
     const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(500);
     expect(data.error).toBe('An error occurred processing your request');
+  });
+
+  // ── 7B.1: referencia de solicitud ─────────────────────────────────────────
+
+  it('incluye una referencia derivada del UUID persistido (formato ASGRO-C-XXXXXXXX)', async () => {
+    const request = createPostRequest('http://localhost/api/contact', validContactBody);
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(data.reference).toBe('ASGRO-C-7F3A91B2'); // primeros 8 hex del MOCK_LEAD_UUID
+    expect(data.reference).toMatch(/^ASGRO-C-[A-F0-9]{8}$/);
+  });
+
+  it('NO expone el UUID completo del lead', async () => {
+    const request = createPostRequest('http://localhost/api/contact', validContactBody);
+    const response = await POST(request);
+    const raw = await response.text();
+    expect(raw).not.toContain(MOCK_LEAD_UUID);
+  });
+
+  it('conserva la referencia cuando notified=false (DB es la fuente de verdad)', async () => {
+    mockSendContactNotification.mockResolvedValue({ sent: false });
+    const request = createPostRequest('http://localhost/api/contact', validContactBody);
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(data.notified).toBe(false);
+    expect(data.reference).toBe('ASGRO-C-7F3A91B2');
+  });
+
+  it('la misma referencia se envía al email (sendContactNotification)', async () => {
+    const request = createPostRequest('http://localhost/api/contact', validContactBody);
+    const response = await POST(request);
+    const data = await response.json();
+
+    const arg = mockSendContactNotification.mock.calls[0]?.[0] as { reference?: string };
+    expect(arg.reference).toBe(data.reference);
+  });
+
+  it('400 de validación NO devuelve referencia', async () => {
+    const request = createPostRequest('http://localhost/api/contact', { fullName: '' });
+    const response = await POST(request);
+    const data = await response.json();
+    expect(response.status).toBe(400);
+    expect(data.reference).toBeUndefined();
   });
 });
 
