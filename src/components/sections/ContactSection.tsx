@@ -330,7 +330,11 @@ export default function ContactSection() {
                   control={control}
                   render={({ field }) => (
                     <Select
-                      value={field.value}
+                      // Controlado también cuando no hay valor: tras el reset,
+                      // field.value es undefined y Radix Select conservaría la
+                      // selección previa. Con '' vuelve al placeholder. RHF sigue
+                      // siendo la única fuente de verdad (sin estado duplicado).
+                      value={field.value ?? ''}
                       onValueChange={field.onChange}
                     >
                       <SelectTrigger

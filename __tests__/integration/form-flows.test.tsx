@@ -340,6 +340,31 @@ describe('Integration: Contact Form Flow', () => {
     expect(screen.getByLabelText(/nombre completo/i)).toHaveValue('');
   });
 
+  it('tras el éxito el Select de servicio vuelve al placeholder (no conserva la selección)', async () => {
+    const user = userEvent.setup();
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ success: true, notified: true, reference: 'ASGRO-C-7F3A91B2' }),
+    });
+
+    render(<ContactSection />);
+    await fillContactForm(user);
+
+    // Cambiar explícitamente a "Seguros empresariales a la medida" antes de enviar.
+    const select = screen.getAllByTestId('mock-select-native')[0] as HTMLSelectElement;
+    await user.selectOptions(select, 'seguros');
+    expect(select.value).toBe('seguros');
+
+    await user.click(screen.getByRole('button', { name: /enviar mensaje/i }));
+    await screen.findByRole('dialog');
+
+    // El Select controlado (value = field.value ?? '') vuelve al placeholder.
+    const selectAfter = screen.getAllByTestId('mock-select-native')[0] as HTMLSelectElement;
+    expect(selectAfter.value).toBe('');
+    // Sin errores de validación residuales.
+    expect(screen.queryByText(/seleccione un servicio de interés/i)).not.toBeInTheDocument();
+  });
+
   it('un error de API NO abre el receipt', async () => {
     const user = userEvent.setup();
     mockFetch.mockResolvedValueOnce({
