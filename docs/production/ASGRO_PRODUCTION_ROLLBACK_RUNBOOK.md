@@ -14,26 +14,59 @@ Contexto de referencia:
 
 ---
 
-## Procedimiento
+## 0. Contención inmediata
 
 1. **STOP releases.** Detener cualquier promoción/deploy en curso.
 2. **No cambiar DNS** salvo prueba objetiva de que el DNS es la causa raíz.
-   (El sitio productivo estable no requiere cambios de DNS para un rollback de
-   código.)
-3. **Identificar el último release bueno** (tag/commit aprobado; por defecto
+   (Un rollback de código estable no requiere tocar DNS.)
+3. **Identificar el último release aprobado** (tag/commit; por defecto
    `v1.0.0-production` = `1d21c658…`).
-4. **Restaurar código** desde el commit/release aprobado (revert o checkout del
-   commit estable en `master`, siguiendo el flujo de PR y autorización).
-5. **Ejecutar Amplify RELEASE manual** sobre `master` (Auto Build permanece OFF;
-   el deploy nunca es automático).
-6. **Validar la master technical URL:** https://master.d2a24og78z38ro.amplifyapp.com
-7. **Validar el canonical domain:** https://asgroseguros.com.co
-8. **Base de datos:** **NO** realizar rollback destructivo sin autorización
-   explícita.
-9. **Antes de cualquier migración destructiva:** crear/validar un backup (Neon
-   branch) y obtener aprobación específica.
-10. **Registrar el incidente y la evidencia** (causa, acciones, resultado,
-    horarios, responsables).
+
+## 1. Verificación de compatibilidad de base de datos (ANTES del rollback de app)
+
+Antes de restaurar cualquier código de aplicación:
+
+1. **Verificar compatibilidad** entre el código estable a restaurar y el schema
+   productivo **actual**.
+2. Si el release fallido incluyó **migraciones / cambios de schema / cambios de
+   forma de datos**, **NO** desplegar automáticamente el código antiguo (podría
+   ser incompatible con el schema vigente).
+3. Evaluar la estrategia adecuada: **expand/contract** o **forward-fix** en lugar
+   de un rollback ciego.
+4. **Crear/verificar un backup o branch de Neon** antes de cualquier
+   intervención de base de datos.
+5. Cualquier rollback o migración de DB requiere **autorización explícita**.
+6. **Evitar rollback destructivo** salvo un plan validado y aprobado.
+
+## 2. Rollback de código compatible con gobernanza
+
+El rollback NO se hace con checkout local ni revert directo sobre `master`, ni
+con push directo a `master`. Sigue el mismo flujo gobernado que cualquier cambio:
+
+1. Identificar el último release aprobado (tag/commit estable).
+2. **Crear una rama de rollback** a partir de ese release aprobado.
+3. Aplicar el revert / la restauración **en esa rama** (no en `master`).
+4. Promover el contenido a **`redesign-seguros-first`**.
+5. Desplegar **Preview** y verificar que despliega correctamente.
+6. **Pruebas** funcionales y/o técnicas del rollback.
+7. **Autorización humana** explícita (1ª).
+8. Abrir **PR `redesign-seguros-first` → `master`**.
+9. **Revisión / checks** del PR.
+10. **Merge** (Auto Build de `master` permanece **OFF**; el merge no despliega).
+11. **Segunda autorización humana** explícita.
+12. **Amplify RELEASE manual** sobre `master`.
+13. **Smoke test** de la master technical URL:
+    https://master.d2a24og78z38ro.amplifyapp.com
+14. **Smoke test** del dominio canónico: https://asgroseguros.com.co
+
+> **Prohibido:** push directo a `master`, checkout local de `master` como
+> mecanismo de rollback remoto, revert directo sobre `master`, o cualquier
+> bypass del flujo Preview → PR → master.
+
+## 3. Cierre
+
+- **Registrar el incidente y la evidencia** (causa raíz, acciones, resultado,
+  horarios, responsables).
 
 ---
 
@@ -42,5 +75,5 @@ Contexto de referencia:
 - Un merge a `master` **no** implica deploy: el deploy requiere Amplify RELEASE
   manual + segunda autorización humana (ver `ASGRO_PRODUCTION_CHANGE_CONTROL.md`).
 - No eliminar el CNAME de validación ACM ni la rama `redesign-seguros-first`.
-- Preferir siempre el rollback de **código** (reversible) antes que tocar DNS,
-  IAM, SSM o base de datos.
+- Preferir siempre el rollback de **código** (reversible, vía flujo gobernado)
+  antes que tocar DNS, IAM, SSM o base de datos.

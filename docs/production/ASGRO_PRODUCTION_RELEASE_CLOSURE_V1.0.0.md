@@ -129,18 +129,37 @@ con su baseline preservado. **No borrar legacy todavía.**
 
 ## 5. Gobernanza de variables / secretos
 
-La SSM de producción es la fuente de verdad de:
+SSM de producción (`/asgro/production/*`) es la **fuente gobernada y autorizada**
+de los secretos productivos:
 - `/asgro/production/DATABASE_URL`
 - `/asgro/production/RESEND_API_KEY`
 - `/asgro/production/CONTACT_NOTIFICATION_TO`
 - `/asgro/production/CONTACT_FROM_EMAIL`
 
-Reglas:
+**Precedencia real del resolver (importante):** la implementación actual puede
+aceptar **fuentes directas de entorno antes que SSM** (p. ej. `process.env.<NAME>`
+o el contenedor `secrets` JSON de Amplify) y solo consultar SSM cuando esas
+fuentes directas están ausentes. Por lo tanto, SSM es la fuente *gobernada*, no
+necesariamente la *única técnicamente posible*. Para que el comportamiento
+gobernado se cumpla:
+
+- Preview y producción deben mantener **vacías / no configuradas** las fuentes
+  directas de entorno para los secretos gobernados (que la resolución recaiga en
+  la SSM correspondiente a cada entorno).
+- Está **prohibido** inyectar valores productivos en preview vía env vars o
+  `secrets` JSON.
+- Está **prohibido** inyectar valores de preview en producción.
+- **Antes de cada release** debe verificarse que **no existan overrides directos**
+  (env var ni `secrets` JSON) para: `DATABASE_URL`, `RESEND_API_KEY`,
+  `CONTACT_NOTIFICATION_TO`, `CONTACT_FROM_EMAIL`.
+
+Reglas de higiene:
 - **NO real secret in repository.**
 - **NO real secret in release notes.**
 - **NO secret in NEXT_PUBLIC variables.**
 
-(No se copian valores de secretos en este documento.)
+(No se copian valores de secretos en este documento. En este bloque no se cambia
+código: es una regla operativa de configuración por entorno.)
 
 ---
 
@@ -150,16 +169,23 @@ Reglas:
 - **www:** https://www.asgroseguros.com.co → HTTP 301 → https://asgroseguros.com.co
 - **DNS provider:** Namecheap
 
-Registros requeridos que **NO deben eliminarse**:
+**Authoritative DNS inventory** (fuente operativa del valor vigente; este
+documento **no** hardcodea valores que puedan quedar obsoletos):
 
-| Tipo | Registro | Destino |
-|------|----------|---------|
-| CNAME (ACM) | `*…` | `….acm-validations.aws` |
-| ALIAS | `@` (apex) | Amplify / CloudFront target |
-| CNAME | `www` | Amplify / CloudFront target |
+- **AWS Amplify** → `ASGRO-Web-Prod` → *Custom domains* → `asgroseguros.com.co`
+- **Namecheap** → `asgroseguros.com.co` → *Advanced DNS*
 
-> El CNAME de validación ACM **NO** debe eliminarse: se usa para la validación y
-> renovación del certificado.
+Registros funcionales presentes: el registro de **apex** (`@`) y el de **`www`**
+apuntan al target de Amplify/CloudFront, y existe el **CNAME de validación ACM**.
+
+> Antes de cualquier cambio de DNS: **comparar ambos inventarios** (Amplify y
+> Namecheap) y **preservar el CNAME de validación ACM exactamente como lo muestra
+> Amplify**.
+>
+> - **NO** eliminar el CNAME de validación ACM (se usa para validación y
+>   renovación del certificado).
+> - **NO** asumir valores desde documentación histórica.
+> - Amplify / Namecheap son la **fuente operativa** para el valor vigente.
 >
 > `asgroseguros.com` **NO** pertenece al sitio web: queda reservado para Google
 > Workspace / correo corporativo.
