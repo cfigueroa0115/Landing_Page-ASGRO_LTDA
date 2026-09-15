@@ -4,67 +4,68 @@ import PageHero from '@/components/shared/PageHero';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import SectionCTA from '@/components/shared/SectionCTA';
 import PremiumCard from '@/components/shared/PremiumCard';
+import PremiumIconBadge from '@/components/shared/PremiumIconBadge';
 import EqualHeightGrid from '@/components/shared/EqualHeightGrid';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 
 export const metadata: Metadata = {
-  title: 'Seguros Empresariales a la Medida - ASGRO LTDA',
+  title: 'Seguros Empresariales a la Medida - ASGRO Agencia de Seguros',
   description:
     'Seguros empresariales adaptados a su operación: multirriesgo, responsabilidad civil, cumplimiento, manejo, transporte y protección de daños patrimoniales.',
 };
 
 const insuranceServices = [
   {
-    icon: <Flame className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: Flame,
     title: 'Multirriesgo Empresarial',
     description:
       'Póliza integral que protege los activos de su empresa contra incendio, explosión, fenómenos naturales, hurto y otros riesgos en una sola cobertura.',
     bullets: ['Incendio y explosión', 'Fenómenos naturales', 'Hurto calificado'],
   },
   {
-    icon: <Scale className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: Scale,
     title: 'Responsabilidad Civil',
     description:
       'Cobertura ante reclamaciones de terceros por daños materiales o lesiones personales derivadas de la operación de su empresa.',
     bullets: ['Extracontractual', 'Patronal', 'Productos y servicios'],
   },
   {
-    icon: <FileCheck className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: FileCheck,
     title: 'Cumplimiento',
     description:
       'Pólizas de cumplimiento para respaldar obligaciones contractuales con entidades públicas y privadas conforme a la normatividad colombiana.',
     bullets: ['Contratos públicos', 'Contratos privados', 'Estabilidad de obra'],
   },
   {
-    icon: <Lock className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: Lock,
     title: 'Manejo',
     description:
       'Seguro de manejo que protege su patrimonio ante actos deshonestos, abuso de confianza o fraude por parte de empleados con manejo de bienes o recursos.',
     bullets: ['Infidelidad y riesgos financieros', 'Manejo de valores', 'Protección patrimonial'],
   },
   {
-    icon: <Truck className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: Truck,
     title: 'Transporte',
     description:
       'Cobertura para mercancías en tránsito nacional, protegiendo su operación logística ante pérdidas o daños durante el transporte.',
     bullets: ['Transporte nacional', 'Mercancías en tránsito', 'Carga terrestre'],
   },
   {
-    icon: <Landmark className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: Landmark,
     title: 'Daños Patrimoniales',
     description:
       'Protección del patrimonio empresarial ante eventos que puedan afectar su infraestructura, equipos y maquinaria.',
     bullets: ['Rotura de maquinaria', 'Equipo electrónico', 'Lucro cesante'],
   },
   {
-    icon: <Building2 className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: Building2,
     title: 'Todo Riesgo Constructor',
     description:
       'Póliza diseñada para proyectos de construcción que cubre daños a la obra, materiales, maquinaria y responsabilidad civil durante la ejecución.',
     bullets: ['Daños a la obra', 'Maquinaria y equipos', 'Responsabilidad civil cruzada'],
   },
   {
-    icon: <ShieldAlert className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: ShieldAlert,
     title: 'Asesoría en Siniestros',
     description:
       'Acompañamiento en la gestión de siniestros: reporte, documentación, seguimiento y negociación con la aseguradora para una pronta indemnización.',
@@ -76,9 +77,11 @@ export default function SegurosEmpresarialesPage() {
   return (
     <>
       <Breadcrumbs
+        backHref="/servicios"
+        backLabel="Volver a Seguros"
         items={[
-          { label: 'Servicios', href: '/servicios' },
-          { label: 'Seguros Empresariales', href: '/servicios/seguros-empresariales' },
+          { label: 'Seguros', href: '/servicios' },
+          { label: 'Empresas', href: '/servicios/seguros-empresariales' },
         ]}
       />
       <PageHero
@@ -101,15 +104,25 @@ export default function SegurosEmpresarialesPage() {
             </div>
           </AnimatedSection>
           <EqualHeightGrid columns={{ sm: 1, md: 2, lg: 4 }}>
-            {insuranceServices.map((service) => (
-              <PremiumCard
-                key={service.title}
-                icon={service.icon}
-                title={service.title}
-                description={service.description}
-                bullets={service.bullets}
-              />
-            ))}
+            {insuranceServices.map((service) => {
+              // Deep link estable a la cobertura de Cumplimiento (desde el dock
+              // de accesos rápidos). scroll-mt evita que el Header fijo la tape.
+              const isCumplimiento = service.title === 'Cumplimiento';
+              return (
+                <div
+                  key={service.title}
+                  id={isCumplimiento ? 'cumplimiento' : undefined}
+                  className={isCumplimiento ? 'scroll-mt-[96px]' : undefined}
+                >
+                  <PremiumCard
+                    icon={<PremiumIconBadge icon={service.iconComponent} variant="feature" />}
+                    title={service.title}
+                    description={service.description}
+                    bullets={service.bullets}
+                  />
+                </div>
+              );
+            })}
           </EqualHeightGrid>
         </div>
       </section>

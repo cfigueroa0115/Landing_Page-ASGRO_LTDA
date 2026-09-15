@@ -4,46 +4,47 @@ import PageHero from '@/components/shared/PageHero';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import SectionCTA from '@/components/shared/SectionCTA';
 import PremiumCard from '@/components/shared/PremiumCard';
+import PremiumIconBadge from '@/components/shared/PremiumIconBadge';
 import EqualHeightGrid from '@/components/shared/EqualHeightGrid';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 
 export const metadata: Metadata = {
-  title: 'Resultados - ASGRO LTDA',
+  title: 'Valor que generamos - ASGRO Agencia de Seguros',
   description:
-    'Impacto y resultados de ASGRO LTDA: 4 líneas estratégicas, 5 fases metodológicas, visión 360°, acompañamiento 100% y orientación digital 24/7.',
+    'El valor que genera ASGRO: acompañamiento cercano, claridad, visión integral del riesgo y protección para personas, patrimonio y empresas.',
 };
 
 const metrics = [
   {
-    icon: <Layers className="h-[28px] w-[28px] text-brand-green" />,
+    icon: Layers,
     value: '4',
     label: 'Líneas Estratégicas',
     description:
-      'Cuatro líneas de servicio que cubren integralmente las necesidades de protección empresarial: riesgos laborales, SST, bienestar y seguros empresariales.',
+      'Cuatro líneas que cubren integralmente la protección: seguros, ARL y riesgos laborales, SST, y bienestar y prevención.',
   },
   {
-    icon: <ListChecks className="h-[28px] w-[28px] text-brand-green" />,
+    icon: ListChecks,
     value: '5',
     label: 'Fases Metodológicas',
     description:
       'Cinco fases estructuradas (diagnóstico, planeación, implementación, seguimiento y mejora continua) que garantizan resultados sostenibles en cada gestión.',
   },
   {
-    icon: <CircleDot className="h-[28px] w-[28px] text-brand-green" />,
+    icon: CircleDot,
     value: '360°',
     label: 'Visión Integral',
     description:
       'Enfoque completo que abarca todas las dimensiones de la gestión de riesgos y protección empresarial, integrando cumplimiento normativo con bienestar organizacional.',
   },
   {
-    icon: <Handshake className="h-[28px] w-[28px] text-brand-green" />,
+    icon: Handshake,
     value: '100%',
     label: 'Acompañamiento',
     description:
       'Compromiso total con cada cliente: acompañamiento personalizado desde el diagnóstico hasta la mejora continua, sin delegar ni subcontratar la relación.',
   },
   {
-    icon: <Clock className="h-[28px] w-[28px] text-brand-green" />,
+    icon: Clock,
     value: '24/7',
     label: 'Orientación Digital',
     description:
@@ -55,16 +56,18 @@ export default function ResultadosPage() {
   return (
     <>
       <Breadcrumbs
+        backHref="/"
+        backLabel="Volver al inicio"
         items={[{ label: 'Resultados', href: '/resultados' }]}
       />
       <PageHero
-        title="Impacto y Resultados"
-        subtitle="Indicadores institucionales que reflejan nuestro modelo de gestión integral y compromiso con cada organización que acompañamos."
-        eyebrow="Nuestro impacto"
+        title="Valor que generamos"
+        subtitle="Indicadores institucionales que reflejan nuestro modelo de acompañamiento, no promesas comerciales, y el valor que buscamos generar para cada cliente."
+        eyebrow="Impacto que buscamos generar"
       />
 
       {/* Metrics section */}
-      <section className="py-10 md:py-14 bg-white">
+      <section className="py-[48px] md:py-[64px] bg-white">
         <div className="section-container">
           <AnimatedSection>
             <div className="max-w-[700px] mx-auto text-center mb-6">
@@ -81,10 +84,9 @@ export default function ResultadosPage() {
           <div className="space-y-4 max-w-[900px] mx-auto">
             {metrics.map((metric) => (
               <AnimatedSection key={metric.label}>
-                <div className="flex items-start gap-3 bg-brand-light-gray rounded-card p-3 md:p-4 border border-gray-100">
-                  <div className="flex-shrink-0 flex h-[64px] w-[64px] items-center justify-center rounded-full bg-gradient-to-br from-brand-green/20 to-brand-blue/10">
-                    {metric.icon}
-                  </div>
+                <div className="flex items-start gap-3 bg-brand-light-gray rounded-card p-[16px] md:p-[20px] border border-gray-100">
+                  <PremiumIconBadge icon={metric.icon} variant="metric" />
+
                   <div className="flex-1">
                     <div className="flex items-baseline gap-2 mb-0.5">
                       <span className="text-2xl md:text-3xl font-bold text-brand-dark-blue">
@@ -106,7 +108,7 @@ export default function ResultadosPage() {
       </section>
 
       {/* What each metric means */}
-      <section className="py-10 md:py-12 bg-brand-light-gray">
+      <section className="py-[48px] md:py-[64px] bg-brand-light-gray">
         <div className="section-container">
           <AnimatedSection>
             <div className="max-w-[700px] mx-auto text-center mb-5">

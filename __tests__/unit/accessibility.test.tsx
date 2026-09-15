@@ -103,11 +103,17 @@ vi.mock('framer-motion', () => ({
   AnimatePresence: ({ children }: any) => <>{children}</>,
   useInView: () => true,
   useAnimation: () => ({ start: vi.fn(), set: vi.fn() }),
+  useReducedMotion: () => false,
 }));
 
 // Mock AnimatedSection as pass-through
 vi.mock('@/components/shared/AnimatedSection', () => ({
   default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}));
+
+// Mock next/navigation (Header/MobileNav use usePathname for active-link state)
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/',
 }));
 
 // Mock next/image as plain img
@@ -173,6 +179,37 @@ vi.mock('lucide-react', () => {
     Bot: Icon,
     MessageCircle: Icon,
     User: Icon,
+    // Rediseño seguros-first: iconos usados por las nuevas secciones
+    // (WhyChoose, Trust, ValueGenerated, Hero, Methodology, Corporate,
+    //  ValueProposition, InsurancePortfolio, Complementary)
+    Handshake: Icon,
+    Zap: Icon,
+    Layers: Icon,
+    Eye: Icon,
+    ShieldAlert: Icon,
+    Activity: Icon,
+    Home: Icon,
+    UserCheck: Icon,
+    SearchCheck: Icon,
+    CalendarClock: Icon,
+    Search: Icon,
+    ClipboardList: Icon,
+    LifeBuoy: Icon,
+    Cog: Icon,
+    ArrowRight: Icon,
+    ListChecks: Icon,
+    CircleDot: Icon,
+    Route: Icon,
+    Lightbulb: Icon,
+    Stethoscope: Icon,
+    ShieldPlus: Icon,
+    House: Icon,
+    Car: Icon,
+    KeyRound: Icon,
+    Factory: Icon,
+    Lock: Icon,
+    UsersRound: Icon,
+    LayoutGrid: Icon,
   };
 });
 

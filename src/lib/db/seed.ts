@@ -280,7 +280,7 @@ async function seed() {
     {
       key: 'ai_agent_welcome_message',
       value:
-        '¡Hola! Soy el asistente virtual de ASGRO LTDA. Puedo ayudarte con consultas sobre ARL, Seguridad y Salud en el Trabajo, seguros empresariales y bienestar laboral. ¿En qué puedo asistirte?',
+        '¡Hola! Soy el asistente virtual de ASGRO Agencia de Seguros. Puedo ayudarte con consultas sobre seguros para personas y empresas, y soluciones complementarias de gestión de riesgos. ¿En qué puedo asistirte?',
       description: 'Mensaje de bienvenida del agente IA',
     },
     {

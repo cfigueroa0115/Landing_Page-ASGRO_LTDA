@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { getSecret, getSecretAsync } from '@/lib/config/secrets';
 
 /**
  * Environment variable validation using Zod.
@@ -31,10 +32,20 @@ const envSchema = z.object({
   NEXT_PUBLIC_COMPANY_EMAIL: z.string().default(''),
   NEXT_PUBLIC_COMPANY_ADDRESS: z.string().default(''),
 
+  // Public site URL (used for canonical, sitemap, robots, metadataBase).
+  // El dominio WEB es .com.co (el .com es solo para correo corporativo).
+  NEXT_PUBLIC_SITE_URL: z.string().default('https://asgroseguros.com.co'),
+
   // Optional API keys — never fail
   OPENAI_API_KEY: z.string().default(''),
   GEMINI_API_KEY: z.string().default(''),
   RESEND_API_KEY: z.string().default(''),
+
+  // Email notification configuration (server-side only) — never fail parse.
+  // Destination for lead/quote notifications.
+  CONTACT_NOTIFICATION_TO: z.string().default(''),
+  // Verified sender address for Resend (e.g. "ASGRO <no-reply@asgroseguros.com>").
+  CONTACT_FROM_EMAIL: z.string().default(''),
 
   // Node environment
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
@@ -213,12 +224,126 @@ export function isAIAvailable(): boolean {
 /**
  * Returns true if the Resend API key is configured.
  */
-export function isResendAvailable(): boolean {
-  try {
-    return !!getEnv().RESEND_API_KEY;
-  } catch {
-    return false;
+// ---------------------------------------------------------------------------
+// Configuración de email (Resend) — VALIDACIÓN INDEPENDIENTE
+//
+// La disponibilidad del envío por correo depende EXCLUSIVAMENTE de las tres
+// variables de email de servidor. NO se acopla al getEnv()/superRefine de
+// producción, de modo que la ausencia de variables públicas de contacto
+// (NEXT_PUBLIC_WHATSAPP_NUMBER / _COMPANY_PHONE / _COMPANY_EMAIL / _COMPANY_ADDRESS)
+// NUNCA impide enviar por Resend. Se leen directamente de process.env.
+// Son server-side y jamás llevan prefijo NEXT_PUBLIC_.
+// ---------------------------------------------------------------------------
+
+/**
+ * Esquema mínimo para las variables de email server-side NO sensibles
+ * (destinatario y remitente). El secreto RESEND_API_KEY se resuelve aparte
+ * vía el helper de secretos (getSecret).
+ */
+const emailEnvSchema = z.object({
+  CONTACT_NOTIFICATION_TO: z.string().default(''),
+  CONTACT_FROM_EMAIL: z.string().default(''),
+});
+
+/**
+ * Lee y normaliza las variables de email, sin pasar por el getEnv() global
+ * (evita el acoplamiento con la validación de producción).
+ * - RESEND_API_KEY (secreto): vía getSecret (process.env directo o secrets JSON).
+ * - CONTACT_NOTIFICATION_TO / CONTACT_FROM_EMAIL (no sensibles): vía process.env.
+ */
+function readEmailEnv(): {
+  RESEND_API_KEY: string;
+  CONTACT_NOTIFICATION_TO: string;
+  CONTACT_FROM_EMAIL: string;
+} {
+  const resendApiKey = getSecret('RESEND_API_KEY');
+
+  const parsed = emailEnvSchema.safeParse({
+    CONTACT_NOTIFICATION_TO: process.env.CONTACT_NOTIFICATION_TO,
+    CONTACT_FROM_EMAIL: process.env.CONTACT_FROM_EMAIL,
+  });
+
+  if (!parsed.success) {
+    return {
+      RESEND_API_KEY: resendApiKey,
+      CONTACT_NOTIFICATION_TO: '',
+      CONTACT_FROM_EMAIL: '',
+    };
   }
+
+  return {
+    RESEND_API_KEY: resendApiKey,
+    CONTACT_NOTIFICATION_TO: parsed.data.CONTACT_NOTIFICATION_TO.trim(),
+    CONTACT_FROM_EMAIL: parsed.data.CONTACT_FROM_EMAIL.trim(),
+  };
+}
+
+/**
+ * Returns true if the Resend API key is configured (independent of public vars).
+ */
+export function isResendAvailable(): boolean {
+  return !!readEmailEnv().RESEND_API_KEY;
+}
+
+/**
+ * Returns the notification recipient for lead/quote emails, or '' if unset.
+ * Server-side only. Independent of public contact vars.
+ */
+export function getContactNotificationTo(): string {
+  return readEmailEnv().CONTACT_NOTIFICATION_TO;
+}
+
+/**
+ * Returns the verified sender address for Resend, or '' if unset.
+ * Server-side only. Independent of public contact vars.
+ */
+export function getContactFromEmail(): string {
+  return readEmailEnv().CONTACT_FROM_EMAIL;
+}
+
+/**
+ * Returns true if email notifications can be sent: requiere ÚNICAMENTE las tres
+ * variables de email (RESEND_API_KEY, CONTACT_NOTIFICATION_TO, CONTACT_FROM_EMAIL).
+ * La ausencia de variables públicas de contacto NO afecta este resultado.
+ */
+export function isEmailNotificationAvailable(): boolean {
+  const e = readEmailEnv();
+  return !!(e.RESEND_API_KEY && e.CONTACT_NOTIFICATION_TO && e.CONTACT_FROM_EMAIL);
+}
+
+// ---------------------------------------------------------------------------
+// Variantes ASÍNCRONAS — resuelven las TRES variables de email incluyendo SSM
+// Parameter Store (env → secrets JSON → SSM). Son las que debe usar el runtime
+// SSR, donde las variables normales pueden no estar disponibles.
+// ---------------------------------------------------------------------------
+
+/** Resuelve RESEND_API_KEY de forma asíncrona (incluye SSM). Server-side. */
+export async function getResendApiKeyAsync(): Promise<string> {
+  return getSecretAsync('RESEND_API_KEY');
+}
+
+/** Resuelve CONTACT_NOTIFICATION_TO de forma asíncrona (incluye SSM). Server-side. */
+export async function getContactNotificationToAsync(): Promise<string> {
+  return getSecretAsync('CONTACT_NOTIFICATION_TO');
+}
+
+/** Resuelve CONTACT_FROM_EMAIL de forma asíncrona (incluye SSM). Server-side. */
+export async function getContactFromEmailAsync(): Promise<string> {
+  return getSecretAsync('CONTACT_FROM_EMAIL');
+}
+
+/**
+ * Versión asíncrona de isEmailNotificationAvailable: resuelve las TRES variables
+ * de email incluyendo SSM. Requiere ÚNICAMENTE esas tres; la ausencia de
+ * variables públicas de contacto NO afecta el resultado.
+ */
+export async function isEmailNotificationAvailableAsync(): Promise<boolean> {
+  const [resendApiKey, contactTo, fromEmail] = await Promise.all([
+    getResendApiKeyAsync(),
+    getContactNotificationToAsync(),
+    getContactFromEmailAsync(),
+  ]);
+  return !!(resendApiKey && contactTo && fromEmail);
 }
 
 /**

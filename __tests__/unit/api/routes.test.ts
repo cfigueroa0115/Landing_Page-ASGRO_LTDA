@@ -13,21 +13,31 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 let mockInsertResult: Promise<unknown>;
 let mockSelectResult: Promise<unknown>;
 let mockReturningResult: Promise<unknown>;
+/** Captura del último payload pasado a db.insert(...).values(...) */
+let capturedInsertValues: Record<string, unknown> | null = null;
+
+// UUID v4 real de prueba (para derivar la referencia de contacto sin romper).
+const MOCK_LEAD_UUID = '7f3a91b2-4c5d-4e6f-8a9b-0c1d2e3f4a5b';
 
 function resetDbMocks() {
   mockInsertResult = Promise.resolve(undefined);
   mockSelectResult = Promise.resolve([]);
-  mockReturningResult = Promise.resolve([{ id: 'mock-uuid-1234' }]);
+  mockReturningResult = Promise.resolve([{ id: MOCK_LEAD_UUID }]);
+  capturedInsertValues = null;
 }
 
-vi.mock('@/lib/db', () => ({
-  db: new Proxy(
+vi.mock('@/lib/db', () => {
+  const dbProxy = new Proxy(
     {},
     {
       get(_target, prop) {
         if (prop === 'insert') {
           return () => ({
-            values: () => {
+            values: (vals: unknown) => {
+              // Capturar solo objetos (inserts de fila única) para aserciones.
+              if (vals && typeof vals === 'object' && !Array.isArray(vals)) {
+                capturedInsertValues = vals as Record<string, unknown>;
+              }
               return {
                 returning: () => mockReturningResult,
                 then: (resolve: (v: unknown) => unknown, reject: (e: unknown) => unknown) =>
@@ -64,13 +74,28 @@ vi.mock('@/lib/db', () => ({
         return undefined;
       },
     }
-  ),
+  );
+  return {
+    db: dbProxy,
+    // Las rutas ahora usan getDbAsync(); devuelve el mismo Proxy mockeado.
+    getDbAsync: () => Promise.resolve(dbProxy),
+    getDb: () => dbProxy,
+  };
+});
+
+// Mock @/lib/ai/agent-v2 (flujo V2 gobernado usado por /api/chat)
+const mockProcessMessageV2 = vi.fn();
+vi.mock('@/lib/ai/agent-v2', () => ({
+  processMessageV2: (...args: unknown[]) => mockProcessMessageV2(...args),
 }));
 
-// Mock @/lib/ai/agent
-const mockProcessMessage = vi.fn();
-vi.mock('@/lib/ai/agent', () => ({
-  processMessage: (...args: unknown[]) => mockProcessMessage(...args),
+// Mock @/lib/email/notifications — controla el resultado `notified` de forma
+// determinista (sin depender de env de email ni de la red).
+const mockSendContactNotification = vi.fn();
+const mockSendQuoteNotification = vi.fn();
+vi.mock('@/lib/email/notifications', () => ({
+  sendContactNotification: (...args: unknown[]) => mockSendContactNotification(...args),
+  sendQuoteNotification: (...args: unknown[]) => mockSendQuoteNotification(...args),
 }));
 
 // Mock drizzle-orm operators
@@ -139,6 +164,8 @@ describe('POST /api/contact', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     resetDbMocks();
+    // Por defecto la notificación se envía correctamente.
+    mockSendContactNotification.mockResolvedValue({ sent: true });
     const mod = await import('@/app/api/contact/route');
     POST = mod.POST;
   });
@@ -151,6 +178,29 @@ describe('POST /api/contact', () => {
     expect(response.status).toBe(201);
     expect(data.success).toBe(true);
     expect(data.message).toBe('Lead stored successfully');
+  });
+
+  it('returns 201 with notified:true when the email notification is sent', async () => {
+    mockSendContactNotification.mockResolvedValue({ sent: true });
+    const request = createPostRequest('http://localhost/api/contact', validContactBody);
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(data.success).toBe(true);
+    expect(data.notified).toBe(true);
+  });
+
+  it('returns 201 with notified:false when the lead is stored but the email fails', async () => {
+    // El lead se guarda igual; solo la notificación falla de forma controlada.
+    mockSendContactNotification.mockResolvedValue({ sent: false });
+    const request = createPostRequest('http://localhost/api/contact', validContactBody);
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(data.success).toBe(true);
+    expect(data.notified).toBe(false);
   });
 
   it('returns 400 with field errors on invalid body', async () => {
@@ -176,7 +226,8 @@ describe('POST /api/contact', () => {
   });
 
   it('returns 503 on database connection error', async () => {
-    mockInsertResult = Promise.reject(new Error('ECONNREFUSED: connection refused'));
+    // La ruta ahora usa insert(...).returning(): el error viaja por esa promesa.
+    mockReturningResult = Promise.reject(new Error('ECONNREFUSED: connection refused'));
     const request = createPostRequest('http://localhost/api/contact', validContactBody);
     const response = await POST(request);
     const data = await response.json();
@@ -186,13 +237,60 @@ describe('POST /api/contact', () => {
   });
 
   it('returns 500 on unexpected error', async () => {
-    mockInsertResult = Promise.reject(new Error('Unexpected internal failure'));
+    mockReturningResult = Promise.reject(new Error('Unexpected internal failure'));
     const request = createPostRequest('http://localhost/api/contact', validContactBody);
     const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(500);
     expect(data.error).toBe('An error occurred processing your request');
+  });
+
+  // ── 7B.1: referencia de solicitud ─────────────────────────────────────────
+
+  it('incluye una referencia derivada del UUID persistido (formato ASGRO-C-XXXXXXXX)', async () => {
+    const request = createPostRequest('http://localhost/api/contact', validContactBody);
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(data.reference).toBe('ASGRO-C-7F3A91B2'); // primeros 8 hex del MOCK_LEAD_UUID
+    expect(data.reference).toMatch(/^ASGRO-C-[A-F0-9]{8}$/);
+  });
+
+  it('NO expone el UUID completo del lead', async () => {
+    const request = createPostRequest('http://localhost/api/contact', validContactBody);
+    const response = await POST(request);
+    const raw = await response.text();
+    expect(raw).not.toContain(MOCK_LEAD_UUID);
+  });
+
+  it('conserva la referencia cuando notified=false (DB es la fuente de verdad)', async () => {
+    mockSendContactNotification.mockResolvedValue({ sent: false });
+    const request = createPostRequest('http://localhost/api/contact', validContactBody);
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(data.notified).toBe(false);
+    expect(data.reference).toBe('ASGRO-C-7F3A91B2');
+  });
+
+  it('la misma referencia se envía al email (sendContactNotification)', async () => {
+    const request = createPostRequest('http://localhost/api/contact', validContactBody);
+    const response = await POST(request);
+    const data = await response.json();
+
+    const arg = mockSendContactNotification.mock.calls[0]?.[0] as { reference?: string };
+    expect(arg.reference).toBe(data.reference);
+  });
+
+  it('400 de validación NO devuelve referencia', async () => {
+    const request = createPostRequest('http://localhost/api/contact', { fullName: '' });
+    const response = await POST(request);
+    const data = await response.json();
+    expect(response.status).toBe(400);
+    expect(data.reference).toBeUndefined();
   });
 });
 
@@ -206,6 +304,8 @@ describe('POST /api/quote', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     resetDbMocks();
+    // Por defecto la notificación se envía correctamente.
+    mockSendQuoteNotification.mockResolvedValue({ sent: true });
     const mod = await import('@/app/api/quote/route');
     POST = mod.POST;
   });
@@ -220,6 +320,28 @@ describe('POST /api/quote', () => {
     expect(data.message).toBe('Quote request stored successfully');
   });
 
+  it('returns 201 with notified:true when the email notification is sent', async () => {
+    mockSendQuoteNotification.mockResolvedValue({ sent: true });
+    const request = createPostRequest('http://localhost/api/quote', validQuoteBody);
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(data.success).toBe(true);
+    expect(data.notified).toBe(true);
+  });
+
+  it('returns 201 with notified:false when the quote is stored but the email fails', async () => {
+    mockSendQuoteNotification.mockResolvedValue({ sent: false });
+    const request = createPostRequest('http://localhost/api/quote', validQuoteBody);
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(data.success).toBe(true);
+    expect(data.notified).toBe(false);
+  });
+
   it('returns 201 with optional fields', async () => {
     const body = {
       ...validQuoteBody,
@@ -232,6 +354,83 @@ describe('POST /api/quote', () => {
 
     expect(response.status).toBe(201);
     expect(data.success).toBe(true);
+  });
+
+  // ── 5B.3.2: persistencia segura del contexto comercial (interest) ──────────
+
+  it('persiste el contexto de interés (cumplimiento) en comments', async () => {
+    const body = { ...validQuoteBody, serviceRequired: 'seguros', interest: 'cumplimiento' };
+    const request = createPostRequest('http://localhost/api/quote', body);
+    const response = await POST(request);
+
+    expect(response.status).toBe(201);
+    expect(String(capturedInsertValues?.comments)).toContain('Póliza de cumplimiento');
+    expect(String(capturedInsertValues?.comments)).toContain('Interés originado desde la Asesora');
+  });
+
+  it('preserva el comentario del usuario junto al contexto', async () => {
+    const body = {
+      ...validQuoteBody,
+      serviceRequired: 'seguros',
+      interest: 'responsabilidad_civil',
+      comments: 'Requiero RC para una obra.',
+    };
+    const request = createPostRequest('http://localhost/api/quote', body);
+    await POST(request);
+
+    const stored = String(capturedInsertValues?.comments);
+    expect(stored).toContain('Responsabilidad civil');
+    expect(stored).toContain('Requiero RC para una obra.');
+  });
+
+  it('ARL/SST persisten su contexto', async () => {
+    for (const [interest, service, label] of [
+      ['arl', 'arl', 'ARL'],
+      ['sst', 'sst', 'SST'],
+    ] as const) {
+      resetDbMocks();
+      mockSendQuoteNotification.mockResolvedValue({ sent: true });
+      const request = createPostRequest('http://localhost/api/quote', {
+        ...validQuoteBody,
+        serviceRequired: service,
+        interest,
+      });
+      await POST(request);
+      expect(String(capturedInsertValues?.comments)).toContain(label);
+    }
+  });
+
+  it('sin interest → comments legacy intacto', async () => {
+    const request = createPostRequest('http://localhost/api/quote', {
+      ...validQuoteBody,
+      comments: 'Comentario simple',
+    });
+    await POST(request);
+    expect(capturedInsertValues?.comments).toBe('Comentario simple');
+    expect(String(capturedInsertValues?.comments)).not.toContain('Interés originado');
+  });
+
+  it('interest inválido (PII/HTML) es rechazado por Zod (400) y no se persiste', async () => {
+    const request = createPostRequest('http://localhost/api/quote', {
+      ...validQuoteBody,
+      interest: 'juan@email.com',
+    });
+    const response = await POST(request);
+    const data = await response.json();
+    expect(response.status).toBe(400);
+    expect(data.error).toBe('Validation failed');
+    expect(capturedInsertValues).toBeNull();
+  });
+
+  it('el email recibe la etiqueta de interés (interestLabel)', async () => {
+    const request = createPostRequest('http://localhost/api/quote', {
+      ...validQuoteBody,
+      serviceRequired: 'seguros',
+      interest: 'cumplimiento',
+    });
+    await POST(request);
+    const arg = mockSendQuoteNotification.mock.calls[0]?.[0] as { interestLabel?: string };
+    expect(arg.interestLabel).toBe('Póliza de cumplimiento');
   });
 
   it('returns 400 with field errors on invalid body', async () => {
@@ -290,8 +489,12 @@ describe('POST /api/chat', () => {
     mockReturningResult = Promise.resolve([{ id: 'new-session-uuid-1234' }]);
     // Default: select queries return empty arrays
     mockSelectResult = Promise.resolve([]);
-    // Default: AI response
-    mockProcessMessage.mockResolvedValue('Hola, soy el asistente de ASGRO.');
+    // Default: V2 governed response (sin acciones comerciales)
+    mockProcessMessageV2.mockResolvedValue({
+      response: 'Hola, soy el asistente de ASGRO.',
+      actions: [],
+      meta: { intent: 'general_insurance', usedEntries: [], fallback: false },
+    });
     // Default: insert (for messages) resolves
     mockInsertResult = Promise.resolve(undefined);
 
@@ -308,6 +511,49 @@ describe('POST /api/chat', () => {
     expect(data.sessionId).toBe('new-session-uuid-1234');
     expect(data.response).toBe('Hola, soy el asistente de ASGRO.');
     expect(data.timestamp).toBeDefined();
+  });
+
+  it('no expone internals del flujo V2 (intent, scores, keys, meta)', async () => {
+    const request = createPostRequest('http://localhost/api/chat', validChatBody);
+    const response = await POST(request);
+    const raw = await response.text();
+
+    expect(raw).not.toContain('usedEntries');
+    expect(raw).not.toContain('meta');
+    const data = JSON.parse(raw);
+    // Sin actions: contrato mínimo backward-compatible.
+    expect(Object.keys(data).sort()).toEqual(['response', 'sessionId', 'timestamp']);
+  });
+
+  it('incluye actions cuando el flujo V2 las devuelve (contrato extendido)', async () => {
+    mockProcessMessageV2.mockResolvedValue({
+      response: 'Con gusto te ayudo a cotizar.',
+      actions: [{ type: 'quote', label: 'Solicitar cotización', href: '/cotizar' }],
+      meta: { intent: 'cotizacion', usedEntries: [], fallback: false },
+    });
+    const request = createPostRequest('http://localhost/api/chat', validChatBody);
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(Array.isArray(data.actions)).toBe(true);
+    expect(data.actions[0]).toEqual({ type: 'quote', label: 'Solicitar cotización', href: '/cotizar' });
+    // Nunca expone meta/usedEntries aunque el flujo los tenga internamente.
+    expect(data.meta).toBeUndefined();
+    expect(data.usedEntries).toBeUndefined();
+  });
+
+  it('omite actions cuando el flujo V2 devuelve []', async () => {
+    mockProcessMessageV2.mockResolvedValue({
+      response: 'Info general.',
+      actions: [],
+      meta: { intent: 'hogar', usedEntries: [], fallback: false },
+    });
+    const request = createPostRequest('http://localhost/api/chat', validChatBody);
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(data.actions).toBeUndefined();
   });
 
   it('creates a new session when no sessionId provided', async () => {

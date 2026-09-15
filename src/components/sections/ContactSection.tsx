@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Send, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Send, CheckCircle, AlertCircle, Loader2, Copy, Check } from 'lucide-react';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,6 +16,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { contactSchema, type ContactFormData } from '@/lib/validations/contact';
 
 /** Opciones del dropdown de servicio de interés */
@@ -26,32 +34,72 @@ const serviceOptions = [
   { value: 'bienestar', label: 'Bienestar' },
 ] as const;
 
+/**
+ * Valores por defecto del formulario. Se reutilizan en el reset tras un envío
+ * exitoso para dejar el estado internamente limpio (sin errores residuales).
+ */
+const CONTACT_DEFAULT_VALUES: ContactFormData = {
+  fullName: '',
+  company: '',
+  position: '',
+  phone: '',
+  email: '',
+  city: '',
+  serviceOfInterest: undefined as unknown as ContactFormData['serviceOfInterest'],
+  message: '',
+  dataAcceptance: false,
+};
+
 export default function ContactSection() {
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  // 'success' = registrado y notificado; 'received' = registrado sin notificación.
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'received' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Estado del receipt (confirmación premium) tras un envío exitoso.
+  const [receiptOpen, setReceiptOpen] = useState(false);
+  const [reference, setReference] = useState<string | null>(null);
+  const [receiptFirstName, setReceiptFirstName] = useState('');
+  const [receiptNotified, setReceiptNotified] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const fullNameRef = useRef<HTMLInputElement | null>(null);
 
   const {
     register,
     handleSubmit,
     control,
     reset,
+    clearErrors,
+    setFocus,
     formState: { errors, isSubmitting },
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
-    defaultValues: {
-      fullName: '',
-      company: '',
-      position: '',
-      phone: '',
-      email: '',
-      city: '',
-      serviceOfInterest: undefined,
-      message: '',
-      dataAcceptance: false,
-    },
+    defaultValues: CONTACT_DEFAULT_VALUES,
   });
 
+  const { ref: fullNameFieldRef, ...fullNameField } = register('fullName');
+
+  /**
+   * Limpia por completo el estado del formulario tras un envío exitoso.
+   * Corrige el bug de errores rojos residuales en Select/Checkbox: se resetea a
+   * los valores por defecto SIN conservar errores/touched/dirty/isSubmitted, y
+   * se limpian los errores de forma explícita. No usa CSS ni timeouts.
+   */
+  const clearFormState = useCallback(() => {
+    reset(CONTACT_DEFAULT_VALUES, {
+      keepErrors: false,
+      keepDirty: false,
+      keepTouched: false,
+      keepIsSubmitted: false,
+      keepSubmitCount: false,
+    });
+    clearErrors();
+  }, [reset, clearErrors]);
+
   const onSubmit = async (data: ContactFormData) => {
+    // Bloquear doble submit mientras hay un envío en curso o el receipt abierto.
+    if (isSubmitting || receiptOpen) return;
+
     setSubmitStatus('idle');
     setErrorMessage('');
 
@@ -63,8 +111,21 @@ export default function ContactSection() {
       });
 
       if (response.ok) {
-        setSubmitStatus('success');
-        reset();
+        // El registro quedó almacenado. Diferenciamos si además se notificó.
+        const payload = await response.json().catch(() => null);
+        const notified = payload?.notified === true;
+
+        // Preparar el receipt con la referencia real devuelta por el servidor.
+        setReference(typeof payload?.reference === 'string' ? payload.reference : null);
+        setReceiptFirstName(data.fullName.trim().split(/\s+/)[0] ?? '');
+        setReceiptNotified(notified);
+        setCopied(false);
+
+        // Estado inferior (mensaje verde) + receipt premium.
+        setSubmitStatus(notified ? 'success' : 'received');
+        // Limpieza total ANTES de abrir el receipt: sin errores residuales.
+        clearFormState();
+        setReceiptOpen(true);
       } else {
         const errorData = await response.json().catch(() => null);
         setSubmitStatus('error');
@@ -79,6 +140,43 @@ export default function ContactSection() {
       );
     }
   };
+
+  /** Copia la referencia al portapapeles con feedback no intrusivo (fallback seguro). */
+  const handleCopyReference = useCallback(async () => {
+    if (!reference) return;
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(reference);
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 2500);
+      }
+    } catch {
+      // Clipboard no disponible: el receipt sigue funcionando; no se bloquea nada.
+    }
+  }, [reference]);
+
+  /**
+   * "Enviar otra solicitud": cierra el receipt, elimina el mensaje verde,
+   * limpia referencia/nombre, garantiza formulario vacío y devuelve el foco al
+   * primer campo. Sin recarga de página.
+   */
+  const handleSendAnother = useCallback(() => {
+    setReceiptOpen(false);
+    setSubmitStatus('idle');
+    setErrorMessage('');
+    setReference(null);
+    setReceiptFirstName('');
+    setCopied(false);
+    clearFormState();
+    // Foco al primer campo tras cerrar el diálogo.
+    window.setTimeout(() => {
+      try {
+        setFocus('fullName');
+      } catch {
+        fullNameRef.current?.focus();
+      }
+    }, 0);
+  }, [clearFormState, setFocus]);
 
   return (
     <section
@@ -116,7 +214,11 @@ export default function ContactSection() {
                 placeholder="Ingrese su nombre completo"
                 aria-invalid={!!errors.fullName}
                 aria-describedby={errors.fullName ? 'contact-fullName-error' : undefined}
-                {...register('fullName')}
+                {...fullNameField}
+                ref={(el) => {
+                  fullNameFieldRef(el);
+                  fullNameRef.current = el;
+                }}
               />
               {errors.fullName && (
                 <p id="contact-fullName-error" className="text-sm text-red-600" role="alert">
@@ -228,7 +330,11 @@ export default function ContactSection() {
                   control={control}
                   render={({ field }) => (
                     <Select
-                      value={field.value}
+                      // Controlado también cuando no hay valor: tras el reset,
+                      // field.value es undefined y Radix Select conservaría la
+                      // selección previa. Con '' vuelve al placeholder. RHF sigue
+                      // siendo la única fuente de verdad (sin estado duplicado).
+                      value={field.value ?? ''}
                       onValueChange={field.onChange}
                     >
                       <SelectTrigger
@@ -325,7 +431,21 @@ export default function ContactSection() {
               >
                 <CheckCircle className="h-[20px] w-[20px] shrink-0" />
                 <p className="text-sm">
-                  ¡Mensaje enviado exitosamente! Nos comunicaremos con usted pronto.
+                  Solicitud registrada correctamente. Nuestro equipo se comunicará con usted a la brevedad.
+                </p>
+              </div>
+            )}
+
+            {submitStatus === 'received' && (
+              <div
+                className="flex items-center gap-1 p-2 bg-green-50 border border-green-200 rounded-input text-green-700"
+                role="status"
+                aria-live="polite"
+              >
+                <CheckCircle className="h-[20px] w-[20px] shrink-0" />
+                <p className="text-sm">
+                  Hemos recibido y registrado su solicitud. Nuestro equipo podrá gestionarla con la
+                  información suministrada.
                 </p>
               </div>
             )}
@@ -345,9 +465,9 @@ export default function ContactSection() {
             <Button
               type="submit"
               size="lg"
-              disabled={isSubmitting}
+              disabled={isSubmitting || receiptOpen}
               className="w-full rounded-btn"
-              aria-disabled={isSubmitting}
+              aria-disabled={isSubmitting || receiptOpen}
             >
               {isSubmitting ? (
                 <>
@@ -364,6 +484,90 @@ export default function ContactSection() {
           </form>
         </AnimatedSection>
       </div>
+
+      {/* Receipt / confirmación premium tras un envío exitoso. Reutiliza el
+          Dialog accesible del sistema (Radix: role=dialog, aria-modal, focus,
+          Escape). Cerrar con X/Escape mantiene el mensaje verde inferior. */}
+      <Dialog
+        open={receiptOpen}
+        onOpenChange={(open) => {
+          if (!open) setReceiptOpen(false);
+        }}
+      >
+        <DialogContent
+          className="max-w-[440px]"
+          aria-labelledby="contact-receipt-title"
+          aria-describedby="contact-receipt-desc"
+        >
+          <DialogHeader>
+            <div className="mx-auto mb-1 flex h-[52px] w-[52px] items-center justify-center rounded-full bg-brand-green/15">
+              <CheckCircle className="h-[28px] w-[28px] text-brand-green-alt" aria-hidden="true" />
+            </div>
+            <DialogTitle id="contact-receipt-title" className="text-center text-h3 text-brand-dark-blue">
+              Solicitud recibida
+            </DialogTitle>
+            <DialogDescription id="contact-receipt-desc" className="text-center text-gray-600">
+              {receiptFirstName ? `Gracias, ${receiptFirstName}. ` : 'Gracias. '}
+              {receiptNotified
+                ? 'Su mensaje fue registrado correctamente y enviado a nuestro equipo de atención.'
+                : 'Su solicitud fue registrada correctamente. Nuestro equipo podrá gestionarla con la información suministrada.'}
+            </DialogDescription>
+          </DialogHeader>
+
+          {reference && (
+            <div className="my-1 rounded-card border border-gray-200 bg-brand-light-gray/60 px-3 py-2 text-center">
+              <p className="text-caption font-semibold uppercase tracking-[0.08em] text-gray-500">
+                Referencia
+              </p>
+              <p className="mt-0.5 font-mono text-lg font-bold tracking-wide text-brand-dark-blue">
+                {reference}
+              </p>
+              <p className="mt-1 text-caption text-gray-500">
+                Conserve esta referencia para identificar su solicitud.
+              </p>
+            </div>
+          )}
+
+          <p className="text-center text-sm text-gray-600">
+            Nuestro equipo revisará su solicitud y se comunicará con usted a través de los datos
+            registrados.
+          </p>
+
+          {/* Feedback accesible de copia (no intrusivo). */}
+          <p className="sr-only" role="status" aria-live="polite">
+            {copied ? 'Referencia copiada' : ''}
+          </p>
+
+          <DialogFooter className="mt-1 gap-2 sm:gap-1">
+            {reference && (
+              <button
+                type="button"
+                onClick={handleCopyReference}
+                className="inline-flex min-h-[44px] items-center justify-center gap-1 rounded-btn border border-brand-blue/40 bg-white px-3 text-sm font-semibold text-brand-blue transition-colors hover:bg-brand-blue/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
+              >
+                {copied ? (
+                  <>
+                    <Check className="h-[16px] w-[16px]" aria-hidden="true" />
+                    Referencia copiada
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-[16px] w-[16px]" aria-hidden="true" />
+                    Copiar referencia
+                  </>
+                )}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={handleSendAnother}
+              className="inline-flex min-h-[44px] items-center justify-center rounded-btn bg-brand-green px-3 text-sm font-bold text-brand-dark-blue shadow-btn transition-colors hover:bg-brand-green-alt focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
+            >
+              Enviar otra solicitud
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

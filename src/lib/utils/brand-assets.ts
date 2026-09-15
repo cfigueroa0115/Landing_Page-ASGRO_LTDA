@@ -16,8 +16,13 @@ export const LOGO_PATH = '/brand/asgro-logo.png';
 /** Path to the services banner image in public/brand/ */
 export const SERVICES_BANNER_PATH = '/brand/asgro-services-banner.png';
 
-/** Path to the Open Graph image in public/brand/ */
-export const OG_IMAGE_PATH = '/brand/asgro-og-image.png';
+/**
+ * Path to the Open Graph image in public/brand/.
+ * TEMPORAL: se usa el logo existente (asgro-logo.png) hasta suministrar una
+ * imagen corporativa 1200×630 (asgro-og-image.png). No referenciar assets
+ * inexistentes.
+ */
+export const OG_IMAGE_PATH = '/brand/asgro-logo.png';
 
 // ─── Brand Colors ───────────────────────────────────────────────────────────────
 
@@ -55,8 +60,8 @@ export function getLogoFallbackDataUri(width = 160, height = 48): string {
       </linearGradient>
     </defs>
     <rect x="0" y="0" width="${width}" height="${height}" rx="8" fill="${BRAND_DARK_BLUE}" />
-    <text x="${width / 2}" y="${height * 0.62}" font-family="Inter, system-ui, sans-serif" font-size="${height * 0.42}" font-weight="800" fill="url(#logoGrad)" text-anchor="middle" letter-spacing="2">ASGRO</text>
-    <text x="${width / 2}" y="${height * 0.88}" font-family="Inter, system-ui, sans-serif" font-size="${height * 0.18}" font-weight="400" fill="${BRAND_GREEN}" text-anchor="middle" letter-spacing="1">LTDA</text>
+    <text x="${width / 2}" y="${height * 0.60}" font-family="Inter, system-ui, sans-serif" font-size="${height * 0.42}" font-weight="800" fill="url(#logoGrad)" text-anchor="middle" letter-spacing="2">ASGRO</text>
+    <text x="${width / 2}" y="${height * 0.86}" font-family="Inter, system-ui, sans-serif" font-size="${height * 0.15}" font-weight="500" fill="${BRAND_GREEN}" text-anchor="middle" letter-spacing="1">Agencia de Seguros</text>
   </svg>`;
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
@@ -100,8 +105,8 @@ export function getLogoFallbackSvg(width = 200, height = 60): string {
       </linearGradient>
     </defs>
     <rect x="0" y="0" width="${width}" height="${height}" rx="8" fill="${BRAND_DARK_BLUE}" />
-    <text x="${width / 2}" y="${height * 0.62}" font-family="Inter, system-ui, sans-serif" font-size="${height * 0.42}" font-weight="800" fill="url(#logoGradStr)" text-anchor="middle" letter-spacing="2">ASGRO</text>
-    <text x="${width / 2}" y="${height * 0.88}" font-family="Inter, system-ui, sans-serif" font-size="${height * 0.18}" font-weight="400" fill="${BRAND_GREEN}" text-anchor="middle" letter-spacing="1">LTDA</text>
+    <text x="${width / 2}" y="${height * 0.60}" font-family="Inter, system-ui, sans-serif" font-size="${height * 0.42}" font-weight="800" fill="url(#logoGradStr)" text-anchor="middle" letter-spacing="2">ASGRO</text>
+    <text x="${width / 2}" y="${height * 0.86}" font-family="Inter, system-ui, sans-serif" font-size="${height * 0.15}" font-weight="500" fill="${BRAND_GREEN}" text-anchor="middle" letter-spacing="1">Agencia de Seguros</text>
   </svg>`;
 }
 

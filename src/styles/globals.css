@@ -37,6 +37,14 @@
     overflow-x: hidden;
   }
 
+  /* Respetar la preferencia del sistema: sin scroll suave si el usuario pide
+   * reducir el movimiento. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
   body {
     @apply font-sans text-body text-brand-dark-blue bg-white antialiased;
     overflow-x: hidden;
@@ -94,9 +102,78 @@
     @apply bg-white/80 backdrop-blur-md;
   }
 
+  /* ── Lenguaje visual propio ASGRO ─────────────────────────────────────────
+   * Sello de marca reconocible: arco verde, eyebrow institucional, superficies
+   * blancas con acentos suaves. Paleta 80% blanco / 15% azul / 5% verde.
+   * ───────────────────────────────────────────────────────────────────────── */
+
+  /* Etiqueta pequeña sobre los títulos de sección (eyebrow).
+   * Sobre superficies claras usa text-brand-blue (#024EA3, ~7:1 sobre blanco →
+   * WCAG AA/AAA). El verde ASGRO queda reservado como acento gráfico (filetes,
+   * iconos). En fondos oscuros se sobreescribe con text-brand-neon-green. */
+  .brand-eyebrow {
+    @apply inline-flex items-center gap-1 text-small font-semibold uppercase tracking-[0.12em] text-brand-blue;
+  }
+
+  /* Superficie de sección suave (alterna con el blanco puro) */
+  .brand-surface {
+    @apply bg-brand-light-gray;
+  }
+
+  /* Realce de palabra clave dentro de un titular */
+  .brand-accent {
+    @apply text-brand-green;
+  }
+
+  /* Filete curvo/acento verde bajo elementos destacados */
+  .brand-underline {
+    @apply relative after:absolute after:-bottom-1 after:left-0 after:h-[3px] after:w-10 after:rounded-full after:bg-brand-green;
+  }
+
   /* Visible focus indicator utility — 2px+ solid outline with 3:1 contrast ratio */
   .focus-brand {
     @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue;
+  }
+
+  /* ── Sistema visual premium 5A ────────────────────────────────────────────
+   * Tokens reutilizables para profundidad y brillo sobrio. No cambian la
+   * paleta ni la escala: solo componen glows, sombras y superficies con los
+   * colores brand existentes. Las transiciones con movimiento usan motion-safe
+   * en los componentes que las aplican (respeto a reduced-motion).
+   * ───────────────────────────────────────────────────────────────────────── */
+
+  /* Sombra premium suave para tarjetas ejecutivas sobre fondo claro. */
+  .shadow-premium {
+    box-shadow:
+      0 1px 2px rgba(1, 25, 48, 0.06),
+      0 8px 24px rgba(1, 25, 48, 0.08);
+  }
+
+  /* Realce al hover para tarjetas premium (elevación sutil). */
+  .shadow-premium-hover {
+    box-shadow:
+      0 2px 4px rgba(1, 25, 48, 0.08),
+      0 16px 40px rgba(1, 25, 48, 0.14);
+  }
+
+  /* Tarjeta de acceso rápido / ejecutiva sobre superficie clara. */
+  .card-quick {
+    @apply relative overflow-hidden rounded-card border border-gray-200/80 bg-white shadow-premium transition-all duration-300;
+  }
+
+  /* Glow ambiental (se coloca en un div aria-hidden detrás del contenido). */
+  .glow-blue {
+    background: radial-gradient(closest-side, rgba(2, 78, 163, 0.28), transparent 70%);
+  }
+  .glow-green {
+    background: radial-gradient(closest-side, rgba(122, 193, 70, 0.22), transparent 70%);
+  }
+
+  /* Panel oscuro premium (asistente / widgets sobre header oscuro). */
+  .surface-dark-premium {
+    background:
+      radial-gradient(120% 80% at 100% 0%, rgba(2, 78, 163, 0.35), transparent 60%),
+      linear-gradient(180deg, #011930 0%, #001B33 100%);
   }
 }
 

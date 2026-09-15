@@ -14,35 +14,40 @@ import {
 /**
  * Social media links configuration.
  */
+// Redes sociales — se muestran ÚNICAMENTE si la URL real está configurada vía
+// variables de entorno. No se enlazan perfiles inventados. [PLACEHOLDER]:
+// suministrar NEXT_PUBLIC_SOCIAL_* con las URLs reales de ASGRO.
 const SOCIAL_LINKS = [
   {
     id: 'social-facebook',
     label: 'Visitar Facebook de ASGRO',
-    href: 'https://facebook.com',
+    href: process.env.NEXT_PUBLIC_SOCIAL_FACEBOOK ?? '',
     icon: FaFacebook,
   },
   {
     id: 'social-instagram',
     label: 'Visitar Instagram de ASGRO',
-    href: 'https://instagram.com',
+    href: process.env.NEXT_PUBLIC_SOCIAL_INSTAGRAM ?? '',
     icon: FaInstagram,
   },
   {
     id: 'social-linkedin',
     label: 'Visitar LinkedIn de ASGRO',
-    href: 'https://linkedin.com',
+    href: process.env.NEXT_PUBLIC_SOCIAL_LINKEDIN ?? '',
     icon: FaLinkedin,
   },
-];
+].filter((social) => social.href.length > 0);
 
 /**
- * Microsite service links for the footer.
+ * Accesos del footer — jerarquía seguros-first.
  */
 const SERVICE_LINKS = [
-  { label: 'Riesgos Laborales', href: '/servicios/riesgos-laborales' },
-  { label: 'Seguridad y Salud', href: '/servicios/seguridad-salud-trabajo' },
-  { label: 'Bienestar', href: '/servicios/bienestar-proteccion' },
-  { label: 'Seguros Empresariales', href: '/servicios/seguros-empresariales' },
+  { label: 'Seguros', href: '/servicios/seguros-empresariales' },
+  { label: 'Empresas', href: '/#empresas' },
+  { label: 'ARL y Riesgos Laborales', href: '/servicios/riesgos-laborales' },
+  { label: 'SST', href: '/servicios/seguridad-salud-trabajo' },
+  { label: 'Nosotros', href: '/nosotros' },
+  { label: 'Contacto', href: '/contacto' },
 ];
 
 export default function Footer() {
@@ -61,31 +66,36 @@ export default function Footer() {
       <div className="section-container py-8 lg:py-10">
         {/* Main footer grid */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {/* Column 1: Company info */}
+          {/* Column 1: Company info — marca ÚNICA */}
           <div className="flex flex-col gap-2">
-            <h3 className="text-h4 text-white">{SITE_CONTENT.companyShortName}</h3>
+            <h3 className="text-h4 text-white">ASGRO</h3>
+            <p className="text-small font-medium text-brand-neon-green">
+              {SITE_CONTENT.brandDescriptor}
+            </p>
             <p className="text-small text-white/70">
               {SITE_CONTENT.tagline}
             </p>
 
-            {/* Social media links */}
-            <div className="mt-2 flex items-center gap-1">
-              {SOCIAL_LINKS.map((social) => {
-                const Icon = social.icon;
-                return (
-                  <a
-                    key={social.id}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={social.label}
-                    className="flex h-[44px] w-[44px] min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-white/10 text-white transition-colors duration-200 hover:bg-brand-green hover:text-white"
-                  >
-                    <Icon className="h-[20px] w-[20px]" aria-hidden="true" />
-                  </a>
-                );
-              })}
-            </div>
+            {/* Social media links — solo si hay URLs reales configuradas */}
+            {SOCIAL_LINKS.length > 0 && (
+              <div className="mt-2 flex items-center gap-1">
+                {SOCIAL_LINKS.map((social) => {
+                  const Icon = social.icon;
+                  return (
+                    <a
+                      key={social.id}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={social.label}
+                      className="flex h-[44px] w-[44px] min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-white/10 text-white transition-colors duration-200 hover:bg-brand-green hover:text-white"
+                    >
+                      <Icon className="h-[20px] w-[20px]" aria-hidden="true" />
+                    </a>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Column 2: Quick navigation links */}
@@ -115,10 +125,10 @@ export default function Footer() {
             </nav>
           </div>
 
-          {/* Column 3: Services + Contact */}
+          {/* Column 3: Accesos + Contact */}
           <div className="flex flex-col gap-1">
-            <h4 className="text-h4 text-white">Servicios</h4>
-            <nav aria-label="Enlaces de servicios">
+            <h4 className="text-h4 text-white">Accesos</h4>
+            <nav aria-label="Accesos principales">
               <ul className="flex flex-col gap-0">
                 {SERVICE_LINKS.map((link) => (
                   <li key={link.href}>
@@ -177,6 +187,14 @@ export default function Footer() {
           <div className="flex flex-col gap-1">
             <h4 className="text-h4 text-white">Legal</h4>
             <ul className="flex flex-col gap-0">
+              <li>
+                <Link
+                  href="/contacto"
+                  className="inline-flex min-h-[44px] items-center text-small text-white/70 transition-colors duration-200 hover:text-brand-green"
+                >
+                  Política de privacidad
+                </Link>
+              </li>
               <li>
                 <Link
                   href="/contacto"

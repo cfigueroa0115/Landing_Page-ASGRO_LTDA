@@ -2,28 +2,27 @@
 
 import { motion } from 'framer-motion';
 import {
-  TrendingDown,
   ShieldCheck,
-  DollarSign,
-  Users,
-  Clock,
-  BarChart3,
-  GraduationCap,
+  Eye,
+  Handshake,
+  ShieldAlert,
+  Activity,
+  Heart,
 } from 'lucide-react';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 import { BENEFITS_DATA, SITE_CONTENT } from '@/lib/utils/constants';
 
 /**
  * Mapa de nombre de ícono Lucide a componente React.
+ * Alineado con los beneficios cualitativos de BENEFITS_DATA.
  */
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
-  TrendingDown,
   ShieldCheck,
-  DollarSign,
-  Users,
-  Clock,
-  BarChart3,
-  GraduationCap,
+  Eye,
+  Handshake,
+  ShieldAlert,
+  Activity,
+  Heart,
 };
 
 /**
@@ -77,8 +76,8 @@ export default function BenefitsSection() {
             {SITE_CONTENT.benefitsTitle}
           </h2>
           <p className="text-body-lg text-gray-600 max-w-[640px] mx-auto">
-            Beneficios concretos y medibles que obtienen nuestros clientes al
-            confiar en ASGRO LTDA.
+            Beneficios del acompañamiento cercano de ASGRO en la protección de lo
+            que importa.
           </p>
         </AnimatedSection>
 

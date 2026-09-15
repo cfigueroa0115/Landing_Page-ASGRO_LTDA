@@ -1,17 +1,19 @@
 'use client';
 
 /**
- * Header Component — Sticky glassmorphism navigation bar with route-based navigation.
+ * Header Component — Header BLANCO PREMIUM PERMANENTE con navegación por rutas.
  *
- * Features:
- * - Fixed top position with glassmorphism effect (backdrop blur, 70-90% bg opacity)
- * - Scroll detection for z-index layering and enhanced visual state
- * - Active route highlighting via usePathname()
- * - ASGRO logo from /public/brand/asgro-logo.png with SVG fallback
- * - Full navigation links in Spanish using next/link
- * - "Cotizar ahora" CTA button → links to /cotizar
- * - "WhatsApp" button → functional, opens WhatsApp (hidden if env var not set)
- * - Navigation links hidden on mobile (lg:flex); hamburger handled by MobileNav
+ * Diseño (Bloque 4C):
+ * - Fondo blanco sólido en TODO estado (carga, scroll, sticky) → contraste AA
+ *   garantizado; sin estados transparentes ni cambio dinámico de color de texto.
+ * - Sombra/borde inferior sutil que se refuerza al hacer scroll (profundidad
+ *   sin recargar). Filete de acento azul→verde como sello de marca.
+ * - Links: azul oscuro (#011930) sobre blanco (AA holgado). Activo = color
+ *   azul + peso semibold + filete verde (no depende solo del color).
+ * - CTA "Solicitar asesoría" (6A): azul oscuro ASGRO + texto blanco (hover
+ *   brand-blue), diferenciado del WhatsApp verde. Hero mantiene su CTA verde.
+ * - Nav completo desde min-[1120px]; por debajo, hamburguesa (MobileNav). Nunca
+ *   coexisten. Botón WhatsApp del header desde min-[1120px]; el flotante siempre.
  */
 
 import { useState, useEffect } from 'react';
@@ -26,9 +28,11 @@ import { generateWhatsAppUrl, getDefaultWhatsAppMessage } from '@/lib/utils/what
 interface HeaderProps {
   /** Callback to open mobile navigation */
   onMobileMenuOpen?: () => void;
+  /** Whether the mobile navigation is currently open (for aria-expanded) */
+  isMobileMenuOpen?: boolean;
 }
 
-export default function Header({ onMobileMenuOpen }: HeaderProps) {
+export default function Header({ onMobileMenuOpen, isMobileMenuOpen = false }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
 
@@ -49,20 +53,24 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
   }, []);
 
   /**
-   * Determines if a nav link is active based on the current pathname.
-   * For "/" (home), only exact match. For others, starts-with matching.
+   * Estado activo del Header (6C) — matching explícito para que SOLO un enlace
+   * principal quede activo:
+   * - "Seguros" (/servicios) usa coincidencia EXACTA (es el hub), de modo que las
+   *   páginas hijas (Empresas, ARL, SST) NO marquen también "Seguros".
+   * - Las hijas usan startsWith de su propia ruta.
    */
   function isActive(href: string): boolean {
     if (href === '/') return pathname === '/';
-    return pathname.startsWith(href);
+    if (href === '/servicios') return pathname === '/servicios';
+    return pathname === href || pathname.startsWith(`${href}/`);
   }
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 w-full transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 w-full bg-white transition-shadow duration-300 ${
         isScrolled
-          ? 'z-[60] bg-white/98 backdrop-blur-md border-b border-brand-blue/10 shadow-sm'
-          : 'z-50 bg-white border-b border-gray-100 shadow-none'
+          ? 'z-[60] border-b border-gray-200/80 shadow-[0_2px_12px_rgba(1,25,48,0.08)]'
+          : 'z-50 border-b border-gray-100 shadow-[0_1px_0_rgba(1,25,48,0.04)]'
       }`}
       role="banner"
     >
@@ -71,7 +79,7 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
         <Link
           href="/"
           className="flex-shrink-0"
-          aria-label="ASGRO LTDA - Ir al inicio"
+          aria-label="ASGRO Agencia de Seguros - Ir al inicio"
         >
           <BrandLogo
             width={160}
@@ -81,71 +89,90 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
           />
         </Link>
 
-        {/* Desktop Navigation */}
+        {/* Desktop Navigation — aparece desde min-[1120px] (breakpoint intermedio
+            seguro: en 1024px las 7 etiquetas + logo + CTA quedarían apretadas). */}
         <nav
-          className="hidden items-center gap-0 lg:flex"
+          className="hidden items-center gap-0.5 min-[1120px]:flex"
           aria-label="Navegación principal"
         >
           {NAV_LINKS.map((link) => {
             const active = isActive(link.href);
+            // Etiqueta corta "ARL" en el nav; nombre completo accesible vía aria-label/title.
+            const isArl = link.id === 'nav-arl';
             return (
               <Link
                 key={link.id}
                 href={link.href}
-                className={`inline-flex min-h-[44px] items-center rounded-md px-2 py-1 text-sm font-medium transition-colors hover:text-brand-blue hover:bg-brand-blue/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue relative ${
+                title={isArl ? 'ARL y Riesgos Laborales' : undefined}
+                aria-label={isArl ? 'ARL y Riesgos Laborales' : undefined}
+                className={`relative inline-flex min-h-[44px] items-center whitespace-nowrap rounded-md px-2 py-1 text-sm transition-colors hover:bg-brand-blue/5 hover:text-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue ${
                   active
-                    ? 'text-brand-blue font-semibold'
-                    : 'text-brand-dark-blue/80'
+                    ? 'font-semibold text-brand-blue'
+                    : 'font-medium text-brand-dark-blue'
                 }`}
                 aria-current={active ? 'page' : undefined}
               >
                 {link.label}
+                {/* Estado activo: color + peso + filete verde (no depende solo del color) */}
                 {active && (
-                  <span className="absolute bottom-1 left-2 right-2 h-0.5 rounded-full bg-brand-blue" />
+                  <span
+                    aria-hidden="true"
+                    className="absolute bottom-1 left-2 right-2 h-[3px] rounded-full bg-brand-green"
+                  />
                 )}
               </Link>
             );
           })}
         </nav>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-1">
-          {/* WhatsApp Button — hidden when env var not set */}
+        {/* Action Buttons — separados del nav con margen izquierdo para no acercar el CTA */}
+        <div className="flex items-center gap-1 min-[1120px]:ml-2">
+          {/* WhatsApp Button — aparece desde min-[1120px]; en 1024-1119px se usa el
+              botón flotante. Oculto si la env var no está configurada. */}
           {whatsappUrl && (
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Contactar por WhatsApp"
-              className="hidden items-center gap-1 min-h-[44px] rounded-btn bg-[#25D366] px-3 py-1 text-sm font-medium text-white transition-colors hover:bg-[#1fb855] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#25D366] sm:inline-flex active:scale-95"
+              className="hidden h-[44px] items-center gap-[6px] rounded-btn bg-[#25D366] px-[16px] text-sm font-semibold leading-none text-brand-dark-blue transition-colors hover:bg-[#1fb855] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue min-[1120px]:inline-flex active:scale-95"
             >
-              <FaWhatsapp className="h-4 w-4" aria-hidden="true" />
-              <span className="hidden md:inline">WhatsApp</span>
+              <FaWhatsapp className="h-[18px] w-[18px]" aria-hidden="true" />
+              <span>WhatsApp</span>
             </a>
           )}
 
-          {/* Cotizar ahora CTA */}
+          {/* Solicitar asesoría — CTA comercial en identidad AZUL OSCURO (6A)
+              para diferenciarlo del WhatsApp verde y evitar que compitan.
+              Normal: brand-dark-blue + texto blanco + sombra azul discreta.
+              Hover: brand-blue. Focus: ring verde (AA). Microdesplazamiento solo
+              con movimiento permitido (motion-safe). */}
           <Link
-            href="/cotizar"
-            className="hidden min-h-[44px] items-center rounded-btn bg-brand-green px-3 py-1 text-sm font-semibold text-white transition-colors hover:bg-brand-green/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green sm:inline-flex active:scale-95"
+            href="/contacto"
+            className="hidden h-[44px] items-center justify-center whitespace-nowrap rounded-btn bg-brand-dark-blue px-[18px] text-sm font-semibold leading-none text-white shadow-[0_2px_8px_rgba(1,25,48,0.25)] transition-all hover:bg-brand-blue hover:shadow-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green sm:inline-flex motion-safe:active:scale-[0.98]"
           >
-            Cotizar ahora
+            Solicitar asesoría
           </Link>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button — visible por debajo de min-[1120px]; el nav desktop
+              aparece en min-[1120px]. Nunca coexisten. */}
           <button
             type="button"
             onClick={onMobileMenuOpen}
-            className="inline-flex h-[44px] w-[44px] min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-brand-dark-blue transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue lg:hidden active:scale-95"
-            aria-label="Abrir menú de navegación"
-            aria-expanded="false"
+            className="inline-flex h-[44px] w-[44px] min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-brand-dark-blue transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue min-[1120px]:hidden active:scale-95"
+            aria-label={isMobileMenuOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-nav-panel"
           >
-            <Menu className="h-6 w-6" aria-hidden="true" />
+            <Menu className="h-[24px] w-[24px]" aria-hidden="true" />
           </button>
         </div>
       </div>
-      {/* Gradient bottom accent line */}
-      <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-brand-blue/80 via-brand-green/60 to-brand-blue/80" />
+      {/* Filete de acento corporativo azul→verde (sello de marca, muy sutil) */}
+      <div
+        aria-hidden="true"
+        className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-brand-blue via-brand-green to-brand-blue opacity-80"
+      />
     </header>
   );
 }

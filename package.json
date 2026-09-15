@@ -12,9 +12,11 @@
     "test:coverage": "vitest run --coverage",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:seed": "npx tsx src/lib/db/seed.ts"
+    "db:seed": "npx tsx src/lib/db/seed.ts",
+    "db:seed:kb-v2": "npx tsx src/lib/db/seed-kb-v2.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-ssm": "3.1128.0",
     "@hookform/resolvers": "^5.4.0",
     "@neondatabase/serverless": "^1.1.0",
     "@radix-ui/react-accordion": "^1.2.14",
@@ -29,11 +31,13 @@
     "drizzle-orm": "^0.45.2",
     "framer-motion": "^12.40.0",
     "lucide-react": "^1.21.0",
-    "next": "^15.1.0",
+    "next": "15.5.25",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.79.0",
     "react-icons": "^5.6.0",
+    "resend": "4.0.1",
+    "sharp": "0.35.4",
     "tailwind-merge": "^3.6.0",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^4.4.3"
@@ -53,7 +57,7 @@
     "dotenv": "^17.4.2",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9.39.4",
-    "eslint-config-next": "^15.5.19",
+    "eslint-config-next": "15.5.25",
     "fast-check": "^4.8.0",
     "jest-axe": "^10.0.0",
     "jsdom": "^29.1.1",

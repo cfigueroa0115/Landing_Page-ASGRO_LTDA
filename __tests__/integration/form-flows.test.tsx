@@ -50,6 +50,7 @@ vi.mock('lucide-react', () => ({
   AlertCircle: (props: any) => <span data-testid="alert-icon" {...props} />,
   Loader2: (props: any) => <span data-testid="loader-icon" {...props} />,
   Check: (props: any) => <span {...props} />,
+  Copy: (props: any) => <span {...props} />,
   ChevronDown: (props: any) => <span {...props} />,
   ChevronUp: (props: any) => <span {...props} />,
   Bot: (props: any) => <span data-testid="bot-icon" {...props} />,
@@ -171,9 +172,14 @@ describe('Integration: Contact Form Flow', () => {
   it('successful submission: fills all fields → submits → verifies fetch body → shows success → resets form', async () => {
     const user = userEvent.setup();
 
+    // Flujo exitoso completo: registrado + notificado (notified:true).
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ success: true, id: 'lead-123' }),
+      json: async () => ({
+        success: true,
+        notified: true,
+        reference: 'ASGRO-C-7F3A91B2',
+      }),
     });
 
     render(<ContactSection />);
@@ -207,10 +213,10 @@ describe('Integration: Contact Form Flow', () => {
       dataAcceptance: true,
     });
 
-    // Verify success message is displayed
+    // Verify success message is displayed (mensaje verde inferior refinado 7B.1)
     await waitFor(() => {
       expect(
-        screen.getByText(/mensaje enviado exitosamente/i)
+        screen.getByText(/solicitud registrada correctamente/i)
       ).toBeInTheDocument();
     });
 
@@ -222,6 +228,159 @@ describe('Integration: Contact Form Flow', () => {
     expect(screen.getByLabelText(/correo electrónico/i)).toHaveValue('');
     expect(screen.getByLabelText(/ciudad/i)).toHaveValue('');
     expect(screen.getByLabelText(/mensaje/i)).toHaveValue('');
+  });
+
+  it('received (notified:false): registrado pero sin notificación → muestra mensaje honesto y limpia el formulario', async () => {
+    const user = userEvent.setup();
+
+    // El registro fue exitoso pero la notificación no salió.
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ success: true, id: 'lead-789', notified: false }),
+    });
+
+    render(<ContactSection />);
+
+    await fillContactForm(user);
+
+    await user.click(screen.getByRole('button', { name: /enviar mensaje/i }));
+
+    // No debe decir "enviado exitosamente"; debe mostrar el mensaje honesto.
+    await waitFor(() => {
+      expect(
+        screen.getByText(/hemos recibido y registrado su solicitud/i)
+      ).toBeInTheDocument();
+    });
+    expect(screen.queryByText(/solicitud registrada correctamente/i)).not.toBeInTheDocument();
+
+    // El formulario se limpia porque el registro fue exitoso.
+    expect(screen.getByLabelText(/nombre completo/i)).toHaveValue('');
+  });
+
+  // ── 7B.1: receipt premium + sin errores residuales ────────────────────────
+
+  it('éxito abre el receipt premium con la referencia y saluda por nombre', async () => {
+    const user = userEvent.setup();
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ success: true, notified: true, reference: 'ASGRO-C-7F3A91B2' }),
+    });
+
+    render(<ContactSection />);
+    await fillContactForm(user);
+    await user.click(screen.getByRole('button', { name: /enviar mensaje/i }));
+
+    const dialog = await screen.findByRole('dialog');
+    expect(dialog).toBeInTheDocument();
+    expect(screen.getByText(/solicitud recibida/i)).toBeInTheDocument();
+    expect(screen.getByText(/gracias, carlos\./i)).toBeInTheDocument();
+    expect(screen.getByText('ASGRO-C-7F3A91B2')).toBeInTheDocument();
+  });
+
+  it('tras un envío exitoso NO quedan errores rojos residuales (Select/Checkbox limpios)', async () => {
+    const user = userEvent.setup();
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ success: true, notified: true, reference: 'ASGRO-C-7F3A91B2' }),
+    });
+
+    render(<ContactSection />);
+    await fillContactForm(user);
+    await user.click(screen.getByRole('button', { name: /enviar mensaje/i }));
+
+    await screen.findByRole('dialog');
+    // Ningún mensaje de error de validación debe permanecer (texto exacto del
+    // schema, distinto del placeholder "Seleccione un servicio").
+    expect(screen.queryByText(/seleccione un servicio de interés/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/debe aceptar el tratamiento de datos personales para continuar/i)
+    ).not.toBeInTheDocument();
+    // No debe quedar ningún <p role="alert"> de error de campo.
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('notified=false abre el receipt de "solicitud registrada" (sin detalles técnicos)', async () => {
+    const user = userEvent.setup();
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ success: true, notified: false, reference: 'ASGRO-C-7F3A91B2' }),
+    });
+
+    render(<ContactSection />);
+    await fillContactForm(user);
+    await user.click(screen.getByRole('button', { name: /enviar mensaje/i }));
+
+    const dialog = await screen.findByRole('dialog');
+    expect(dialog).toBeInTheDocument();
+    expect(screen.getByText('ASGRO-C-7F3A91B2')).toBeInTheDocument();
+    // Nunca detalles técnicos.
+    expect(screen.queryByText(/resend/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/notified/i)).not.toBeInTheDocument();
+  });
+
+  it('"Enviar otra solicitud" cierra el receipt y limpia el estado', async () => {
+    const user = userEvent.setup();
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ success: true, notified: true, reference: 'ASGRO-C-7F3A91B2' }),
+    });
+
+    render(<ContactSection />);
+    await fillContactForm(user);
+    await user.click(screen.getByRole('button', { name: /enviar mensaje/i }));
+    await screen.findByRole('dialog');
+
+    await user.click(screen.getByRole('button', { name: /enviar otra solicitud/i }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+    // Mensaje verde eliminado y formulario vacío.
+    expect(screen.queryByText(/solicitud registrada correctamente/i)).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/nombre completo/i)).toHaveValue('');
+  });
+
+  it('tras el éxito el Select de servicio vuelve al placeholder (no conserva la selección)', async () => {
+    const user = userEvent.setup();
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ success: true, notified: true, reference: 'ASGRO-C-7F3A91B2' }),
+    });
+
+    render(<ContactSection />);
+    await fillContactForm(user);
+
+    // Cambiar explícitamente a "Seguros empresariales a la medida" antes de enviar.
+    const select = screen.getAllByTestId('mock-select-native')[0] as HTMLSelectElement;
+    await user.selectOptions(select, 'seguros');
+    expect(select.value).toBe('seguros');
+
+    await user.click(screen.getByRole('button', { name: /enviar mensaje/i }));
+    await screen.findByRole('dialog');
+
+    // El Select controlado (value = field.value ?? '') vuelve al placeholder.
+    const selectAfter = screen.getAllByTestId('mock-select-native')[0] as HTMLSelectElement;
+    expect(selectAfter.value).toBe('');
+    // Sin errores de validación residuales.
+    expect(screen.queryByText(/seleccione un servicio de interés/i)).not.toBeInTheDocument();
+  });
+
+  it('un error de API NO abre el receipt', async () => {
+    const user = userEvent.setup();
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      json: async () => ({ error: 'Error interno del servidor' }),
+    });
+
+    render(<ContactSection />);
+    await fillContactForm(user);
+    await user.click(screen.getByRole('button', { name: /enviar mensaje/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/error interno del servidor/i)).toBeInTheDocument();
+    });
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('error submission: fills fields → submits → server returns 500 → shows error → preserves data', async () => {
@@ -272,9 +431,10 @@ describe('Integration: Quote Form Flow', () => {
   it('successful submission: fills all 13 fields → submits → verifies fetch body → shows success', async () => {
     const user = userEvent.setup();
 
+    // Flujo exitoso completo: registrada + notificada (notified:true).
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: async () => ({ success: true, id: 'quote-456' }),
+      json: async () => ({ success: true, id: 'quote-456', notified: true }),
     });
 
     render(<QuoteSection />);
@@ -318,6 +478,30 @@ describe('Integration: Quote Form Flow', () => {
         screen.getByText(/solicitud de cotización ha sido enviada exitosamente/i)
       ).toBeInTheDocument();
     });
+  });
+
+  it('received (notified:false): cotización registrada pero sin notificación → muestra mensaje honesto', async () => {
+    const user = userEvent.setup();
+
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ success: true, id: 'quote-789', notified: false }),
+    });
+
+    render(<QuoteSection />);
+
+    await fillQuoteForm(user);
+
+    await user.click(screen.getByRole('button', { name: /solicitar cotización/i }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/hemos recibido y registrado su solicitud/i)
+      ).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByText(/solicitud de cotización ha sido enviada exitosamente/i)
+    ).not.toBeInTheDocument();
   });
 
   it('validation: submitting empty form shows inline errors for required fields', async () => {

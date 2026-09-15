@@ -6,7 +6,7 @@ import ContactSection from '@/components/sections/ContactSection';
 import ContactSidebar from './ContactSidebar';
 
 export const metadata: Metadata = {
-  title: 'Contacto - ASGRO LTDA',
+  title: 'Contacto - ASGRO Agencia de Seguros',
   description:
     'Contáctenos para solicitar asesoría en gestión de riesgos laborales, SG-SST, seguros empresariales y bienestar laboral. Formulario de contacto y WhatsApp.',
 };
@@ -15,6 +15,8 @@ export default function ContactoPage() {
   return (
     <>
       <Breadcrumbs
+        backHref="/"
+        backLabel="Volver al inicio"
         items={[{ label: 'Contacto', href: '/contacto' }]}
       />
       <PageHero

@@ -8,6 +8,21 @@ export const serviceRequiredEnum = z.enum(['arl', 'sst', 'seguros', 'bienestar']
 });
 
 /**
+ * Interés comercial (subdominio empresarial) originado por la Asesora.
+ * Allowlist CERRADA — nunca texto libre. Opcional; si es inválido, Zod lo
+ * rechaza (el API no lo persiste como contexto).
+ */
+export const quoteInterestEnum = z.enum([
+  'multirriesgo',
+  'responsabilidad_civil',
+  'cumplimiento',
+  'manejo',
+  'vida_grupo',
+  'arl',
+  'sst',
+]);
+
+/**
  * Esquema Zod para el formulario de cotización.
  * Campos expandidos: nombre de empresa, NIT, nombre de contacto, cargo,
  * teléfono, email, ciudad, actividad económica, número aproximado de
@@ -76,12 +91,54 @@ export const quoteSchema = z.object({
     .max(1000, 'Los comentarios no pueden exceder 1000 caracteres')
     .optional(),
 
+  // Contexto comercial opcional (allowlist cerrada). No es un campo editable
+  // del formulario: lo transporta la Asesora vía query allowlisted.
+  interest: quoteInterestEnum.optional(),
+
   dataAcceptance: z
     .boolean()
     .refine((val) => val === true, {
       message: 'Debe aceptar el tratamiento de datos personales para continuar',
     }),
+}).superRefine((data, ctx) => {
+  // Validación cruzada service ↔ interest (5B.4): el interés debe ser coherente
+  // con el servicio requerido. Un body inconsistente se rechaza (400) y no se
+  // persiste. Ver isServiceInterestConsistent para el detalle de las reglas.
+  if (data.interest && !isServiceInterestConsistent(data.serviceRequired, data.interest)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['interest'],
+      message: 'El interés no es coherente con el servicio requerido',
+    });
+  }
 });
+
+/**
+ * ¿El `interest` es coherente con el `serviceRequired`?
+ * Reglas (5B.4):
+ * - interés empresarial (multirriesgo, responsabilidad_civil, cumplimiento,
+ *   manejo, vida_grupo) → requiere serviceRequired = 'seguros'.
+ * - interés 'arl' → requiere serviceRequired = 'arl'.
+ * - interés 'sst' → requiere serviceRequired = 'sst'.
+ * Función PURA (sin dependencias) para reutilizar en tests.
+ */
+export function isServiceInterestConsistent(
+  service: string,
+  interest: string
+): boolean {
+  const enterprise = [
+    'multirriesgo',
+    'responsabilidad_civil',
+    'cumplimiento',
+    'manejo',
+    'vida_grupo',
+  ];
+  if (enterprise.includes(interest)) return service === 'seguros';
+  if (interest === 'arl') return service === 'arl';
+  if (interest === 'sst') return service === 'sst';
+  // Interés desconocido: la validación de enum ya lo habría rechazado.
+  return false;
+}
 
 /** Tipo inferido del esquema de cotización */
 export type QuoteFormData = z.infer<typeof quoteSchema>;

@@ -44,7 +44,7 @@ export function BrandLogo({
   width = 160,
   height = 48,
   className = '',
-  alt = 'ASGRO LTDA - Gestión integral de riesgos laborales y seguros empresariales',
+  alt = 'ASGRO Agencia de Seguros - Protegemos personas, patrimonio y empresas',
   priority = false,
 }: BrandLogoProps) {
   const [hasError, setHasError] = useState(false);

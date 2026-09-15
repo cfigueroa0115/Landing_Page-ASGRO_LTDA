@@ -5,15 +5,17 @@ import SectionCTA from '@/components/shared/SectionCTA';
 import FAQClientSection from './FAQClientSection';
 
 export const metadata: Metadata = {
-  title: 'Preguntas Frecuentes - ASGRO LTDA',
+  title: 'Preguntas Frecuentes - ASGRO Agencia de Seguros',
   description:
-    'Resolvemos sus dudas sobre gestión de riesgos laborales, SG-SST, seguros empresariales, cotizaciones y proceso de acompañamiento de ASGRO LTDA.',
+    'Resolvemos sus dudas sobre seguros para personas y empresas, ARL, SST, cotizaciones y el acompañamiento de ASGRO.',
 };
 
 export default function PreguntasFrecuentesPage() {
   return (
     <>
       <Breadcrumbs
+        backHref="/"
+        backLabel="Volver al inicio"
         items={[{ label: 'Preguntas Frecuentes', href: '/preguntas-frecuentes' }]}
       />
       <PageHero

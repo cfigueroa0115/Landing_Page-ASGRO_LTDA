@@ -4,67 +4,68 @@ import PageHero from '@/components/shared/PageHero';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import SectionCTA from '@/components/shared/SectionCTA';
 import PremiumCard from '@/components/shared/PremiumCard';
+import PremiumIconBadge from '@/components/shared/PremiumIconBadge';
 import EqualHeightGrid from '@/components/shared/EqualHeightGrid';
 import AnimatedSection from '@/components/shared/AnimatedSection';
 
 export const metadata: Metadata = {
-  title: 'Seguridad y Salud en el Trabajo - ASGRO LTDA',
+  title: 'Seguridad y Salud en el Trabajo - ASGRO Agencia de Seguros',
   description:
     'Diseño, implementación y seguimiento del Sistema de Gestión de Seguridad y Salud en el Trabajo (SG-SST): diagnóstico, matriz de peligros, auditorías, investigación de accidentes y mejora continua.',
 };
 
 const sstServices = [
   {
-    icon: <Search className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: Search,
     title: 'Diagnóstico Inicial',
     description:
       'Evaluación del estado actual de su empresa frente a los requisitos del SG-SST según la normatividad colombiana vigente.',
     bullets: ['Evaluación de estándares mínimos', 'Identificación de brechas', 'Informe de hallazgos'],
   },
   {
-    icon: <FileWarning className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: FileWarning,
     title: 'Matriz de Peligros y Riesgos',
     description:
       'Identificación, valoración y priorización de peligros y riesgos en cada proceso de su organización.',
     bullets: ['Identificación de peligros', 'Valoración del riesgo', 'Controles existentes y propuestos'],
   },
   {
-    icon: <BookOpen className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: BookOpen,
     title: 'Diseño del SG-SST',
     description:
       'Estructuración del Sistema de Gestión de Seguridad y Salud en el Trabajo adaptado a la realidad operativa de su empresa.',
     bullets: ['Política y objetivos', 'Documentación del sistema', 'Programas y procedimientos'],
   },
   {
-    icon: <HardHat className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: HardHat,
     title: 'Implementación',
     description:
       'Puesta en marcha del SG-SST: capacitaciones, conformación de comités, y ejecución del plan de trabajo anual.',
     bullets: ['Plan de trabajo anual', 'Capacitaciones obligatorias', 'Conformación de COPASST y CCL'],
   },
   {
-    icon: <ClipboardCheck className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: ClipboardCheck,
     title: 'Auditorías',
     description:
       'Auditorías internas y acompañamiento en auditorías externas para verificar el cumplimiento y eficacia del sistema.',
     bullets: ['Auditoría interna', 'Revisión por la dirección', 'Plan de acciones correctivas'],
   },
   {
-    icon: <AlertOctagon className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: AlertOctagon,
     title: 'Investigación de Accidentes',
     description:
       'Investigación técnica de accidentes e incidentes laborales para identificar causas raíz y definir medidas preventivas.',
     bullets: ['Metodología de investigación', 'Análisis de causalidad', 'Medidas correctivas y preventivas'],
   },
   {
-    icon: <TrendingUp className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: TrendingUp,
     title: 'Mejora Continua',
     description:
       'Seguimiento a indicadores, gestión de no conformidades y actualización permanente del sistema según cambios normativos.',
     bullets: ['Indicadores de gestión', 'Gestión de hallazgos', 'Actualización normativa'],
   },
   {
-    icon: <ShieldCheck className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: ShieldCheck,
     title: 'Cumplimiento de Estándares Mínimos',
     description:
       'Verificación y acompañamiento en el cumplimiento de los estándares mínimos del SG-SST establecidos por la resolución vigente.',
@@ -76,9 +77,11 @@ export default function SeguridadSaludTrabajoPage() {
   return (
     <>
       <Breadcrumbs
+        backHref="/servicios"
+        backLabel="Volver a Seguros"
         items={[
-          { label: 'Servicios', href: '/servicios' },
-          { label: 'Seguridad y Salud en el Trabajo', href: '/servicios/seguridad-salud-trabajo' },
+          { label: 'Seguros', href: '/servicios' },
+          { label: 'SST', href: '/servicios/seguridad-salud-trabajo' },
         ]}
       />
       <PageHero
@@ -104,7 +107,7 @@ export default function SeguridadSaludTrabajoPage() {
             {sstServices.map((service) => (
               <PremiumCard
                 key={service.title}
-                icon={service.icon}
+                icon={<PremiumIconBadge icon={service.iconComponent} variant="feature" />}
                 title={service.title}
                 description={service.description}
                 bullets={service.bullets}

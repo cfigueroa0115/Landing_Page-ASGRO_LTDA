@@ -4,9 +4,10 @@ import '@/styles/globals.css';
 import HeaderWithMobileNav from '@/components/layout/HeaderWithMobileNav';
 import Footer from '@/components/layout/Footer';
 import SkipNav from '@/components/layout/SkipNav';
-import WhatsAppButton from '@/components/shared/WhatsAppButton';
+import FloatingWhatsApp from '@/components/shared/FloatingWhatsApp';
 import FloatingChatButton from '@/components/shared/FloatingChatButton';
-import HelpDock from '@/components/shared/HelpDock';
+import { FloatingUIProvider } from '@/components/shared/FloatingUIProvider';
+import { isAiAssistantEnabled } from '@/lib/config/feature-flags';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -15,48 +16,50 @@ const inter = Inter({
   weight: ['400', '500', '600', '700', '800'],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.asgroseguros.com.co';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://asgroseguros.com.co';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: 'ASGRO LTDA - Seguros y Riesgos Laborales',
+  title: 'ASGRO Agencia de Seguros | Protegemos personas, patrimonio y empresas',
   description:
-    'Agencia de seguros especializada en ARL, SST, seguros empresariales a la medida y bienestar laboral en Colombia.',
+    'Agencia de seguros y aliado integral en gestión del riesgo en Colombia. Seguros para personas, patrimonio y empresas, con acompañamiento cercano. Complementamos con ARL y SST.',
   keywords: [
+    'agencia de seguros',
+    'seguros para personas',
     'seguros empresariales',
-    'ARL Colombia',
+    'seguro de vida',
+    'seguro de hogar',
+    'gestión del riesgo',
+    'ARL',
     'SST',
-    'riesgos laborales',
-    'seguridad y salud en el trabajo',
-    'seguros corporativos',
   ],
-  authors: [{ name: 'ASGRO LTDA' }],
+  authors: [{ name: 'ASGRO Agencia de Seguros' }],
   alternates: {
     canonical: siteUrl,
   },
   openGraph: {
-    title: 'ASGRO LTDA - Seguros y Riesgos Laborales',
+    title: 'ASGRO Agencia de Seguros',
     description:
-      'Agencia de seguros especializada en ARL, SST, seguros empresariales a la medida y bienestar laboral en Colombia.',
+      'Protegemos personas, patrimonio y empresas. Seguros y gestión integral del riesgo con acompañamiento cercano y estratégico.',
     url: siteUrl,
-    siteName: 'ASGRO LTDA',
+    siteName: 'ASGRO Agencia de Seguros',
+    // TEMPORAL: se usa el logo existente hasta suministrar una imagen OG 1200×630.
     images: [
       {
-        url: '/brand/asgro-og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'ASGRO LTDA - Seguros y Riesgos Laborales',
+        url: '/brand/asgro-logo.png',
+        alt: 'ASGRO Agencia de Seguros',
       },
     ],
     locale: 'es_CO',
     type: 'website',
   },
   twitter: {
-    card: 'summary_large_image',
-    title: 'ASGRO LTDA - Seguros y Riesgos Laborales',
+    // 'summary' encaja mejor con un logo que 'summary_large_image' (imagen ancha).
+    card: 'summary',
+    title: 'ASGRO Agencia de Seguros',
     description:
-      'Agencia de seguros especializada en ARL, SST, seguros empresariales a la medida y bienestar laboral en Colombia.',
-    images: ['/brand/asgro-og-image.png'],
+      'Protegemos personas, patrimonio y empresas. Seguros y gestión integral del riesgo con acompañamiento cercano.',
+    images: ['/brand/asgro-logo.png'],
   },
 };
 
@@ -64,11 +67,11 @@ export const metadata: Metadata = {
  * JSON-LD Structured Data — THREE schemas: InsuranceAgency, LocalBusiness, Organization
  */
 function JsonLdSchemas() {
-  const companyName = 'ASGRO LTDA';
+  const companyName = 'ASGRO Agencia de Seguros';
   const companyUrl = siteUrl;
   const companyLogo = `${siteUrl}/brand/asgro-logo.png`;
   const companyDescription =
-    'Agencia de seguros especializada en ARL, SST, seguros empresariales a la medida y bienestar laboral en Colombia.';
+    'Agencia de seguros y aliado integral en gestión del riesgo. Protegemos personas, patrimonio y empresas, y complementamos con ARL y SST.';
   const companyPhone = process.env.NEXT_PUBLIC_COMPANY_PHONE || '';
   const companyEmail = process.env.NEXT_PUBLIC_COMPANY_EMAIL || '';
   const companyAddress = process.env.NEXT_PUBLIC_COMPANY_ADDRESS || '';
@@ -178,6 +181,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '';
+  const aiAssistantEnabled = isAiAssistantEnabled();
 
   return (
     <html lang="es" className={inter.variable}>
@@ -185,17 +189,18 @@ export default function RootLayout({
         <JsonLdSchemas />
       </head>
       <body className={inter.className}>
-        <SkipNav />
-        <HeaderWithMobileNav />
-        {children}
-        <Footer />
+        <FloatingUIProvider>
+          <SkipNav />
+          <HeaderWithMobileNav />
+          {children}
+          <Footer />
 
-        {/* Global floating elements — visible on ALL pages */}
-        {whatsappNumber && (
-          <WhatsAppButton phoneNumber={whatsappNumber} variant="floating" />
-        )}
-        <FloatingChatButton />
-        <HelpDock />
+          {/* Elementos flotantes globales — visibles en TODAS las páginas.
+              Coordinados por FloatingUIProvider: solo uno abierto a la vez y se
+              ocultan cuando el menú móvil está abierto (para no superponerse). */}
+          {whatsappNumber && <FloatingWhatsApp phoneNumber={whatsappNumber} />}
+          {aiAssistantEnabled && <FloatingChatButton />}
+        </FloatingUIProvider>
       </body>
     </html>
   );

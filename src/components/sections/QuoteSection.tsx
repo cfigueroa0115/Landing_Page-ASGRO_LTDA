@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { quoteSchema, type QuoteFormData } from '@/lib/validations/quote';
+import { parseQuotePrefill } from '@/lib/ai/handoff/quote-prefill';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -30,14 +31,21 @@ const SERVICE_OPTIONS = [
  * POST a /api/quote con confirmación de éxito y manejo de errores.
  */
 export default function QuoteSection() {
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  // 'success' = registrada y notificada; 'received' = registrada sin notificación.
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'received' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Interés empresarial preseleccionado desde query allowlisted (solo lectura).
+  const [interestLabel, setInterestLabel] = useState<string | null>(null);
+  // Valor allowlisted del interés (contexto comercial) para enviar al API.
+  const [interest, setInterest] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
     control,
     reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<QuoteFormData>({
     resolver: zodResolver(quoteSchema),
@@ -58,6 +66,23 @@ export default function QuoteSection() {
     },
   });
 
+  // Prefill seguro desde query params PÚBLICOS y allowlisted (?service=&interest=).
+  // Nunca autocompleta datos personales. Se sanitiza contra allowlist cerrada.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const { service, interest: safeInterest, interestLabel: label } = parseQuotePrefill(params);
+    if (service) {
+      setValue('serviceRequired', service, { shouldValidate: false });
+    }
+    if (safeInterest) {
+      setInterest(safeInterest);
+    }
+    if (label) {
+      setInterestLabel(label);
+    }
+  }, [setValue]);
+
   const onSubmit = async (data: QuoteFormData) => {
     setSubmitStatus('idle');
     setErrorMessage('');
@@ -66,11 +91,15 @@ export default function QuoteSection() {
       const response = await fetch('/api/quote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        // Se adjunta el interés allowlisted (contexto comercial, no editable).
+        // El API lo revalida contra la allowlist antes de persistir.
+        body: JSON.stringify(interest ? { ...data, interest } : data),
       });
 
       if (response.ok) {
-        setSubmitStatus('success');
+        // La solicitud quedó almacenada. Diferenciamos si además se notificó.
+        const data = await response.json().catch(() => null);
+        setSubmitStatus(data?.notified === true ? 'success' : 'received');
         reset();
       } else {
         const errorData = await response.json().catch(() => null);
@@ -96,7 +125,17 @@ export default function QuoteSection() {
             Complete el formulario y nuestro equipo le enviará una propuesta personalizada.
           </p>
 
-          {/* Mensaje de éxito */}
+          {/* Interés preseleccionado desde la Asesora (contexto no sensible). */}
+          {interestLabel && (
+            <p
+              className="mb-4 text-center text-small font-semibold text-brand-blue"
+              data-testid="quote-interest"
+            >
+              Interés: {interestLabel}
+            </p>
+          )}
+
+          {/* Mensaje de éxito (registrada y notificada) */}
           {submitStatus === 'success' && (
             <div
               role="alert"
@@ -104,6 +143,18 @@ export default function QuoteSection() {
               className="mb-3 p-2 bg-green-50 border border-green-300 text-green-800 rounded-input text-sm text-center"
             >
               ¡Su solicitud de cotización ha sido enviada exitosamente! Nos comunicaremos pronto.
+            </div>
+          )}
+
+          {/* Mensaje honesto: registrada aunque la notificación no se envió */}
+          {submitStatus === 'received' && (
+            <div
+              role="alert"
+              aria-live="polite"
+              className="mb-3 p-2 bg-green-50 border border-green-300 text-green-800 rounded-input text-sm text-center"
+            >
+              Hemos recibido y registrado su solicitud. Si requiere atención inmediata, también
+              puede comunicarse con nosotros por WhatsApp.
             </div>
           )}
 

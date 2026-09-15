@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 
 import { contactSchema } from '@/lib/validations/contact';
-import { db } from '@/lib/db';
+import { getDbAsync } from '@/lib/db';
 import { leads } from '@/lib/db/schema';
+import { sendContactNotification } from '@/lib/email/notifications';
+import { createContactReference } from '@/lib/contact/reference';
 
 export async function POST(request: Request) {
   try {
@@ -31,7 +33,37 @@ export async function POST(request: Request) {
       dataAcceptance,
     } = validated.data;
 
-    await db.insert(leads).values({
+    // 1) Persistir el lead en la base de datos (fuente de verdad) y recuperar
+    //    el UUID realmente almacenado (returning). La referencia se deriva del
+    //    UUID persistido; nunca antes del INSERT ni con valores fake.
+    const db = await getDbAsync();
+    const [createdLead] = await db
+      .insert(leads)
+      .values({
+        fullName,
+        company,
+        position,
+        phone,
+        email,
+        city,
+        serviceOfInterest,
+        message,
+        dataAcceptance,
+      })
+      .returning({ id: leads.id });
+
+    if (!createdLead) {
+      throw new Error('Lead insert did not return an id');
+    }
+
+    // Referencia de atención derivada del UUID real (no expone el UUID completo).
+    const reference = createContactReference(createdLead.id);
+
+    // 2) Enviar notificación por email. NO bloquea el éxito del guardado:
+    //    si el email falla, el lead ya quedó registrado. Reportamos el estado
+    //    real en `notified` sin exponer errores internos ni credenciales. La
+    //    referencia enviada por email es EXACTAMENTE la retornada por la API.
+    const { sent } = await sendContactNotification({
       fullName,
       company,
       position,
@@ -40,11 +72,11 @@ export async function POST(request: Request) {
       city,
       serviceOfInterest,
       message,
-      dataAcceptance,
+      reference,
     });
 
     return NextResponse.json(
-      { success: true, message: 'Lead stored successfully' },
+      { success: true, message: 'Lead stored successfully', notified: sent, reference },
       { status: 201 }
     );
   } catch (error: unknown) {

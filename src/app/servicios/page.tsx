@@ -5,26 +5,36 @@ import PageHero from '@/components/shared/PageHero';
 import Breadcrumbs from '@/components/shared/Breadcrumbs';
 import SectionCTA from '@/components/shared/SectionCTA';
 import PremiumCard from '@/components/shared/PremiumCard';
+import PremiumIconBadge from '@/components/shared/PremiumIconBadge';
 import EqualHeightGrid from '@/components/shared/EqualHeightGrid';
 import PremiumButton from '@/components/shared/PremiumButton';
 
 export const metadata: Metadata = {
-  title: 'Servicios - ASGRO LTDA',
+  title: 'Servicios - ASGRO Agencia de Seguros',
   description:
-    'Servicios integrales de ASGRO LTDA: gestión de riesgos laborales, seguridad y salud en el trabajo, bienestar y protección, y seguros empresariales a la medida.',
+    'Soluciones de ASGRO: seguros para personas, patrimonio y empresas, y capacidades complementarias en ARL, SST y bienestar.',
 };
 
+// Orden intencional: SEGUROS primero (eje principal), luego ARL, SST, bienestar.
 const services = [
   {
-    icon: <Shield className="h-[24px] w-[24px] text-brand-green" />,
-    title: 'Gestión de Riesgos Laborales',
+    iconComponent: Building2,
+    title: 'Soluciones de Seguros',
     description:
-      'Acompañamiento integral en ARL: afiliación, traslado, clasificación de riesgo, gestión de accidentes y enfermedad laboral.',
+      'Seguros para personas, patrimonio y empresas: vida, salud, hogar, automóviles, multirriesgo, responsabilidad civil, cumplimiento y más.',
+    bullets: ['Personas y patrimonio', 'Multirriesgo empresarial', 'Responsabilidad civil y cumplimiento'],
+    href: '/servicios/seguros-empresariales',
+  },
+  {
+    iconComponent: Shield,
+    title: 'ARL y Riesgos Laborales',
+    description:
+      'Acompañamiento en ARL: afiliación, traslado, clasificación de riesgo, gestión de accidentes y enfermedad laboral.',
     bullets: ['Afiliación y traslado ARL', 'Gestión de accidentes laborales', 'Enfermedad laboral'],
     href: '/servicios/riesgos-laborales',
   },
   {
-    icon: <HardHat className="h-[24px] w-[24px] text-brand-green" />,
+    iconComponent: HardHat,
     title: 'Seguridad y Salud en el Trabajo',
     description:
       'Diseño, implementación y seguimiento del SG-SST conforme a la normatividad colombiana vigente.',
@@ -32,20 +42,12 @@ const services = [
     href: '/servicios/seguridad-salud-trabajo',
   },
   {
-    icon: <Heart className="h-[24px] w-[24px] text-brand-green" />,
-    title: 'Bienestar y Protección',
+    iconComponent: Heart,
+    title: 'Bienestar y Prevención',
     description:
-      'Seguros de vida grupo, accidentes personales, salud, exequiales y programas de bienestar laboral.',
-    bullets: ['Vida grupo y accidentes', 'Salud y exequiales', 'Protección familiar'],
+      'Programas de bienestar laboral y prevención que fortalecen la cultura organizacional y el cuidado de las personas.',
+    bullets: ['Promoción y prevención', 'Riesgo psicosocial', 'Clima organizacional'],
     href: '/servicios/bienestar-proteccion',
-  },
-  {
-    icon: <Building2 className="h-[24px] w-[24px] text-brand-green" />,
-    title: 'Seguros Empresariales a la Medida',
-    description:
-      'Pólizas adaptadas a su operación: multirriesgo, responsabilidad civil, cumplimiento, manejo y transporte.',
-    bullets: ['Multirriesgo empresarial', 'Responsabilidad civil', 'Cumplimiento y manejo'],
-    href: '/servicios/seguros-empresariales',
   },
 ];
 
@@ -53,12 +55,14 @@ export default function ServiciosPage() {
   return (
     <>
       <Breadcrumbs
-        items={[{ label: 'Servicios', href: '/servicios' }]}
+        backHref="/"
+        backLabel="Volver al inicio"
+        items={[{ label: 'Seguros', href: '/servicios' }]}
       />
       <PageHero
-        title="Servicios ASGRO para proteger su empresa"
-        subtitle="Cuatro líneas estratégicas diseñadas para cubrir integralmente las necesidades de protección y cumplimiento normativo de su organización."
-        eyebrow="Nuestros servicios"
+        title="Soluciones para proteger lo que importa"
+        subtitle="Seguros para personas, patrimonio y empresas, y capacidades complementarias en gestión del riesgo, ARL y SST."
+        eyebrow="Nuestras soluciones"
       />
 
       <section className="py-10 md:py-12 bg-white">
@@ -67,7 +71,7 @@ export default function ServiciosPage() {
             {services.map((service) => (
               <PremiumCard
                 key={service.href}
-                icon={service.icon}
+                icon={<PremiumIconBadge icon={service.iconComponent} variant="feature" />}
                 title={service.title}
                 description={service.description}
                 bullets={service.bullets}
